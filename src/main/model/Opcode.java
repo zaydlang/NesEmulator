@@ -1,5 +1,5 @@
 package model;
 
-public class MyModel {
+public class Opcode {
     // delete or rename this class!
 }
