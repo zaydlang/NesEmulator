@@ -365,20 +365,14 @@ class OpcodeTest {
         cpu.setRegisterX(Integer.parseInt("01000110", 2));
         Opcode.runOpcode("TXA", 0, cpu);
         assertTrue((cpu.getRegisterS() == Integer.parseInt("01000110", 2)));
-        assertTrue((cpu.getFlagZ()     == 0));
-        assertTrue((cpu.getFlagN()     == 0));
 
         cpu.setRegisterX(Integer.parseInt("00000000", 2));
         Opcode.runOpcode("TXA", 0, cpu);
         assertTrue((cpu.getRegisterS() == Integer.parseInt("00000000", 2)));
-        assertTrue((cpu.getFlagZ()     == 1));
-        assertTrue((cpu.getFlagN()     == 0));
 
         cpu.setRegisterX(Integer.parseInt("10011001", 2));
         Opcode.runOpcode("TXA", 0, cpu);
         assertTrue((cpu.getRegisterS() == Integer.parseInt("10011001", 2)));
-        assertTrue((cpu.getFlagZ()     == 1));
-        assertTrue((cpu.getFlagN()     == 1));
     }
 
     @Test
