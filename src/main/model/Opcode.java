@@ -151,6 +151,9 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.pushStack(cpu.registerA);
     };
 
+    // MODIFIES: cpu.stack
+    // EFFECTS: concatenates the cpu flags in this order: CZIDB0VN, where bit 5 is empty. pushes the result onto
+    //          the stack.
     private static OpcodeAction runPHP = (int argument, CPU cpu) -> {
         int status =
                   (int) (cpu.getFlagC() * Math.pow(2, 0))
@@ -171,6 +174,9 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.registerA = cpu.pullStack();
     };
 
+    // MODIFIES: cpu.flagC, cpu.flagZ, cpu,flagI, cpu.flagD, cpu.flagB, cpu.flagV, cpu.flagN
+    // EFFECTS: pulls from the stack. assigns the flags in this order: CZIDB0VN, where bit 5 is empty.
+    // for example, if 10010110 was pulled from the stack, cpu.flagC would be 0, cpu.flagZ would be 1, etc.
     private static OpcodeAction runPLP = (int argument, CPU cpu) -> {
         int status = cpu.pullStack();
         cpu.setFlagC(Util.getNthBit(status, 0));

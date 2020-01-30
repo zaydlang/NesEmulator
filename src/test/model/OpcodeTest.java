@@ -85,18 +85,30 @@ class OpcodeTest {
 
     @Test
     void testCLC() {
+        cpu.setFlagC(1);
+        Opcode.runOpcode("CLC", 0, cpu);
+        assertTrue(cpu.getFlagC() == 0);
     }
 
     @Test
     void testCLD() {
+        cpu.setFlagD(1);
+        Opcode.runOpcode("CLD", 0, cpu);
+        assertTrue(cpu.getFlagD() == 0);
     }
 
     @Test
     void testCLI() {
+        cpu.setFlagI(1);
+        Opcode.runOpcode("CLI", 0, cpu);
+        assertTrue(cpu.getFlagI() == 0);
     }
 
     @Test
     void testCLV() {
+        cpu.setFlagV(1);
+        Opcode.runOpcode("CLV", 0, cpu);
+        assertTrue(cpu.getFlagV() == 0);
     }
 
     @Test
@@ -287,14 +299,20 @@ class OpcodeTest {
 
     @Test
     void testSEC() {
+        Opcode.runOpcode("SEC", 0, cpu);
+        assertTrue(cpu.getFlagC() == 1);
     }
 
     @Test
     void testSED() {
+        Opcode.runOpcode("SED", 0, cpu);
+        assertTrue(cpu.getFlagD() == 1);
     }
 
     @Test
     void testSEI() {
+        Opcode.runOpcode("SEI", 0, cpu);
+        assertTrue(cpu.getFlagI() == 1);
     }
 
     @Test
