@@ -13,10 +13,8 @@ class OpcodeTest {
         cpu = new CPU();
     }
 
-    // TODO: one of the hardest instructions to implement. Will do later.
     @Test
     void testADC() {
-        Opcode.runOpcode("ADC", 0, cpu);
     }
 
     @Test
@@ -127,22 +125,22 @@ class OpcodeTest {
     @Test
     void testEOR() {
         cpu.setRegisterA(Integer.parseInt(                 "00100000", 2));
-        Opcode.runOpcode("AND", Integer.parseInt(  "01011111", 2), cpu);
+        Opcode.runOpcode("EOR", Integer.parseInt(  "01011111", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("01111111", 2)));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 0));
 
         cpu.setRegisterA(Integer.parseInt(                 "11100110", 2));
-        Opcode.runOpcode("AND", Integer.parseInt(  "01101110", 2), cpu);
+        Opcode.runOpcode("EOR", Integer.parseInt(  "01101110", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("10001000", 2)));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 1));
 
         cpu.setRegisterA(Integer.parseInt(                 "00100100", 2));
-        Opcode.runOpcode("AND", Integer.parseInt(  "00100100", 2), cpu);
+        Opcode.runOpcode("EOR", Integer.parseInt(  "00100100", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("00000000", 2)));
         assertTrue((cpu.getFlagZ()     == 1));
-        assertTrue((cpu.getFlagN()     == 0));
+        assertTrue((cpu.getFlagN()     == 1));
     }
 
     @Test
@@ -188,22 +186,22 @@ class OpcodeTest {
     @Test
     void testORA() {
         cpu.setRegisterA(Integer.parseInt(                 "00100000", 2));
-        Opcode.runOpcode("AND", Integer.parseInt(  "01011111", 2), cpu);
+        Opcode.runOpcode("ORA", Integer.parseInt(  "01011111", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("01111111", 2)));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 0));
 
         cpu.setRegisterA(Integer.parseInt(                 "11100110", 2));
-        Opcode.runOpcode("AND", Integer.parseInt(  "01101110", 2), cpu);
+        Opcode.runOpcode("ORA", Integer.parseInt(  "01101110", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("11101110", 2)));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 1));
 
         cpu.setRegisterA(Integer.parseInt(                 "00000000", 2));
-        Opcode.runOpcode("AND", Integer.parseInt(  "00000000", 2), cpu);
+        Opcode.runOpcode("ORA", Integer.parseInt(  "00000000", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("00000000", 2)));
         assertTrue((cpu.getFlagZ()     == 1));
-        assertTrue((cpu.getFlagN()     == 0));
+        assertTrue((cpu.getFlagN()     == 1));
     }
 
     @Test
