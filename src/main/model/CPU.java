@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Arrays;
+
 public class CPU {
     // Constants
     private static final int RAM_SIZE               = (int) Math.pow(2, 11);
@@ -40,67 +42,110 @@ public class CPU {
     // Memory
     int[] ram;
 
+    // EFFECTS: initializes the RAM and STACK and calls reset() to reset all values in the cpu to their default states.
+    public CPU() {
+        init();
+        reset();
+    }
+
+    // EFFECTS: initializes the RAM and STACK with their appropriate sizes.
+    private void init() {
+        ram   = new int[CPU.RAM_SIZE];
+        stack = new int[CPU.STACK_SIZE];
+    }
+
+    // EFFECTS: resets all values in the cpu (registers, cycles, ram, stack) to their default states.
+    private void reset() {
+        registerA  = CPU.INITIAL_REGISTER_A;
+        registerX  = CPU.INITIAL_REGISTER_X;
+        registerY  = CPU.INITIAL_REGISTER_Y;
+        registerPC = CPU.INITIAL_REGISTER_PC;
+        registerP  = CPU.INITIAL_REGISTER_P;
+        registerS  = CPU.INITIAL_REGISTER_S;
+        cycles     = CPU.INITIAL_CYCLES;
+
+        // Note: ram state and stack pointer considered unreliable after reset.
+        Arrays.fill(ram,   CPU.INITIAL_RAM_STATE);
+        Arrays.fill(stack, CPU.INITIAL_STACK_STATE);
+    }
+
+    // EFFECTS: returns the C flag
     public int getFlagC() {
         return flagC;
     }
 
+    // EFFECTS: returns the Z flag
     public int getFlagZ() {
         return flagZ;
     }
 
+    // EFFECTS: returns the I flag
     public int getFlagI() {
         return flagI;
     }
 
+    // EFFECTS: returns the D flag
     public int getFlagD() {
         return flagD;
     }
 
+    // EFFECTS: returns the B flag
     public int getFlagB() {
         return flagB;
     }
 
+    // EFFECTS: returns the V flag
     public int getFlagV() {
         return flagV;
     }
 
+    // EFFECTS: returns the N flag
     public int getFlagN() {
         return flagN;
     }
 
+    // EFFECTS: returns the A Register
     public int getRegisterA() {
         return registerA;
     }
 
+    // EFFECTS: returns the X Register
     public int getRegisterX() {
         return registerX;
     }
 
+    // EFFECTS: returns the Y Register
     public int getRegisterY() {
         return registerY;
     }
 
+    // EFFECTS: returns the PC Register (program counter)
     public int getRegisterPC() {
         return registerPC;
     }
 
+    // EFFECTS: returns the S Register (stack pointer)
     public int getRegisterS() {
         return registerS;
     }
 
+    // EFFECTS: returns the P Register
     public int getRegisterP() {
         return registerP;
     }
 
+    // EFFECTS: returns the number of cycles
     public int getCycles() {
         return cycles;
     }
 
+    // EFFECTS: returns the RAM
     public int[] getRam() {
         return ram;
     }
 
+    // EFFECTS: peeks into the stack.
     public int peekStack() {
-        return 0;
+        return stack[registerS];
     }
 }
