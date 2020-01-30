@@ -206,6 +206,15 @@ class OpcodeTest {
 
     @Test
     void testPHA() {
+        cpu.setRegisterA(Integer.parseInt("00010111", 2));
+        Opcode.runOpcode("PHA", 0, cpu);
+        assertTrue((cpu.peekStack() == Integer.parseInt("00010111", 2)));
+        assertTrue((cpu.registerS   == 0));
+
+        cpu.setRegisterA(Integer.parseInt("01010000", 2));
+        Opcode.runOpcode("PHA", 0, cpu);
+        assertTrue((cpu.peekStack() == Integer.parseInt("01010000", 2)));
+        assertTrue((cpu.registerS   == 1));
     }
 
     @Test
@@ -214,6 +223,16 @@ class OpcodeTest {
 
     @Test
     void testPLA() {
+        cpu.setRegisterA(Integer.parseInt("10111001", 2));
+        Opcode.runOpcode("PHA", 0, cpu);
+        cpu.setRegisterA(Integer.parseInt("11010010", 2));
+        Opcode.runOpcode("PHA", 0, cpu);
+
+        Opcode.runOpcode("PLA", 0, cpu);
+        assertTrue((cpu.registerA   == Integer.parseInt("11010010", 2)));
+
+        Opcode.runOpcode("PLA", 0, cpu);
+        assertTrue((cpu.registerA   == Integer.parseInt("10111001", 2)));
     }
 
     @Test
