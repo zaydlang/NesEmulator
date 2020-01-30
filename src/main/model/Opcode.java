@@ -145,13 +145,19 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (cpu.registerA > 127) ? 1 : 0;
     };
 
+    // MODIFIES: cpu.registerS, cpu.stack
+    // EFFECTS: pushes cpu.registerA onto the cpu stack.
     private static OpcodeAction runPHA = (int argument, CPU cpu) -> {
+        cpu.pushStack(cpu.registerA);
     };
 
     private static OpcodeAction runPHP = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerA cpu.registerS, cpu.stack
+    // EFFECTS: pulls from the cpu stack and sets the value to cpu.registerA
     private static OpcodeAction runPLA = (int argument, CPU cpu) -> {
+        cpu.setRegisterA(cpu.pullStack());
     };
 
     private static OpcodeAction runPLP = (int argument, CPU cpu) -> {

@@ -70,9 +70,23 @@ public class CPU {
         Arrays.fill(stack, CPU.INITIAL_STACK_STATE);
     }
 
+    // MODIFIES: registerS, stack
+    // EFFECTS: value is pushed onto the stack, registerS is decremented.
+    protected void pushStack(int value) {
+        stack[registerS] = value;
+        registerS--;
+    }
+
+    // MODIFIES: registerS, stack
+    // EFFECTS: value is pulled from the stack and returned, registerS is incremented.
+    protected int pullStack() {
+        registerS++;
+        return stack[registerS];
+    }
+
     // EFFECTS: peeks into the stack.
     public int peekStack() {
-        return stack[registerS];
+        return stack[registerS + 1];
     }
 
     // EFFECTS: returns the C flag

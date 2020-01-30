@@ -209,12 +209,12 @@ class OpcodeTest {
         cpu.setRegisterA(Integer.parseInt("00010111", 2));
         Opcode.runOpcode("PHA", 0, cpu);
         assertTrue((cpu.peekStack() == Integer.parseInt("00010111", 2)));
-        assertTrue((cpu.registerS   == 0));
+        assertTrue((cpu.registerS   == CPU.INITIAL_REGISTER_S - 1));
 
         cpu.setRegisterA(Integer.parseInt("01010000", 2));
         Opcode.runOpcode("PHA", 0, cpu);
         assertTrue((cpu.peekStack() == Integer.parseInt("01010000", 2)));
-        assertTrue((cpu.registerS   == 1));
+        assertTrue((cpu.registerS   == CPU.INITIAL_REGISTER_S - 2));
     }
 
     @Test
