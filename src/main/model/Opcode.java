@@ -152,15 +152,35 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     };
 
     private static OpcodeAction runPHP = (int argument, CPU cpu) -> {
+        int status =
+                  (int) (cpu.getFlagC() * Math.pow(2, 0))
+                + (int) (cpu.getFlagZ() * Math.pow(2, 1))
+                + (int) (cpu.getFlagI() * Math.pow(2, 2))
+                + (int) (cpu.getFlagD() * Math.pow(2, 3))
+                + (int) (cpu.getFlagB() * Math.pow(2, 4))
+                + (int) (0              * Math.pow(2, 5)) // bit 5 in the flags byte is empty
+                + (int) (cpu.getFlagV() * Math.pow(2, 6))
+                + (int) (cpu.getFlagN() * Math.pow(2, 7));
+
+        cpu.pushStack(status);
     };
 
     // MODIFIES: cpu.registerA cpu.registerS, cpu.stack
     // EFFECTS: pulls from the cpu stack and sets the value to cpu.registerA
     private static OpcodeAction runPLA = (int argument, CPU cpu) -> {
-        cpu.setRegisterA(cpu.pullStack());
+        cpu.registerA = cpu.pullStack();
     };
 
     private static OpcodeAction runPLP = (int argument, CPU cpu) -> {
+        int status = cpu.pullStack();
+        cpu.setFlagC(Util.getNthBit(status, 0));
+        cpu.setFlagZ(Util.getNthBit(status, 1));
+        cpu.setFlagI(Util.getNthBit(status, 2));
+        cpu.setFlagD(Util.getNthBit(status, 3));
+        cpu.setFlagB(Util.getNthBit(status, 4));
+        // bit 5 in the flags byte is empty
+        cpu.setFlagV(Util.getNthBit(status, 6));
+        cpu.setFlagN(Util.getNthBit(status, 7));
     };
 
     private static OpcodeAction runROL = (int argument, CPU cpu) -> {

@@ -239,10 +239,8 @@ class OpcodeTest {
 
     @Test
     void testPLA() {
-        cpu.setRegisterA(Integer.parseInt("10111001", 2));
-        Opcode.runOpcode("PHA", 0, cpu);
-        cpu.setRegisterA(Integer.parseInt("11010010", 2));
-        Opcode.runOpcode("PHA", 0, cpu);
+        cpu.pushStack(Integer.parseInt("10111001", 2));
+        cpu.pushStack(Integer.parseInt("11010010", 2));
 
         Opcode.runOpcode("PLA", 0, cpu);
         assertTrue((cpu.registerA   == Integer.parseInt("11010010", 2)));
