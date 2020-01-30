@@ -63,16 +63,28 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runBVS = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.flagC
+    // EFFECTS: sets flagC to 0
     private static OpcodeAction runCLC = (int argument, CPU cpu) -> {
+        cpu.flagC = 0;
     };
 
+    // MODIFIES: cpu.flagD
+    // EFFECTS: sets flagD to 0
     private static OpcodeAction runCLD = (int argument, CPU cpu) -> {
+        cpu.flagD = 0;
     };
 
+    // MODIFIES: cpu.flagI
+    // EFFECTS: sets flagI to 0
     private static OpcodeAction runCLI = (int argument, CPU cpu) -> {
+        cpu.flagI = 0;
     };
 
+    // MODIFIES: cpu.flagV
+    // EFFECTS: sets flagV to 0
     private static OpcodeAction runCLV = (int argument, CPU cpu) -> {
+        cpu.flagV = 0;
     };
 
     private static OpcodeAction runCMP = (int argument, CPU cpu) -> {
@@ -204,13 +216,22 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runSBC = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.flagC
+    // EFFECTS: sets flagC to 1
     private static OpcodeAction runSEC = (int argument, CPU cpu) -> {
+        cpu.flagC = 1;
     };
 
+    // MODIFIES: cpu.flagD
+    // EFFECTS: sets flagD to 1
     private static OpcodeAction runSED = (int argument, CPU cpu) -> {
+        cpu.flagD = 1;
     };
 
+    // MODIFIES: cpu.flagI
+    // EFFECTS: sets flagI to 1
     private static OpcodeAction runSEI = (int argument, CPU cpu) -> {
+        cpu.flagI = 1;
     };
 
     private static OpcodeAction runSHX = (int argument, CPU cpu) -> {
