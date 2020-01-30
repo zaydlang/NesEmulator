@@ -2,6 +2,7 @@ package model;
 
 import java.util.HashMap;
 
+@SuppressWarnings("CodeBlock2Expr")
 public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static Opcode opcodes;
 
@@ -9,6 +10,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         void run(int argument, CPU cpu);
     }
 
+    // MODIFIES: cpu
     // EFFECTS: Runs the given opcode with the given argument, modifying the CPU flags/registers/RAM as necessary.
     public static void runOpcode(String opcode, int argument, CPU cpu) {
         opcodes.get(opcode).run(argument, cpu);
@@ -17,6 +19,10 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runADC = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerA, cpu.flagZ, cpu.flagN
+    // EFFECTS: does a bitwise AND on registerA and the argument, and sets registerA to that value
+    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
+    //          flagN set if registerA is negative after the operation, not changed if otherwise.
     private static OpcodeAction runAND = (int argument, CPU cpu) -> {
         cpu.registerA &= argument;
 
@@ -87,6 +93,10 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runDEY = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerA, cpu.flagZ, cpu.flagN
+    // EFFECTS: does a bitwise XOR on registerA and the argument, and sets registerA to that value
+    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
+    //          flagN set if registerA is negative after the operation, not changed if otherwise.
     private static OpcodeAction runEOR = (int argument, CPU cpu) -> {
         cpu.registerA ^= argument;
 
@@ -124,6 +134,10 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runNOP = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerA, cpu.flagZ, cpu.flagN
+    // EFFECTS: does a bitwise OR on registerA and the argument, and sets registerA to that value
+    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
+    //          flagN set if registerA is negative after the operation, not changed if otherwise.
     private static OpcodeAction runORA = (int argument, CPU cpu) -> {
         cpu.registerA |= argument;
 
@@ -185,22 +199,65 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runSTY = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerA, cpu.registerX, cpu.flagZ, cpu.flagN
+    // EFFECTS: transfers cpu.registerA to cpu.registerX
+    //          flagZ set if registerX is zero     after the operation, not changed if otherwise.
+    //          flagN set if registerX is negative after the operation, not changed if otherwise.
     private static OpcodeAction runTAX = (int argument, CPU cpu) -> {
+        cpu.registerX = cpu.registerA;
+
+        cpu.flagZ |= (cpu.registerX == 0) ? 1 : 0;
+        cpu.flagN |= (cpu.registerX >> 7) & 1; // is 7th bit set?
     };
 
+    // MODIFIES: cpu.registerA, cpu.registerY, cpu.flagZ, cpu.flagN
+    // EFFECTS: transfers cpu.registerA to cpu.registerY
+    //          flagZ set if registerY is zero     after the operation, not changed if otherwise.
+    //          flagN set if registerY is negative after the operation, not changed if otherwise.
     private static OpcodeAction runTAY = (int argument, CPU cpu) -> {
+        cpu.registerY = cpu.registerA;
+
+        cpu.flagZ |= (cpu.registerY == 0) ? 1 : 0;
+        cpu.flagN |= (cpu.registerY >> 7) & 1; // is 7th bit set?
     };
 
+    // MODIFIES: cpu.registerS, cpu.registerX, cpu.flagZ, cpu.flagN
+    // EFFECTS: transfers cpu.registerS to cpu.registerX
+    //          flagZ set if registerX is zero     after the operation, not changed if otherwise.
+    //          flagN set if registerX is negative after the operation, not changed if otherwise.
     private static OpcodeAction runTSX = (int argument, CPU cpu) -> {
+        cpu.registerX = cpu.registerS;
+
+        cpu.flagZ |= (cpu.registerX == 0) ? 1 : 0;
+        cpu.flagN |= (cpu.registerX >> 7) & 1; // is 7th bit set?
     };
 
+    // MODIFIES: cpu.registerS, cpu.registerX, cpu.flagZ, cpu.flagN
+    // EFFECTS: transfers cpu.registerX to cpu.registerA
+    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
+    //          flagN set if registerA is negative after the operation, not changed if otherwise.
     private static OpcodeAction runTXA = (int argument, CPU cpu) -> {
+        cpu.registerA = cpu.registerX;
+
+        cpu.flagZ |= (cpu.registerA == 0) ? 1 : 0;
+        cpu.flagN |= (cpu.registerA >> 7) & 1; // is 7th bit set?
     };
 
+    // MODIFIES: cpu.registerX, cpu.registerS
+    // EFFECTS: transfers cpu.registerX to cpu.registerS
     private static OpcodeAction runTXS = (int argument, CPU cpu) -> {
+        cpu.registerS = cpu.registerX;
     };
 
+    // MODIFIES: cpu.registerY, cpu.registerA
+    // EFFECTS: transfers cpu.registerY to cpu.registerA
+    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
+    //          flagN set if registerA is negative after the operation, not changed if otherwise.
     private static OpcodeAction runTYA = (int argument, CPU cpu) -> {
+        cpu.registerA = cpu.registerY;
+
+        cpu.flagZ |= (cpu.registerY == 0) ? 1 : 0;
+        cpu.flagN |= (cpu.registerY >> 7) & 1; // is 7th bit set?
     };
 
     static {

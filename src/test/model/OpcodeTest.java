@@ -363,34 +363,34 @@ class OpcodeTest {
     @Test
     void testTXS() {
         cpu.setRegisterX(Integer.parseInt("01000110", 2));
-        Opcode.runOpcode("TXA", 0, cpu);
+        Opcode.runOpcode("TXS", 0, cpu);
         assertTrue((cpu.getRegisterS() == Integer.parseInt("01000110", 2)));
 
         cpu.setRegisterX(Integer.parseInt("00000000", 2));
-        Opcode.runOpcode("TXA", 0, cpu);
+        Opcode.runOpcode("TXS", 0, cpu);
         assertTrue((cpu.getRegisterS() == Integer.parseInt("00000000", 2)));
 
         cpu.setRegisterX(Integer.parseInt("10011001", 2));
-        Opcode.runOpcode("TXA", 0, cpu);
+        Opcode.runOpcode("TXS", 0, cpu);
         assertTrue((cpu.getRegisterS() == Integer.parseInt("10011001", 2)));
     }
 
     @Test
     void testTYA() {
         cpu.setRegisterY(Integer.parseInt("01000110", 2));
-        Opcode.runOpcode("TXA", 0, cpu);
+        Opcode.runOpcode("TYA", 0, cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("01000110", 2)));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 0));
 
         cpu.setRegisterY(Integer.parseInt("00000000", 2));
-        Opcode.runOpcode("TXA", 0, cpu);
+        Opcode.runOpcode("TYA", 0, cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("00000000", 2)));
         assertTrue((cpu.getFlagZ()     == 1));
         assertTrue((cpu.getFlagN()     == 0));
 
         cpu.setRegisterY(Integer.parseInt("10011001", 2));
-        Opcode.runOpcode("TXA", 0, cpu);
+        Opcode.runOpcode("TYA", 0, cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("10011001", 2)));
         assertTrue((cpu.getFlagZ()     == 1));
         assertTrue((cpu.getFlagN()     == 1));
