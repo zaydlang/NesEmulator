@@ -187,4 +187,32 @@ public class CPU {
     public void setRegisterP(int registerP) {
         this.registerP = registerP;
     }
+
+    public void setFlagC(int flagC) {
+        this.flagC = flagC;
+    }
+
+    public void setFlagZ(int flagZ) {
+        this.flagZ = flagZ;
+    }
+
+    public void setFlagI(int flagI) {
+        this.flagI = flagI;
+    }
+
+    public void setFlagD(int flagD) {
+        this.flagD = flagD;
+    }
+
+    public void setFlagB(int flagB) {
+        this.flagB = flagB;
+    }
+
+    public void setFlagV(int flagV) {
+        this.flagV = flagV;
+    }
+
+    public void setFlagN(int flagN) {
+        this.flagN = flagN;
+    }
 }

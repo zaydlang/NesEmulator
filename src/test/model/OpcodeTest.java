@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("SimplifiableJUnitAssertion")
 class OpcodeTest {
     CPU cpu;
 
@@ -219,6 +220,21 @@ class OpcodeTest {
 
     @Test
     void testPHP() {
+        int testCpuStatus = Integer.parseInt("11010001");
+        cpu.setFlagC(Util.getNthBit(testCpuStatus, 0));
+        cpu.setFlagZ(Util.getNthBit(testCpuStatus, 1));
+        cpu.setFlagI(Util.getNthBit(testCpuStatus, 2));
+        cpu.setFlagD(Util.getNthBit(testCpuStatus, 3));
+        cpu.setFlagB(Util.getNthBit(testCpuStatus, 4));
+        // bit 5 in the flags byte is empty
+        cpu.setFlagV(Util.getNthBit(testCpuStatus, 6));
+        cpu.setFlagN(Util.getNthBit(testCpuStatus, 7));
+        Opcode.runOpcode("PHP", 0, cpu);
+
+        int actualCpuStatus = cpu.peekStack();
+        for (int i = 0; i < 8; i++) {
+            assertTrue(Util.getNthBit(testCpuStatus, i) == Util.getNthBit(actualCpuStatus, i));
+        }
     }
 
     @Test
@@ -237,6 +253,18 @@ class OpcodeTest {
 
     @Test
     void testPLP() {
+        int testCpuStatus = Integer.parseInt("11010001");
+        cpu.pushStack(testCpuStatus);
+        Opcode.runOpcode("PLP", 0, cpu);
+
+        assertTrue(cpu.getFlagC() == Util.getNthBit(testCpuStatus, 0));
+        assertTrue(cpu.getFlagZ() == Util.getNthBit(testCpuStatus, 1));
+        assertTrue(cpu.getFlagI() == Util.getNthBit(testCpuStatus, 2));
+        assertTrue(cpu.getFlagD() == Util.getNthBit(testCpuStatus, 3));
+        assertTrue(cpu.getFlagB() == Util.getNthBit(testCpuStatus, 4));
+        // bit 5 in the flags byte is empty
+        assertTrue(cpu.getFlagV() == Util.getNthBit(testCpuStatus, 6));
+        assertTrue(cpu.getFlagN() == Util.getNthBit(testCpuStatus, 7));
     }
 
     @Test
