@@ -10,6 +10,7 @@ public class CPU {
     public static final int INITIAL_REGISTER_A     = 0;
     public static final int INITIAL_REGISTER_X     = 0;
     public static final int INITIAL_REGISTER_Y     = 0;
+
     public static final int INITIAL_REGISTER_PC    = 0;
     public static final int INITIAL_REGISTER_P     = 34;
     public static final int INITIAL_REGISTER_S     = "FD".getBytes()[0];
@@ -67,6 +68,11 @@ public class CPU {
         // Note: ram state and stack pointer considered unreliable after reset.
         Arrays.fill(ram,   CPU.INITIAL_RAM_STATE);
         Arrays.fill(stack, CPU.INITIAL_STACK_STATE);
+    }
+
+    // EFFECTS: peeks into the stack.
+    public int peekStack() {
+        return stack[registerS];
     }
 
     // EFFECTS: returns the C flag
@@ -144,8 +150,27 @@ public class CPU {
         return ram;
     }
 
-    // EFFECTS: peeks into the stack.
-    public int peekStack() {
-        return stack[registerS];
+    public void setRegisterA(int registerA) {
+        this.registerA = registerA;
+    }
+
+    public void setRegisterX(int registerX) {
+        this.registerX = registerX;
+    }
+
+    public void setRegisterY(int registerY) {
+        this.registerY = registerY;
+    }
+
+    public void setRegisterPC(int registerPC) {
+        this.registerPC = registerPC;
+    }
+
+    public void setRegisterS(int registerS) {
+        this.registerS = registerS;
+    }
+
+    public void setRegisterP(int registerP) {
+        this.registerP = registerP;
     }
 }
