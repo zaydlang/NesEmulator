@@ -983,6 +983,9 @@ class OpcodeTest {
 
     @Test
     void testSta() {
+        cpu.setRegisterA(123);
+        Opcode.runOpcode("STA", 47, cpu);
+        assertTrue(cpu.readMemory(47) == 123);
     }
 
     @Test
@@ -991,10 +994,16 @@ class OpcodeTest {
 
     @Test
     void testStx() {
+        cpu.setRegisterX(123);
+        Opcode.runOpcode("STX", 47, cpu);
+        assertTrue(cpu.readMemory(47) == 123);
     }
 
     @Test
     void testSty() {
+        cpu.setRegisterY(123);
+        Opcode.runOpcode("STY", 47, cpu);
+        assertTrue(cpu.readMemory(47) == 123);
     }
 
     @Test

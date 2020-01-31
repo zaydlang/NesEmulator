@@ -261,6 +261,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runLSR = (int argument, CPU cpu) -> {
     };
 
+    // EFFECTS: doesn't modify the cpu in any way.
     private static OpcodeAction runNOP = (int argument, CPU cpu) -> {
 
     };
@@ -360,16 +361,25 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runSHY = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu's memory
+    // EFFECTS: writes cpu.registerA in memory using the argument as the address.
     private static OpcodeAction runSTA = (int argument, CPU cpu) -> {
+        cpu.writeMemory(argument, cpu.getRegisterA());
     };
 
     private static OpcodeAction runSTP = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu's memory
+    // EFFECTS: writes cpu.registerX in memory using the argument as the address.
     private static OpcodeAction runSTX = (int argument, CPU cpu) -> {
+        cpu.writeMemory(argument, cpu.getRegisterX());
     };
 
+    // MODIFIES: cpu's memory
+    // EFFECTS: writes cpu.registerY in memory using the argument as the address.
     private static OpcodeAction runSTY = (int argument, CPU cpu) -> {
+        cpu.writeMemory(argument, cpu.getRegisterY());
     };
 
     // MODIFIES: cpu.getRegisterA, cpu.getRegisterX, cpu.flagZ, cpu.flagN
