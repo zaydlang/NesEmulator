@@ -19,7 +19,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testAndNoFlags() {
+    void testAndNoFlagsSet() {
         cpu.setRegisterA(Integer.parseInt(                 "11100110", 2));
         Opcode.runOpcode("AND", Integer.parseInt(  "01101110", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("01100110", 2)));
@@ -486,7 +486,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testEorNoFlags() {
+    void testEorNoFlagsSet() {
         cpu.setRegisterA(Integer.parseInt(                 "00100000", 2));
         Opcode.runOpcode("EOR", Integer.parseInt(  "01011111", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("01111111", 2)));
@@ -529,7 +529,38 @@ class OpcodeTest {
     }
 
     @Test
-    void testInx() {
+    void testInxNoFlagsSet() {
+        cpu.setRegisterX(10);
+        Opcode.runOpcode("INX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 11);
+    }
+
+    @Test
+    void testInxZFlagSustain() {
+        cpu.setRegisterX(255);
+        Opcode.runOpcode("INX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 1);
+
+        Opcode.runOpcode("INX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 1);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+    }
+
+    @Test
+    void testInxNFlagSustain() {
+        cpu.setRegisterX(254);
+        Opcode.runOpcode("INX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 255);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+
+        Opcode.runOpcode("INX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 1);
     }
 
     @Test
@@ -565,7 +596,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testOraNoFlags() {
+    void testOraNoFlagsSet() {
         cpu.setRegisterA(Integer.parseInt(                 "00100000", 2));
         Opcode.runOpcode("ORA", Integer.parseInt(  "01011111", 2), cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("01111111", 2)));
@@ -607,26 +638,26 @@ class OpcodeTest {
     void testPhaSingle() {
         cpu.setRegisterA(Integer.parseInt("00010111", 2));
         Opcode.runOpcode("PHA", 0, cpu);
-        assertTrue((cpu.peekStack() == Integer.parseInt("00010111", 2)));
-        assertTrue((cpu.registerS   == CPU.INITIAL_REGISTER_S - 1));
+        assertTrue((cpu.peekStack()    == Integer.parseInt("00010111", 2)));
+        assertTrue((cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1));
     }
 
     @Test
     void testPhaMultiple() {
         cpu.setRegisterA(Integer.parseInt("00010111", 2));
         Opcode.runOpcode("PHA", 0, cpu);
-        assertTrue((cpu.peekStack() == Integer.parseInt("00010111", 2)));
-        assertTrue((cpu.registerS   == CPU.INITIAL_REGISTER_S - 1));
+        assertTrue((cpu.peekStack()    == Integer.parseInt("00010111", 2)));
+        assertTrue((cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1));
 
         cpu.setRegisterA(Integer.parseInt("01010000", 2));
         Opcode.runOpcode("PHA", 0, cpu);
-        assertTrue((cpu.peekStack() == Integer.parseInt("01010000", 2)));
-        assertTrue((cpu.registerS   == CPU.INITIAL_REGISTER_S - 2));
+        assertTrue((cpu.peekStack()    == Integer.parseInt("01010000", 2)));
+        assertTrue((cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 2));
 
         cpu.setRegisterA(Integer.parseInt("01000011", 2));
         Opcode.runOpcode("PHA", 0, cpu);
-        assertTrue((cpu.peekStack() == Integer.parseInt("01000011", 2)));
-        assertTrue((cpu.registerS   == CPU.INITIAL_REGISTER_S - 3));
+        assertTrue((cpu.peekStack()    == Integer.parseInt("01000011", 2)));
+        assertTrue((cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 3));
     }
 
     @Test
@@ -653,7 +684,7 @@ class OpcodeTest {
         cpu.pushStack(Integer.parseInt("10111001", 2));
 
         Opcode.runOpcode("PLA", 0, cpu);
-        assertTrue((cpu.registerA   == Integer.parseInt("10111001", 2)));
+        assertTrue((cpu.getRegisterA() == Integer.parseInt("10111001", 2)));
     }
 
     @Test
@@ -662,10 +693,10 @@ class OpcodeTest {
         cpu.pushStack(Integer.parseInt("11010010", 2));
 
         Opcode.runOpcode("PLA", 0, cpu);
-        assertTrue((cpu.registerA   == Integer.parseInt("11010010", 2)));
+        assertTrue((cpu.getRegisterA() == Integer.parseInt("11010010", 2)));
 
         Opcode.runOpcode("PLA", 0, cpu);
-        assertTrue((cpu.registerA   == Integer.parseInt("10111001", 2)));
+        assertTrue((cpu.getRegisterA() == Integer.parseInt("10111001", 2)));
     }
 
     @Test
@@ -747,7 +778,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testTaxNoFlags() {
+    void testTaxNoFlagsSet() {
         cpu.setRegisterA(Integer.parseInt("01000110", 2));
         Opcode.runOpcode("TAX", 0, cpu);
         assertTrue((cpu.getRegisterX() == Integer.parseInt("01000110", 2)));
@@ -787,7 +818,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testTayNoFlags() {
+    void testTayNoFlagsSet() {
         cpu.setRegisterA(Integer.parseInt("01000110", 2));
         Opcode.runOpcode("TAY", 0, cpu);
         assertTrue((cpu.getRegisterY() == Integer.parseInt("01000110", 2)));
@@ -827,7 +858,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testTsxNoFlags() {
+    void testTsxNoFlagsSet() {
         cpu.setRegisterS(Integer.parseInt("01000110", 2));
         Opcode.runOpcode("TSX", 0, cpu);
         assertTrue((cpu.getRegisterX() == Integer.parseInt("01000110", 2)));
@@ -867,7 +898,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testTxaNoFlags() {
+    void testTxaNoFlagsSet() {
         cpu.setRegisterX(Integer.parseInt("01000110", 2));
         Opcode.runOpcode("TXA", 0, cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("01000110", 2)));
@@ -922,7 +953,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testTyaNoFlags() {
+    void testTyaNoFlagsSet() {
         cpu.setRegisterY(Integer.parseInt("01000110", 2));
         Opcode.runOpcode("TYA", 0, cpu);
         assertTrue((cpu.getRegisterA() == Integer.parseInt("01000110", 2)));

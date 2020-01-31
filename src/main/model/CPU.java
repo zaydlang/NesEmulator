@@ -29,13 +29,13 @@ public class CPU {
     protected int flagN;  // Negative
 
     // Registers
-    protected int registerA;  // Accumulator for ALU
-    protected int registerX;  // Index
-    protected int registerY;  // Index
-    protected int registerPC; // The program counter
-    protected int registerS;  // The stack pointer
-    protected int registerP;  // The status register
-    protected int cycles;
+    private int registerA;  // Accumulator for ALU
+    private int registerX;  // Index
+    private int registerY;  // Index
+    private int registerPC; // The program counter
+    private int registerS;  // The stack pointer
+    private int registerP;  // The status register
+    private int cycles;
 
     // Stack is decreasing stack.
     private int[] stack;
@@ -72,14 +72,14 @@ public class CPU {
 
     // MODIFIES: registerS, stack
     // EFFECTS: value is pushed onto the stack, registerS is decremented.
-    protected void pushStack(int value) {
+    public void pushStack(int value) {
         stack[registerS] = value;
         registerS--;
     }
 
     // MODIFIES: registerS, stack
     // EFFECTS: value is pulled from the stack and returned, registerS is incremented.
-    protected int pullStack() {
+    public int pullStack() {
         registerS++;
         return stack[registerS];
     }
