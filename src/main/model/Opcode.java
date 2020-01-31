@@ -218,12 +218,24 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     };
 
     private static OpcodeAction runLDA = (int argument, CPU cpu) -> {
+        cpu.setRegisterA(argument);
+
+        cpu.flagZ |= (cpu.getRegisterA() == 0) ? 1 : 0;
+        cpu.flagN |= (Util.getNthBit(cpu.getRegisterA(), 7));
     };
 
     private static OpcodeAction runLDX = (int argument, CPU cpu) -> {
+        cpu.setRegisterX(argument);
+
+        cpu.flagZ |= (cpu.getRegisterX() == 0) ? 1 : 0;
+        cpu.flagN |= (Util.getNthBit(cpu.getRegisterX(), 7));
     };
 
     private static OpcodeAction runLDY = (int argument, CPU cpu) -> {
+        cpu.setRegisterY(argument);
+
+        cpu.flagZ |= (cpu.getRegisterY() == 0) ? 1 : 0;
+        cpu.flagN |= (Util.getNthBit(cpu.getRegisterY(), 7));
     };
 
     private static OpcodeAction runLSR = (int argument, CPU cpu) -> {

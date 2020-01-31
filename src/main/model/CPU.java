@@ -2,6 +2,7 @@ package model;
 
 import java.util.Arrays;
 
+@SuppressWarnings("PointlessArithmeticExpression")
 public class CPU {
     // Constants
     private static final int RAM_SIZE                 = (int) Math.pow(2, 11);
@@ -75,6 +76,62 @@ public class CPU {
         // Note: ram state and stack pointer considered unreliable after reset.
         Arrays.fill(ram,   CPU.INITIAL_RAM_STATE);
         Arrays.fill(stack, CPU.INITIAL_STACK_STATE);
+    }
+
+    protected int readMemory(int address) {
+        // https://wiki.nesdev.com/w/index.php/CPU_memory_map
+        // ADDRESS RANGE | SIZE  | DEVICE
+        // $0000 - $07FF | $0800 | 2KB internal RAM
+        // $0800 - $0FFF | $0800 |
+        // $1000 - $17FF | $0800 | Mirrors of $0000-$07FF
+        // $1800 - $1FFF | $0800 |
+        // $2000 - $2007 | $0008 | NES PPU registers
+        // $2008 - $3FFF | $1FF8 | Mirrors of $2000-$2007 (repeats every 8 bytes)
+        // $4000 - $4017 | $0018 | NES APU and I/O registers
+        // $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
+        // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
+
+        if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
+            return ram[address % Integer.parseInt("0800",16)];
+        } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
+            return 0; // TODO add when the ppu is implemented. remember to add mirrors.
+        } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
+            return 0; // TODO add when the apu is implemented.
+        } else if (address <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
+                                                                             // normally disabled.
+            return 0; // TODO add when the apu is implemented.
+        } else {
+            return 0; // TODO will complete when mapper added
+        }
+    }
+
+    // MODIFIES: ram
+    // EFFECTS: check the table below for a detailed explanation of what is affected and how.
+    protected void writeMemory(int address, int value) {
+        // https://wiki.nesdev.com/w/index.php/CPU_memory_map
+        // ADDRESS RANGE | SIZE  | DEVICE
+        // $0000 - $07FF | $0800 | 2KB internal RAM
+        // $0800 - $0FFF | $0800 |
+        // $1000 - $17FF | $0800 | Mirrors of $0000-$07FF
+        // $1800 - $1FFF | $0800 |
+        // $2000 - $2007 | $0008 | NES PPU registers
+        // $2008 - $3FFF | $1FF8 | Mirrors of $2000-$2007 (repeats every 8 bytes)
+        // $4000 - $4017 | $0018 | NES APU and I/O registers
+        // $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
+        // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
+
+        if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
+            ram[address % Integer.parseInt("0800",16)] = value;
+        } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
+            return; // TODO add when the ppu is implemented. remember to add mirrors.
+        } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
+            return; // TODO add when the apu is implemented.
+        } else if (address <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
+                                                                             // normally disabled.
+            return; // TODO add when the apu is implemented.
+        } else {
+            return; // TODO will complete when mapper added
+        }
     }
 
     // MODIFIES: registerS, stack

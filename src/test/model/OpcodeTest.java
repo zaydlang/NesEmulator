@@ -482,6 +482,8 @@ class OpcodeTest {
         cpu.setRegisterX(10);
         Opcode.runOpcode("DEX", 0, cpu);
         assertTrue(cpu.getRegisterX() == 9);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 0);
     }
 
     @Test
@@ -517,6 +519,8 @@ class OpcodeTest {
         cpu.setRegisterY(10);
         Opcode.runOpcode("DEY", 0, cpu);
         assertTrue(cpu.getRegisterY() == 9);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 0);
     }
 
     @Test
@@ -595,6 +599,8 @@ class OpcodeTest {
         cpu.setRegisterX(10);
         Opcode.runOpcode("INX", 0, cpu);
         assertTrue(cpu.getRegisterX() == 11);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 0);
     }
 
     @Test
@@ -630,6 +636,8 @@ class OpcodeTest {
         cpu.setRegisterY(10);
         Opcode.runOpcode("INY", 0, cpu);
         assertTrue(cpu.getRegisterY() == 11);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 0);
     }
 
     @Test
@@ -669,15 +677,105 @@ class OpcodeTest {
     }
 
     @Test
-    void testLda() {
+    void testLdaNoFlagsSet() {
+        Opcode.runOpcode("LDA", 43, cpu);
+        assertTrue(cpu.getRegisterA() == 43);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 0);
     }
 
     @Test
-    void testLdx() {
+    void testLdaZFlagSustain() {
+        Opcode.runOpcode("LDA", 0, cpu);
+        assertTrue(cpu.getRegisterA() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+
+        Opcode.runOpcode("LDA", 43, cpu);
+        assertTrue(cpu.getRegisterA() == 43);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
     }
 
     @Test
-    void testLdy() {
+    void testLdaNFlagSustain() {
+        Opcode.runOpcode("LDA", 145, cpu);
+        assertTrue(cpu.getRegisterA() == 145);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+
+        Opcode.runOpcode("LDA", 43, cpu);
+        assertTrue(cpu.getRegisterA() == 43);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+    }
+    
+    @Test
+    void testLdxNoFlagsSet() {
+        Opcode.runOpcode("LDX", 43, cpu);
+        assertTrue(cpu.getRegisterX() == 43);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 0);
+    }
+
+    @Test
+    void testLdxZFlagSustain() {
+        Opcode.runOpcode("LDX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+
+        Opcode.runOpcode("LDX", 43, cpu);
+        assertTrue(cpu.getRegisterX() == 43);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+    }
+
+    @Test
+    void testLdxNFlagSustain() {
+        Opcode.runOpcode("LDX", 145, cpu);
+        assertTrue(cpu.getRegisterX() == 145);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+
+        Opcode.runOpcode("LDX", 43, cpu);
+        assertTrue(cpu.getRegisterX() == 43);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+    }
+    
+    @Test
+    void testLdyNoFlagsSet() {
+        Opcode.runOpcode("LDY", 43, cpu);
+        assertTrue(cpu.getRegisterY() == 43);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 0);
+    }
+
+    @Test
+    void testLdyZFlagSustain() {
+        Opcode.runOpcode("LDY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+
+        Opcode.runOpcode("LDY", 43, cpu);
+        assertTrue(cpu.getRegisterY() == 43);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+    }
+
+    @Test
+    void testLdyNFlagSustain() {
+        Opcode.runOpcode("LDY", 145, cpu);
+        assertTrue(cpu.getRegisterY() == 145);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+
+        Opcode.runOpcode("LDY", 43, cpu);
+        assertTrue(cpu.getRegisterY() == 43);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
     }
 
     @Test
