@@ -34,33 +34,57 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     };
 
     private static OpcodeAction runBCC = (int argument, CPU cpu) -> {
+        if (cpu.flagC == 0) {
+            cpu.setRegisterPC(cpu.getRegisterPC() + argument);
+        }
     };
 
     private static OpcodeAction runBCS = (int argument, CPU cpu) -> {
+        if (cpu.flagC == 1) {
+            cpu.setRegisterPC(cpu.getRegisterPC() + argument);
+        }
     };
 
     private static OpcodeAction runBEQ = (int argument, CPU cpu) -> {
+        if (cpu.flagZ == 1) {
+            cpu.setRegisterPC(cpu.getRegisterPC() + argument);
+        }
     };
 
     private static OpcodeAction runBIT = (int argument, CPU cpu) -> {
     };
 
     private static OpcodeAction runBMI = (int argument, CPU cpu) -> {
+        if (cpu.flagN == 1) {
+            cpu.setRegisterPC(cpu.getRegisterPC() + argument);
+        }
     };
 
     private static OpcodeAction runBNE = (int argument, CPU cpu) -> {
+        if (cpu.flagZ == 0) {
+            cpu.setRegisterPC(cpu.getRegisterPC() + argument);
+        }
     };
 
     private static OpcodeAction runBPL = (int argument, CPU cpu) -> {
+        if (cpu.flagN == 0) {
+            cpu.setRegisterPC(cpu.getRegisterPC() + argument);
+        }
     };
 
     private static OpcodeAction runBRK = (int argument, CPU cpu) -> {
     };
 
     private static OpcodeAction runBVC = (int argument, CPU cpu) -> {
+        if (cpu.flagV == 0) {
+            cpu.setRegisterPC(cpu.getRegisterPC() + argument);
+        }
     };
 
     private static OpcodeAction runBVS = (int argument, CPU cpu) -> {
+        if (cpu.flagV == 1) {
+            cpu.setRegisterPC(cpu.getRegisterPC() + argument);
+        }
     };
 
     // MODIFIES: cpu.flagC

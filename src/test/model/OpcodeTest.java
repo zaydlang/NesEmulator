@@ -62,15 +62,57 @@ class OpcodeTest {
     }
 
     @Test
-    void testBcc() {
+    void testBccBranch() {
+        cpu.setFlagC(0);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BCC", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12 + 34);
     }
 
     @Test
-    void testBcs() {
+    void testBccNoBranch() {
+        cpu.setFlagC(1);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BCC", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12);
     }
 
     @Test
-    void testBeq() {
+    void testBcsBranch() {
+        cpu.setFlagC(1);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BCS", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12 + 34);
+    }
+
+    @Test
+    void testBcsNoBranch() {
+        cpu.setFlagC(0);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BCS", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12);
+    }
+
+    @Test
+    void testBeqBranch() {
+        cpu.setFlagZ(1);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BEQ", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12 + 34);
+    }
+
+    @Test
+    void testBeqNoBranch() {
+        cpu.setFlagZ(0);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BEQ", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12);
     }
 
     @Test
@@ -78,15 +120,57 @@ class OpcodeTest {
     }
 
     @Test
-    void testBmi() {
+    void testBmiBranch() {
+        cpu.setFlagN(1);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BMI", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12 + 34);
     }
 
     @Test
-    void testBne() {
+    void testBmiNoBranch() {
+        cpu.setFlagN(0);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BMI", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12);
     }
 
     @Test
-    void testBpl() {
+    void testBneBranch() {
+        cpu.setFlagZ(0);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BNE", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12 + 34);
+    }
+
+    @Test
+    void testBneNoBranch() {
+        cpu.setFlagZ(1);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BNE", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12);
+    }
+
+    @Test
+    void testBplBranch() {
+        cpu.setFlagN(0);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BPL", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12 + 34);
+    }
+
+    @Test
+    void testBplNoBranch() {
+        cpu.setFlagN(1);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BPL", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12);
     }
 
     @Test
@@ -94,11 +178,39 @@ class OpcodeTest {
     }
 
     @Test
-    void testBvc() {
+    void testBvcBranch() {
+        cpu.setFlagV(0);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BVC", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12 + 34);
     }
 
     @Test
-    void testBvs() {
+    void testBvcNoBranch() {
+        cpu.setFlagV(1);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BVC", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12);
+    }
+
+    @Test
+    void testBvsBranch() {
+        cpu.setFlagV(1);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BVS", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12 + 34);
+    }
+
+    @Test
+    void testBvsNoBranch() {
+        cpu.setFlagV(0);
+        cpu.setRegisterPC(12);
+        Opcode.runOpcode("BVS", 34, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 12);
     }
 
     @Test
