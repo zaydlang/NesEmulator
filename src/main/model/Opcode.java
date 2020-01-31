@@ -164,7 +164,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (Util.getNthBit(cpu.getRegisterX(), 7));
     };
 
-    // MODIFIES: cpu.getRegisterY
+    // MODIFIES: cpu.registerY
     // EFFECTS: decreases registerY by one.
     //          flagZ set if registerY is zero     after the operation, not changed if otherwise.
     //          flagN set if registerY is negative after the operation, not changed if otherwise.
@@ -175,7 +175,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (Util.getNthBit(cpu.getRegisterY(), 7));
     };
 
-    // MODIFIES: cpu.getRegisterA, cpu.flagZ, cpu.flagN
+    // MODIFIES: cpu.registerA, cpu.flagZ, cpu.flagN
     // EFFECTS: does a bitwise XOR on registerA and the argument, and sets registerA to that value
     //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
     //          flagN set if registerA is negative after the operation, not changed if otherwise.
@@ -189,7 +189,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runINC = (int argument, CPU cpu) -> {
     };
 
-    // MODIFIES: cpu.getRegisterX
+    // MODIFIES: cpu.registerX
     // EFFECTS: increases registerX by one.
     //          flagZ set if registerX is zero     after the operation, not changed if otherwise.
     //          flagN set if registerX is negative after the operation, not changed if otherwise.
@@ -200,7 +200,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (Util.getNthBit(cpu.getRegisterX(), 7));
     };
 
-    // MODIFIES: cpu.getRegisterY
+    // MODIFIES: cpu.registerY
     // EFFECTS: increases registerY by one.
     //          flagZ set if registerY is zero     after the operation, not changed if otherwise.
     //          flagN set if registerY is negative after the operation, not changed if otherwise.
@@ -211,12 +211,24 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (Util.getNthBit(cpu.getRegisterY(), 7));
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: sets registerPC (the program counter) to the argument specified.
     private static OpcodeAction runJMP = (int argument, CPU cpu) -> {
+        cpu.setRegisterPC(argument);
     };
 
+    // MODIFIES: cpu.registerPC, cpu.stack
+    // EFFECTS: pushes the current value of registerPC (the program counter) to the stack, minus one.
+    //          then, sets registerPC to the argument specified.
     private static OpcodeAction runJSR = (int argument, CPU cpu) -> {
+        cpu.pushStack(cpu.getRegisterPC() - 1);
+        cpu.setRegisterPC(argument);
     };
 
+    // MODIFIES: cpu.registerA, flagZ, flagN
+    // EFFECTS: sets registerA to the argument
+    //          sets flagZ if registerA is 0
+    //          sets flagN if the 7th bit of registerA is 1
     private static OpcodeAction runLDA = (int argument, CPU cpu) -> {
         cpu.setRegisterA(argument);
 
@@ -224,6 +236,10 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (Util.getNthBit(cpu.getRegisterA(), 7));
     };
 
+    // MODIFIES: cpu.registerX, flagZ, flagN
+    // EFFECTS: sets registerX to the argument
+    //          sets flagZ if registerA is 0
+    //          sets flagN if the 7th bit of registerA is 1
     private static OpcodeAction runLDX = (int argument, CPU cpu) -> {
         cpu.setRegisterX(argument);
 
@@ -231,6 +247,10 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (Util.getNthBit(cpu.getRegisterX(), 7));
     };
 
+    // MODIFIES: cpu.registerY, flagZ, flagN
+    // EFFECTS: sets registerY to the argument
+    //          sets flagZ if registerA is 0
+    //          sets flagN if the 7th bit of registerA is 1
     private static OpcodeAction runLDY = (int argument, CPU cpu) -> {
         cpu.setRegisterY(argument);
 
@@ -242,6 +262,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     };
 
     private static OpcodeAction runNOP = (int argument, CPU cpu) -> {
+
     };
 
     // MODIFIES: cpu.getRegisterA, cpu.flagZ, cpu.flagN
@@ -309,6 +330,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     };
 
     private static OpcodeAction runRTS = (int argument, CPU cpu) -> {
+        cpu.setRegisterPC(cpu.pullStack() - 1);
     };
 
     private static OpcodeAction runSBC = (int argument, CPU cpu) -> {

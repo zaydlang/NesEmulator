@@ -670,10 +670,17 @@ class OpcodeTest {
 
     @Test
     void testJmp() {
+        cpu.setRegisterPC(18);
+        Opcode.runOpcode("JMP", 234, cpu);
+        assertTrue(cpu.getRegisterPC() == 234);
     }
 
     @Test
     void testJsr() {
+        cpu.setRegisterPC(18);
+        Opcode.runOpcode("JSR", 234, cpu);
+        assertTrue(cpu.getRegisterPC() == 234);
+        assertTrue(cpu.peekStack()     == 17);
     }
 
     @Test
@@ -784,6 +791,21 @@ class OpcodeTest {
 
     @Test
     void testNop() {
+        // KEY THING TO NOTE: NOP does not reset a cpu's state to the initial state.
+        // it just doesn't affect cpu at all.
+        Opcode.runOpcode("NOP", 0, cpu);
+        assertTrue(cpu.getRegisterA()  == CPU.INITIAL_REGISTER_A);
+        assertTrue(cpu.getRegisterX()  == CPU.INITIAL_REGISTER_X);
+        assertTrue(cpu.getRegisterY()  == CPU.INITIAL_REGISTER_Y);
+        assertTrue(cpu.getRegisterPC() == CPU.INITIAL_REGISTER_PC);
+        assertTrue(cpu.getRegisterP()  == CPU.INITIAL_REGISTER_P);
+        assertTrue(cpu.getRegisterS()  == CPU.INITIAL_REGISTER_S);
+        assertTrue(cpu.getCycles()     == CPU.INITIAL_CYCLES);
+        assertTrue(cpu.peekStack()     == CPU.INITIAL_STACK_STATE);
+
+        for (int i : cpu.getRam()) {
+            assertTrue(i == CPU.INITIAL_RAM_STATE);
+        }
     }
 
     @Test
@@ -920,6 +942,13 @@ class OpcodeTest {
 
     @Test
     void testRts() {
+        cpu.setRegisterPC(18);
+        cpu.pushStack(123);
+        cpu.pushStack(34);
+        Opcode.runOpcode("RTS", 0, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 33);
+        assertTrue(cpu.peekStack()     == 123);
     }
 
     @Test
