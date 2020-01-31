@@ -159,6 +159,42 @@ public class CPU {
         return stack[registerS + 1];
     }
 
+    // REQUIRES: status can be represented as an 8bit binary integer
+    // EFFECTS: use the flags to construct the status by concatenating them like this:
+    // VN0BDIZC where the 5th bit (little endian) is 0.
+    @SuppressWarnings({"checkstyle:Indentation", "CheckStyle"})
+    public int getStatus() {
+       return (int) (getFlagC() * Math.pow(2, 0))
+            + (int) (getFlagZ() * Math.pow(2, 1))
+            + (int) (getFlagI() * Math.pow(2, 2))
+            + (int) (getFlagD() * Math.pow(2, 3))
+            + (int) (getFlagB() * Math.pow(2, 4))
+            + (int) (0          * Math.pow(2, 5)) // bit 5 in the flags byte is empty
+            + (int) (getFlagV() * Math.pow(2, 6))
+            + (int) (getFlagN() * Math.pow(2, 7));
+    }
+
+    // REQUIRES: status can be represented as an 8bit binary integer
+    // MODIFIES: sets the flags in this way:
+    // flagC is the 0th bit of status
+    // flagZ is the 1st bit of status
+    // flagI is the 2nd bit of status
+    // flagD is the 3rd bit of status
+    // flagB is the 4th bit of status
+    //          the 5th bit is not used
+    // flagV is the 6th bit of status
+    // flagN is the 7th bit of status
+    public void setStatus(int status) {
+        setFlagC(Util.getNthBit(status, 0));
+        setFlagZ(Util.getNthBit(status, 1));
+        setFlagI(Util.getNthBit(status, 2));
+        setFlagD(Util.getNthBit(status, 3));
+        setFlagB(Util.getNthBit(status, 4));
+        // bit 5 in the flags byte is empty
+        setFlagV(Util.getNthBit(status, 6));
+        setFlagN(Util.getNthBit(status, 7));
+    }
+
     // EFFECTS: returns the C flag
     public int getFlagC() {
         return flagC;

@@ -116,7 +116,45 @@ class OpcodeTest {
     }
 
     @Test
-    void testBit() {
+    void testBitNoFlags() {
+        cpu.setRegisterA(Integer.parseInt("10010101", 2));
+        Opcode.runOpcode("BIT", Integer.parseInt("00011110", 2), cpu);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagV() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testBitVFlag() {
+        cpu.setRegisterA(Integer.parseInt("11010101", 2));
+        Opcode.runOpcode("BIT", Integer.parseInt("01011011", 2), cpu);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagV() == 1);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testBitNFlag() {
+        cpu.setRegisterA(Integer.parseInt("11010101", 2));
+        Opcode.runOpcode("BIT", Integer.parseInt("10011011", 2), cpu);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagV() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+    @Test
+    void testBitZFlagSustain() {
+        cpu.setRegisterA(Integer.parseInt("11010101", 2));
+        Opcode.runOpcode("BIT", Integer.parseInt("00101000", 2), cpu);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagV() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+
+        cpu.setRegisterA(Integer.parseInt("11010101", 2));
+        Opcode.runOpcode("BIT", Integer.parseInt("11011011", 2), cpu);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagV() == 1);
+        assertTrue(cpu.getFlagN() == 1);
     }
 
     @Test
@@ -175,6 +213,15 @@ class OpcodeTest {
 
     @Test
     void testBrk() {
+        cpu.setStatus(142);
+        cpu.writeMemory(Integer.parseInt("FFFE", 16), 71);
+        cpu.setRegisterPC(47);
+        Opcode.runOpcode("BRK", 0, cpu);
+
+        assertTrue(cpu.getRegisterPC() == cpu.readMemory(71));
+        assertTrue(cpu.pullStack()     == 142);
+        assertTrue(cpu.pullStack()     == 47);
+        assertTrue(cpu.getFlagB()      == 1);
     }
 
     @Test
@@ -1004,6 +1051,12 @@ class OpcodeTest {
 
     @Test
     void testRti() {
+        cpu.pushStack(47);
+        cpu.pushStack(142);
+        Opcode.runOpcode("RTI", 0, cpu);
+
+        assertTrue(cpu.getRegisterPC() == 47);
+        assertTrue(cpu.getStatus()     == 142);
     }
 
     @Test

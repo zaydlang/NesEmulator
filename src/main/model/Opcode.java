@@ -60,7 +60,16 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         }
     };
 
+    // MODIFIES: cpu.flagZ, cpu.flagV, cpu.flagN
+    // EFFECTS: performs bitwise and on register A and the argument.
+    // flagZ is set if the result is 0, not changed if otherwise.
+    // flagV is set to the 6th bit of the value in memory using argument as the address.
+    // flagN is set to the 7th bit of the value in memory using argument as the address.
     private static OpcodeAction runBIT = (int argument, CPU cpu) -> {
+        int result = cpu.getRegisterA() & argument;
+        cpu.flagZ |= (result == 0) ? 1 : 0;
+        cpu.flagV = Util.getNthBit(argument, 6);
+        cpu.flagN = Util.getNthBit(argument, 7);
     };
 
     // MODIFIES: cpu.registerPC
@@ -90,7 +99,15 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         }
     };
 
+    // MODIFIES: cpu.stack, cpu.registerPC, cpu.flagB
+    // EFFECTS: registerPC is pushed onto the stack, followed by the cpu status.
+    // then, registerPC is set to the value in memory at address "FFFE" and
+    // flagB (the break flag) is set to 1.
     private static OpcodeAction runBRK = (int argument, CPU cpu) -> {
+        cpu.pushStack(cpu.getRegisterPC());
+        cpu.pushStack(cpu.getStatus());
+        cpu.setRegisterPC(cpu.readMemory(Integer.parseInt("FFFE", 16)));
+        cpu.setFlagB(1);
     };
 
     // MODIFIES: cpu.registerPC
@@ -329,17 +346,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // EFFECTS: concatenates the cpu flags in this order: CZIDB0VN, where bit 5 is empty. pushes the result onto
     //          the stack.
     private static OpcodeAction runPHP = (int argument, CPU cpu) -> {
-        int status =
-                  (int) (cpu.getFlagC() * Math.pow(2, 0))
-                + (int) (cpu.getFlagZ() * Math.pow(2, 1))
-                + (int) (cpu.getFlagI() * Math.pow(2, 2))
-                + (int) (cpu.getFlagD() * Math.pow(2, 3))
-                + (int) (cpu.getFlagB() * Math.pow(2, 4))
-                + (int) (0              * Math.pow(2, 5)) // bit 5 in the flags byte is empty
-                + (int) (cpu.getFlagV() * Math.pow(2, 6))
-                + (int) (cpu.getFlagN() * Math.pow(2, 7));
-
-        cpu.pushStack(status);
+        cpu.pushStack(cpu.getStatus());
     };
 
     // MODIFIES: cpu.getRegisterA cpu.getRegisterS, cpu.stack
@@ -352,15 +359,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // EFFECTS: pulls from the stack. assigns the flags in this order: CZIDB0VN, where bit 5 is empty.
     // for example, if 10010110 was pulled from the stack, cpu.flagC would be 0, cpu.flagZ would be 1, etc.
     private static OpcodeAction runPLP = (int argument, CPU cpu) -> {
-        int status = cpu.pullStack();
-        cpu.setFlagC(Util.getNthBit(status, 0));
-        cpu.setFlagZ(Util.getNthBit(status, 1));
-        cpu.setFlagI(Util.getNthBit(status, 2));
-        cpu.setFlagD(Util.getNthBit(status, 3));
-        cpu.setFlagB(Util.getNthBit(status, 4));
-        // bit 5 in the flags byte is empty
-        cpu.setFlagV(Util.getNthBit(status, 6));
-        cpu.setFlagN(Util.getNthBit(status, 7));
+        cpu.setStatus(cpu.pullStack());
     };
 
     private static OpcodeAction runROL = (int argument, CPU cpu) -> {
@@ -369,7 +368,11 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runROR = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.stack, all 7 cpu flags, cpu.registerPC
+    // EFFECTS: the cpu flags are pulled from the stack, then the registerPC is pulled from the stack.
     private static OpcodeAction runRTI = (int argument, CPU cpu) -> {
+        cpu.setStatus(cpu.pullStack());
+        cpu.setRegisterPC(cpu.pullStack());
     };
 
     // MODIFIES: cpu.registerPC, cpu.stack

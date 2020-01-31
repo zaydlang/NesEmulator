@@ -94,6 +94,35 @@ public class CpuTest {
     }
 
     @Test
+    void testGetStatus() {
+        int testCpuStatus = Integer.parseInt("11010001", 2);
+        cpu.setFlagC(Util.getNthBit(testCpuStatus, 0));
+        cpu.setFlagZ(Util.getNthBit(testCpuStatus, 1));
+        cpu.setFlagI(Util.getNthBit(testCpuStatus, 2));
+        cpu.setFlagD(Util.getNthBit(testCpuStatus, 3));
+        cpu.setFlagB(Util.getNthBit(testCpuStatus, 4));
+        // bit 5 in the flags byte is empty
+        cpu.setFlagV(Util.getNthBit(testCpuStatus, 6));
+        cpu.setFlagN(Util.getNthBit(testCpuStatus, 7));
+
+        assertTrue(cpu.getStatus() == testCpuStatus);
+    }
+
+    @Test
+    void testSetStatus() {
+        int testCpuStatus = Integer.parseInt("11010001", 2);
+        cpu.setStatus(testCpuStatus);
+        assertTrue(cpu.getFlagC() == Util.getNthBit(testCpuStatus, 0));
+        assertTrue(cpu.getFlagZ() == Util.getNthBit(testCpuStatus, 1));
+        assertTrue(cpu.getFlagI() == Util.getNthBit(testCpuStatus, 2));
+        assertTrue(cpu.getFlagD() == Util.getNthBit(testCpuStatus, 3));
+        assertTrue(cpu.getFlagB() == Util.getNthBit(testCpuStatus, 4));
+        // bit 5 in the flags byte is empty
+        assertTrue(cpu.getFlagV() == Util.getNthBit(testCpuStatus, 6));
+        assertTrue(cpu.getFlagN() == Util.getNthBit(testCpuStatus, 7));
+    }
+
+    @Test
     void testPushStack() {
         cpu.pushStack(100);
         assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1);
