@@ -107,7 +107,7 @@ public class CPU {
 
     // MODIFIES: ram
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
-    protected void writeMemory(int address, int value) {
+    protected void writeMemory(int address, int rawValue) {
         // https://wiki.nesdev.com/w/index.php/CPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
         // $0000 - $07FF | $0800 | 2KB internal RAM
@@ -119,6 +119,10 @@ public class CPU {
         // $4000 - $4017 | $0018 | NES APU and I/O registers
         // $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
         // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
+        int value = rawValue % 256;
+        if (value < 0) {
+            value += 256;
+        }
 
         if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
             ram[address % Integer.parseInt("0800",16)] = value;

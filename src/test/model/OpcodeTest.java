@@ -474,7 +474,40 @@ class OpcodeTest {
     }
 
     @Test
-    void testDec() {
+    void testDecNoFlagsSet() {
+        cpu.writeMemory(43, 15);
+        Opcode.runOpcode("DEC", 43, cpu);
+        assertTrue(cpu.readMemory(43) == 14);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testDecZFlagSustain() {
+        cpu.writeMemory(43, 1);
+        Opcode.runOpcode("DEC", 43, cpu);
+        assertTrue(cpu.readMemory(43) == 0);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 0);
+
+        Opcode.runOpcode("DEC", 43, cpu);
+        assertTrue(cpu.readMemory(43) == 255);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+    @Test
+    void testDecNFlagSustain() {
+        cpu.writeMemory(43, 129);
+        Opcode.runOpcode("DEC", 43, cpu);
+        assertTrue(cpu.readMemory(43) == 128);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+
+        Opcode.runOpcode("DEC", 43, cpu);
+        assertTrue(cpu.readMemory(43) == 127);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
     }
 
     @Test
@@ -591,7 +624,40 @@ class OpcodeTest {
     }
 
     @Test
-    void testInc() {
+    void testIncNoFlagsSet() {
+        cpu.writeMemory(74, 17);
+        Opcode.runOpcode("INC", 74, cpu);
+        assertTrue(cpu.readMemory(74) == 18);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testIncZFlagSustain() {
+        cpu.writeMemory(74, 255);
+        Opcode.runOpcode("INC", 74, cpu);
+        assertTrue(cpu.readMemory(74) == 0);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 0);
+
+        Opcode.runOpcode("INC", 74, cpu);
+        assertTrue(cpu.readMemory(74) == 1);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testIncNFlagSustain() {
+        cpu.writeMemory(74, 254);
+        Opcode.runOpcode("INC", 74, cpu);
+        assertTrue(cpu.readMemory(74) == 255);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+
+        Opcode.runOpcode("INC", 74, cpu);
+        assertTrue(cpu.readMemory(74) == 0);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 1);
     }
 
     @Test

@@ -64,6 +64,36 @@ public class CpuTest {
     }
 
     @Test
+    void testWriteMemoryInternalRamOverflow() {
+        cpu.writeMemory(123, 157 + 256);
+        assertTrue(cpu.ram[123] == 157);
+    }
+
+    @Test
+    void testWriteMemoryInternalRamMirrorsOverflow() {
+        for (int i = 1; i < 4; i++) {
+            int address = 123 + i * Integer.parseInt("0800",16) + i;
+            cpu.writeMemory(address, 157 + i + 256);
+            assertTrue(cpu.ram[123 + i] == 157 + i);
+        }
+    }
+
+    @Test
+    void testWriteMemoryInternalRamUnderflow() {
+        cpu.writeMemory(123, 157 - 256);
+        assertTrue(cpu.ram[123] == 157);
+    }
+
+    @Test
+    void testWriteMemoryInternalRamMirrorsUnderflow() {
+        for (int i = 1; i < 4; i++) {
+            int address = 123 + i * Integer.parseInt("0800",16) + i;
+            cpu.writeMemory(address, 157 + i - 256);
+            assertTrue(cpu.ram[123 + i] == 157 + i);
+        }
+    }
+
+    @Test
     void testPushStack() {
         cpu.pushStack(100);
         assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1);

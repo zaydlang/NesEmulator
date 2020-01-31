@@ -150,13 +150,22 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (Util.getNthBit(result, 7));
     };
 
+    // MODIFIES: cpu's memory
+    // EFFECTS: decreases the value in the cpu's memory by one, using argument as an address.
+    //          flagZ set if the new value in memory is zero     after the operation, not changed if otherwise.
+    //          flagN set if the new value in memory is negative after the operation, not changed if otherwise.
     private static OpcodeAction runDEC = (int argument, CPU cpu) -> {
+        int newValue = cpu.readMemory(argument) - 1;
+        cpu.writeMemory(argument, newValue);
+
+        cpu.flagZ |= (cpu.readMemory(argument) == 0) ? 1 : 0;
+        cpu.flagN |= (Util.getNthBit(cpu.readMemory(argument), 7));
     };
 
     // MODIFIES: cpu.getRegisterX
     // EFFECTS: decreases registerX by one.
-    //          flagZ set if registerX is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerX is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerX is zero,               not changed if otherwise.
+    //          flagN set if the 7th bit of registerX is set, not changed if otherwise.
     private static OpcodeAction runDEX = (int argument, CPU cpu) -> {
         cpu.setRegisterX(cpu.getRegisterX() - 1);
 
@@ -166,8 +175,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.registerY
     // EFFECTS: decreases registerY by one.
-    //          flagZ set if registerY is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerY is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerY is zero,               not changed if otherwise.
+    //          flagN set if the 7th bit of registerY is set, not changed if otherwise.
     private static OpcodeAction runDEY = (int argument, CPU cpu) -> {
         cpu.setRegisterY(cpu.getRegisterY() - 1);
 
@@ -186,7 +195,16 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN |= (cpu.getRegisterA() > 127) ? 1 : 0;
     };
 
+    // MODIFIES: cpu's memory
+    // EFFECTS: increases the value in the cpu's memory by one, using argument as an address.
+    //          flagZ set if the new value in memory is zero     after the operation, not changed if otherwise.
+    //          flagN set if the new value in memory is negative after the operation, not changed if otherwise.
     private static OpcodeAction runINC = (int argument, CPU cpu) -> {
+        int newValue = cpu.readMemory(argument) + 1;
+        cpu.writeMemory(argument, newValue);
+
+        cpu.flagZ |= (cpu.readMemory(argument) == 0) ? 1 : 0;
+        cpu.flagN |= (Util.getNthBit(cpu.readMemory(argument), 7));
     };
 
     // MODIFIES: cpu.registerX
