@@ -4,19 +4,26 @@ import java.util.Arrays;
 
 public class CPU {
     // Constants
-    private static final int RAM_SIZE               = (int) Math.pow(2, 11);
-    private static final int STACK_SIZE             = (int) Math.pow(2, 8);
+    private static final int RAM_SIZE                 = (int) Math.pow(2, 11);
+    private static final int STACK_SIZE               = (int) Math.pow(2, 8);
 
-    public static final int INITIAL_REGISTER_A     = 0;
-    public static final int INITIAL_REGISTER_X     = 0;
-    public static final int INITIAL_REGISTER_Y     = 0;
+    public static final int INITIAL_REGISTER_A        = 0;
+    public static final int INITIAL_REGISTER_X        = 0;
+    public static final int INITIAL_REGISTER_Y        = 0;
 
-    public static final int INITIAL_REGISTER_PC    = 0;
-    public static final int INITIAL_REGISTER_P     = 34;
-    public static final int INITIAL_REGISTER_S     = "FD".getBytes()[0];
-    public static final int INITIAL_CYCLES         = 0;
-    public static final int INITIAL_RAM_STATE      = 0;
-    public static final int INITIAL_STACK_STATE    = 0;
+    public static final int INITIAL_REGISTER_PC       = 0;
+    public static final int INITIAL_REGISTER_P        = 34;
+    public static final int INITIAL_REGISTER_S        = "FD".getBytes()[0];
+    public static final int INITIAL_CYCLES            = 0;
+    public static final int INITIAL_RAM_STATE         = 0;
+    public static final int INITIAL_STACK_STATE       = 0;
+
+    public static final int MAXIMUM_REGISTER_A_VALUE  = (int) Math.pow(2, 8 * 1);
+    public static final int MAXIMUM_REGISTER_X_VALUE  = (int) Math.pow(2, 8 * 1);
+    public static final int MAXIMUM_REGISTER_Y_VALUE  = (int) Math.pow(2, 8 * 1);
+    public static final int MAXIMUM_REGISTER_PC_VALUE = (int) Math.pow(2, 8 * 2);
+    public static final int MAXIMUM_REGISTER_S_VALUE  = (int) Math.pow(2, 8 * 1);
+    public static final int MAXIMUM_REGISTER_P_VALUE  = (int) Math.pow(2, 6);
 
     // CPU Flags
     protected int flagC;  // Carry
@@ -165,27 +172,45 @@ public class CPU {
     }
 
     public void setRegisterA(int registerA) {
-        this.registerA = registerA;
+        this.registerA = registerA % CPU.MAXIMUM_REGISTER_A_VALUE;
+        if (registerA < 0) {
+            this.registerA += CPU.MAXIMUM_REGISTER_A_VALUE;
+        }
     }
 
     public void setRegisterX(int registerX) {
-        this.registerX = registerX;
+        this.registerX = registerX % CPU.MAXIMUM_REGISTER_X_VALUE;
+        if (registerX < 0) {
+            this.registerX += CPU.MAXIMUM_REGISTER_X_VALUE;
+        }
     }
 
     public void setRegisterY(int registerY) {
-        this.registerY = registerY;
+        this.registerY = registerY % CPU.MAXIMUM_REGISTER_Y_VALUE;
+        if (registerY < 0) {
+            this.registerY += CPU.MAXIMUM_REGISTER_Y_VALUE;
+        }
     }
 
     public void setRegisterPC(int registerPC) {
-        this.registerPC = registerPC;
+        this.registerPC = registerPC % CPU.MAXIMUM_REGISTER_PC_VALUE;
+        if (registerPC < 0) {
+            this.registerPC += CPU.MAXIMUM_REGISTER_PC_VALUE;
+        }
     }
 
     public void setRegisterS(int registerS) {
-        this.registerS = registerS;
+        this.registerS = registerS % CPU.MAXIMUM_REGISTER_S_VALUE;
+        if (registerS < 0) {
+            this.registerS += CPU.MAXIMUM_REGISTER_S_VALUE;
+        }
     }
 
     public void setRegisterP(int registerP) {
-        this.registerP = registerP;
+        this.registerP = registerP % CPU.MAXIMUM_REGISTER_P_VALUE;
+        if (registerP < 0) {
+            this.registerP += CPU.MAXIMUM_REGISTER_P_VALUE;
+        }
     }
 
     public void setFlagC(int flagC) {

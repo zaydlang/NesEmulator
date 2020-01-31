@@ -478,11 +478,73 @@ class OpcodeTest {
     }
 
     @Test
-    void testDex() {
+    void testDexNoFlagsSet() {
+        cpu.setRegisterX(10);
+        Opcode.runOpcode("DEX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 9);
     }
 
     @Test
-    void testDey() {
+    void testDexZFlagSustain() {
+        cpu.setRegisterX(1);
+        Opcode.runOpcode("DEX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+
+        Opcode.runOpcode("DEX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 255);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 1);
+    }
+
+    @Test
+    void testDexNFlagSustain() {
+        cpu.setRegisterX(129);
+        Opcode.runOpcode("DEX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 128);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+
+        Opcode.runOpcode("DEX", 0, cpu);
+        assertTrue(cpu.getRegisterX() == 127);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+    }
+
+    @Test
+    void testDeyNoFlagsSet() {
+        cpu.setRegisterY(10);
+        Opcode.runOpcode("DEY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 9);
+    }
+
+    @Test
+    void testDeyZFlagSustain() {
+        cpu.setRegisterY(1);
+        Opcode.runOpcode("DEY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+
+        Opcode.runOpcode("DEY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 255);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 1);
+    }
+
+    @Test
+    void testDeyNFlagSustain() {
+        cpu.setRegisterY(129);
+        Opcode.runOpcode("DEY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 128);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+
+        Opcode.runOpcode("DEY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 127);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
     }
 
     @Test
@@ -541,7 +603,7 @@ class OpcodeTest {
         Opcode.runOpcode("INX", 0, cpu);
         assertTrue(cpu.getRegisterX() == 0);
         assertTrue(cpu.getFlagZ()     == 1);
-        assertTrue(cpu.getFlagN()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
 
         Opcode.runOpcode("INX", 0, cpu);
         assertTrue(cpu.getRegisterX() == 1);
@@ -564,7 +626,38 @@ class OpcodeTest {
     }
 
     @Test
-    void testIny() {
+    void testInyNoFlagsSet() {
+        cpu.setRegisterY(10);
+        Opcode.runOpcode("INY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 11);
+    }
+
+    @Test
+    void testInyZFlagSustain() {
+        cpu.setRegisterY(255);
+        Opcode.runOpcode("INY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+
+        Opcode.runOpcode("INY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 1);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 0);
+    }
+
+    @Test
+    void testInyNFlagSustain() {
+        cpu.setRegisterY(254);
+        Opcode.runOpcode("INY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 255);
+        assertTrue(cpu.getFlagZ()     == 0);
+        assertTrue(cpu.getFlagN()     == 1);
+
+        Opcode.runOpcode("INY", 0, cpu);
+        assertTrue(cpu.getRegisterY() == 0);
+        assertTrue(cpu.getFlagZ()     == 1);
+        assertTrue(cpu.getFlagN()     == 1);
     }
 
     @Test

@@ -36,16 +36,16 @@ public class CpuTest {
     @Test
     void testPushStack() {
         cpu.pushStack(100);
-        assertTrue(cpu.peekStack()    == 100);
         assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1);
+        assertTrue(cpu.peekStack()    == 100);
 
         cpu.pushStack(370);
-        assertTrue(cpu.peekStack()    == 370);
         assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 2);
+        assertTrue(cpu.peekStack()    == 370);
 
         cpu.pushStack(123);
-        assertTrue(cpu.peekStack()    == 123);
         assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 3);
+        assertTrue(cpu.peekStack()    == 123);
     }
 
     @Test
@@ -54,13 +54,13 @@ public class CpuTest {
         cpu.pushStack(370);
         cpu.pushStack(123);
 
-        assertTrue(cpu.pullStack()    == 123);
         assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 3);
+        assertTrue(cpu.pullStack()    == 123);
 
-        assertTrue(cpu.pullStack()    == 370);
         assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 2);
+        assertTrue(cpu.pullStack()    == 370);
 
-        assertTrue(cpu.pullStack()    == 100);
         assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1);
+        assertTrue(cpu.pullStack()    == 100);
     }
 }
