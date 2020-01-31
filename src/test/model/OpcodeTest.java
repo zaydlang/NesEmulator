@@ -130,15 +130,235 @@ class OpcodeTest {
     }
 
     @Test
-    void testCmp() {
+    void testCmpEqual() {
+        cpu.setRegisterA(123);
+        Opcode.runOpcode("CMP", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 0);
     }
 
     @Test
-    void testCpx() {
+    void testCmpAccumulatorLess() {
+        cpu.setRegisterA(99);
+        Opcode.runOpcode("CMP", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
     }
 
     @Test
-    void testCpy() {
+    void testCmpAccumulatorGreater() {
+        cpu.setRegisterA(153);
+        Opcode.runOpcode("CMP", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 1);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testCmpAccumulatorLessBorder() {
+        cpu.setRegisterA(122);
+        Opcode.runOpcode("CMP", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+    @Test
+    void testCmpAccumulatorGreaterBorder() {
+        cpu.setRegisterA(124);
+        Opcode.runOpcode("CMP", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 1);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testCmpFlagCSustain() {
+        cpu.setFlagC(1);
+
+        cpu.setRegisterA(99);
+        Opcode.runOpcode("CMP", 123, cpu);
+        assertTrue(cpu.getFlagC() == 1);
+    }
+
+    @Test
+    void testCmpFlagZSustain() {
+        cpu.setFlagZ(1);
+
+        cpu.setRegisterA(99);
+        Opcode.runOpcode("CMP", 123, cpu);
+        assertTrue(cpu.getFlagZ() == 1);
+    }
+
+    @Test
+    void testCmpNFlagSustain() {
+        cpu.setFlagN(1);
+
+        cpu.setRegisterA(153);
+        Opcode.runOpcode("CMP", 123, cpu);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+    @Test
+    void testCpxEqual() {
+        cpu.setRegisterX(123);
+        Opcode.runOpcode("CPX", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testCpxAccumulatorLess() {
+        cpu.setRegisterX(99);
+        Opcode.runOpcode("CPX", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+    @Test
+    void testCpxAccumulatorGreater() {
+        cpu.setRegisterX(153);
+        Opcode.runOpcode("CPX", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 1);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testCpxAccumulatorLessBorder() {
+        cpu.setRegisterX(122);
+        Opcode.runOpcode("CPX", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+    @Test
+    void testCpxAccumulatorGreaterBorder() {
+        cpu.setRegisterX(124);
+        Opcode.runOpcode("CPX", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 1);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testCpxFlagCSustain() {
+        cpu.setFlagC(1);
+
+        cpu.setRegisterX(99);
+        Opcode.runOpcode("CPX", 123, cpu);
+        assertTrue(cpu.getFlagC() == 1);
+    }
+
+    @Test
+    void testCpxFlagZSustain() {
+        cpu.setFlagZ(1);
+
+        cpu.setRegisterX(99);
+        Opcode.runOpcode("CPX", 123, cpu);
+        assertTrue(cpu.getFlagZ() == 1);
+    }
+
+    @Test
+    void testCpxNFlagSustain() {
+        cpu.setFlagN(1);
+
+        cpu.setRegisterX(153);
+        Opcode.runOpcode("CPX", 123, cpu);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+
+    @Test
+    void testCpyEqual() {
+        cpu.setRegisterY(123);
+        Opcode.runOpcode("CPY", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testCpyAccumulatorLess() {
+        cpu.setRegisterY(99);
+        Opcode.runOpcode("CPY", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+    @Test
+    void testCpyAccumulatorGreater() {
+        cpu.setRegisterY(153);
+        Opcode.runOpcode("CPY", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 1);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testCpyAccumulatorLessBorder() {
+        cpu.setRegisterY(122);
+        Opcode.runOpcode("CPY", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 0);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
+    @Test
+    void testCpyAccumulatorGreaterBorder() {
+        cpu.setRegisterY(124);
+        Opcode.runOpcode("CPY", 123, cpu);
+
+        assertTrue(cpu.getFlagC() == 1);
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testCpyFlagCSustain() {
+        cpu.setFlagC(1);
+
+        cpu.setRegisterY(99);
+        Opcode.runOpcode("CPY", 123, cpu);
+        assertTrue(cpu.getFlagC() == 1);
+    }
+
+    @Test
+    void testCpyFlagZSustain() {
+        cpu.setFlagZ(1);
+
+        cpu.setRegisterY(99);
+        Opcode.runOpcode("CPY", 123, cpu);
+        assertTrue(cpu.getFlagZ() == 1);
+    }
+
+    @Test
+    void testCpyNFlagSustain() {
+        cpu.setFlagN(1);
+
+        cpu.setRegisterY(153);
+        Opcode.runOpcode("CPY", 123, cpu);
+        assertTrue(cpu.getFlagN() == 1);
     }
 
     @Test

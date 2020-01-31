@@ -88,12 +88,27 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     };
 
     private static OpcodeAction runCMP = (int argument, CPU cpu) -> {
+        int result = cpu.registerA - argument;
+
+        cpu.flagC |= (result > 0)  ? 1 : 0;
+        cpu.flagZ |= (result == 0) ? 1 : 0;
+        cpu.flagN |= (Util.getNthBit(result, 7));
     };
 
     private static OpcodeAction runCPX = (int argument, CPU cpu) -> {
+        int result = cpu.registerX - argument;
+
+        cpu.flagC |= (result > 0)  ? 1 : 0;
+        cpu.flagZ |= (result == 0) ? 1 : 0;
+        cpu.flagN |= (Util.getNthBit(result, 7));
     };
 
     private static OpcodeAction runCPY = (int argument, CPU cpu) -> {
+        int result = cpu.registerY - argument;
+
+        cpu.flagC |= (result > 0)  ? 1 : 0;
+        cpu.flagZ |= (result == 0) ? 1 : 0;
+        cpu.flagN |= (Util.getNthBit(result, 7));
     };
 
     private static OpcodeAction runDEC = (int argument, CPU cpu) -> {
