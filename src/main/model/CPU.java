@@ -78,6 +78,8 @@ public class CPU {
         Arrays.fill(stack, CPU.INITIAL_STACK_STATE);
     }
 
+    // EFFECTS: returns the value of the memory at the given address.
+    // see the table below for a detailed description of what is stored at which address.
     protected int readMemory(int address) {
         // https://wiki.nesdev.com/w/index.php/CPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
@@ -232,6 +234,10 @@ public class CPU {
         return ram;
     }
 
+    // MODIFIES: registerA
+    // EFFECTS: sets registerA to a new value wrapped around (0...MAXIMUM_REGISTER_A_VALUE)
+    // example: setRegisterA(256) sets registerS to 0.
+    // example: setRegisterA(-1)  sets registerS to MAXIMUM_REGISTER_A_VALUE - 1.
     public void setRegisterA(int registerA) {
         this.registerA = registerA % CPU.MAXIMUM_REGISTER_A_VALUE;
         if (registerA < 0) {
@@ -239,6 +245,10 @@ public class CPU {
         }
     }
 
+    // MODIFIES: registerX
+    // EFFECTS: sets registerX to a new value wrapped around (0...MAXIMUM_REGISTER_X_VALUE)
+    // example: setRegisterX(256) sets registerS to 0.
+    // example: setRegisterX(-1)  sets registerS to MAXIMUM_REGISTER_X_VALUE - 1.
     public void setRegisterX(int registerX) {
         this.registerX = registerX % CPU.MAXIMUM_REGISTER_X_VALUE;
         if (registerX < 0) {
@@ -246,6 +256,10 @@ public class CPU {
         }
     }
 
+    // MODIFIES: registerY
+    // EFFECTS: sets registerY to a new value wrapped around (0...MAXIMUM_REGISTER_Y_VALUE)
+    // example: setRegisterY(256) sets registerY to 0.
+    // example: setRegisterY(-1)  sets registerY to MAXIMUM_REGISTER_Y_VALUE - 1.
     public void setRegisterY(int registerY) {
         this.registerY = registerY % CPU.MAXIMUM_REGISTER_Y_VALUE;
         if (registerY < 0) {
@@ -253,6 +267,10 @@ public class CPU {
         }
     }
 
+    // MODIFIES: registerPC
+    // EFFECTS: sets registerPC to a new value wrapped around (0...MAXIMUM_REGISTER_PC_VALUE)
+    // example: setRegisterPC(256) sets registerA to 0.
+    // example: setRegisterPC(-1)  sets registerA to MAXIMUM_REGISTER_PC_VALUE - 1.
     public void setRegisterPC(int registerPC) {
         this.registerPC = registerPC % CPU.MAXIMUM_REGISTER_PC_VALUE;
         if (registerPC < 0) {
@@ -260,6 +278,10 @@ public class CPU {
         }
     }
 
+    // MODIFIES: registerS
+    // EFFECTS: sets registerS to a new value wrapped around (0...MAXIMUM_REGISTER_S_VALUE)
+    // example: setRegisterS(256) sets registerS to 0.
+    // example: setRegisterS(-1)  sets registerS to MAXIMUM_REGISTER_S_VALUE - 1.
     public void setRegisterS(int registerS) {
         this.registerS = registerS % CPU.MAXIMUM_REGISTER_S_VALUE;
         if (registerS < 0) {
@@ -267,6 +289,10 @@ public class CPU {
         }
     }
 
+    // MODIFIES: registerP
+    // EFFECTS: sets registerP to a new value wrapped around (0...MAXIMUM_REGISTER_P_VALUE)
+    // example: setRegisterP(256) sets registerP to 0.
+    // example: setRegisterP(-1)  sets registerP to MAXIMUM_REGISTER_P_VALUE - 1.
     public void setRegisterP(int registerP) {
         this.registerP = registerP % CPU.MAXIMUM_REGISTER_P_VALUE;
         if (registerP < 0) {
@@ -274,30 +300,58 @@ public class CPU {
         }
     }
 
+    // MODIFIES: flagC
+    // REQUIRES: flagC is either 0 or 1. Note: boolean is not used because calculations are more readable when
+    // the flags are either 0 or 1.
+    // EFFECTS: sets flagC to the given value
     public void setFlagC(int flagC) {
         this.flagC = flagC;
     }
 
+    // MODIFIES: flagZ
+    // REQUIRES: flagZ is either 0 or 1. Note: boolean is not used because calculations are more readable when
+    // the flags are either 0 or 1.
+    // EFFECTS: sets flagZ to the given value
     public void setFlagZ(int flagZ) {
         this.flagZ = flagZ;
     }
 
+    // MODIFIES: flagI
+    // REQUIRES: flagI is either 0 or 1. Note: boolean is not used because calculations are more readable when
+    // the flags are either 0 or 1.
+    // EFFECTS: sets flagI to the given value
     public void setFlagI(int flagI) {
         this.flagI = flagI;
     }
 
+    // MODIFIES: flagD
+    // REQUIRES: flagD is either 0 or 1. Note: boolean is not used because calculations are more readable when
+    // the flags are either 0 or 1.
+    // EFFECTS: sets flagD to the given value
     public void setFlagD(int flagD) {
         this.flagD = flagD;
     }
 
+    // MODIFIES: flagB
+    // REQUIRES: flagB is either 0 or 1. Note: boolean is not used because calculations are more readable when
+    // the flags are either 0 or 1.
+    // EFFECTS: sets flagB to the given value
     public void setFlagB(int flagB) {
         this.flagB = flagB;
     }
 
+    // MODIFIES: flagV
+    // REQUIRES: flagV is either 0 or 1. Note: boolean is not used because calculations are more readable when
+    // the flags are either 0 or 1.
+    // EFFECTS: sets flagV to the given value
     public void setFlagV(int flagV) {
         this.flagV = flagV;
     }
 
+    // MODIFIES: flagN
+    // REQUIRES: flagN is either 0 or 1. Note: boolean is not used because calculations are more readable when
+    // the flags are either 0 or 1.
+    // EFFECTS: sets flagN to the given value
     public void setFlagN(int flagN) {
         this.flagN = flagN;
     }

@@ -33,18 +33,27 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runASL = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: adds argument to registerPC to cause a branch to a new location if:
+    //          flagC is 0.
     private static OpcodeAction runBCC = (int argument, CPU cpu) -> {
         if (cpu.flagC == 0) {
             cpu.setRegisterPC(cpu.getRegisterPC() + argument);
         }
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: adds argument to registerPC to cause a branch to a new location if:
+    //          flagC is 1.
     private static OpcodeAction runBCS = (int argument, CPU cpu) -> {
         if (cpu.flagC == 1) {
             cpu.setRegisterPC(cpu.getRegisterPC() + argument);
         }
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: adds argument to registerPC to cause a branch to a new location if:
+    //          flagZ is 1.
     private static OpcodeAction runBEQ = (int argument, CPU cpu) -> {
         if (cpu.flagZ == 1) {
             cpu.setRegisterPC(cpu.getRegisterPC() + argument);
@@ -54,18 +63,27 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runBIT = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: adds argument to registerPC to cause a branch to a new location if:
+    //          flagN is 1.
     private static OpcodeAction runBMI = (int argument, CPU cpu) -> {
         if (cpu.flagN == 1) {
             cpu.setRegisterPC(cpu.getRegisterPC() + argument);
         }
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: adds argument to registerPC to cause a branch to a new location if:
+    //          flagZ is 0.
     private static OpcodeAction runBNE = (int argument, CPU cpu) -> {
         if (cpu.flagZ == 0) {
             cpu.setRegisterPC(cpu.getRegisterPC() + argument);
         }
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: adds argument to registerPC to cause a branch to a new location if:
+    //          flagN is 0.
     private static OpcodeAction runBPL = (int argument, CPU cpu) -> {
         if (cpu.flagN == 0) {
             cpu.setRegisterPC(cpu.getRegisterPC() + argument);
@@ -75,12 +93,18 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runBRK = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: adds argument to registerPC to cause a branch to a new location if:
+    //          flagV is 0.
     private static OpcodeAction runBVC = (int argument, CPU cpu) -> {
         if (cpu.flagV == 0) {
             cpu.setRegisterPC(cpu.getRegisterPC() + argument);
         }
     };
 
+    // MODIFIES: cpu.registerPC
+    // EFFECTS: adds argument to registerPC to cause a branch to a new location if:
+    //          flagV is 1.
     private static OpcodeAction runBVS = (int argument, CPU cpu) -> {
         if (cpu.flagV == 1) {
             cpu.setRegisterPC(cpu.getRegisterPC() + argument);
@@ -348,6 +372,9 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static OpcodeAction runRTI = (int argument, CPU cpu) -> {
     };
 
+    // MODIFIES: cpu.registerPC, cpu.stack
+    // EFFECTS: returns from the subroutine by pulling from the stack and setting
+    // registerPC to that value (minus one to account for argument length)
     private static OpcodeAction runRTS = (int argument, CPU cpu) -> {
         cpu.setRegisterPC(cpu.pullStack() - 1);
     };
