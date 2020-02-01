@@ -916,7 +916,7 @@ class OpcodeTest {
         assertTrue(cpu.getCycles()     == CPU.INITIAL_CYCLES);
         assertTrue(cpu.peekStack()     == CPU.INITIAL_STACK_STATE);
 
-        for (int i : cpu.getRam()) {
+        for (int i : cpu.ram) {
             assertTrue(i == CPU.INITIAL_RAM_STATE);
         }
     }

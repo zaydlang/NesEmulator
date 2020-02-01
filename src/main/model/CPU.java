@@ -49,6 +49,7 @@ public class CPU {
     private int[] stack;
 
     // Memory
+    // TODO: is it right to make ram have default visibility?
     int[] ram;
 
     // EFFECTS: initializes the RAM and STACK and calls reset() to reset all values in the cpu to their default states.
@@ -78,6 +79,7 @@ public class CPU {
         Arrays.fill(stack, CPU.INITIAL_STACK_STATE);
     }
 
+    // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     // see the table below for a detailed description of what is stored at which address.
     protected int readMemory(int address) {
@@ -107,6 +109,7 @@ public class CPU {
         }
     }
 
+    // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // MODIFIES: ram
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
     protected void writeMemory(int address, int rawValue) {
@@ -129,14 +132,14 @@ public class CPU {
         if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
             ram[address % Integer.parseInt("0800",16)] = value;
         } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
-            return; // TODO add when the ppu is implemented. remember to add mirrors.
+            // TODO add when the ppu is implemented. remember to add mirrors.
         } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
-            return; // TODO add when the apu is implemented.
+            // TODO add when the apu is implemented.
         } else if (address <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
                                                                              // normally disabled.
-            return; // TODO add when the apu is implemented.
+            // TODO add when the apu is implemented.
         } else {
-            return; // TODO will complete when mapper added
+            // TODO will complete when mapper added
         }
     }
 
@@ -263,11 +266,6 @@ public class CPU {
     // EFFECTS: returns the number of cycles
     public int getCycles() {
         return cycles;
-    }
-
-    // EFFECTS: returns the RAM
-    public int[] getRam() {
-        return ram;
     }
 
     // MODIFIES: registerA
