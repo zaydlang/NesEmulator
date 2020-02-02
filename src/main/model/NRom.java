@@ -76,9 +76,11 @@ public class NRom implements Mapper {
         // $6000 - $7FFF | $2000 | PRG RAM, mirrored as necessary to fill entire 8 KiB window
         // $8000 - $BFFF | $4000 | First 16 KB of ROM
         // $C000 - $F7FF | $4000 | Last 16 KB of ROM (for NROM-256). Else, this is a mirror of the first 16 KB.
-        if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
+        if (address <= Integer.parseInt("6000", 16)) {          // Out of bounds
+            return 0;
+        } else if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
             return prgRam[address - Integer.parseInt("6000", 16)];
-        } else {                                                   // PRG ROM. mirrored for NROM-128 in the constructor.
+        } else {                                                          // PRG ROM. mirrored for NROM-128
             return prgRom[address - Integer.parseInt("8000", 16)];
         }
     }
@@ -86,7 +88,9 @@ public class NRom implements Mapper {
     // REQUIRES: address is in between 0x6000 and 0xFFFF, inclusive.
     // MODIFIES: prgRam, prgRom
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
-    public void writeMemory(int address, int rawValue) {
+    // returns true if writing to memory was successful.
+    // returns false otherwise.
+    public boolean writeMemory(int address, int rawValue) {
         // https://wiki.nesdev.com/w/index.php/NROM
         // ADDRESS RANGE | SIZE  | DEVICE
         // $6000 - $7FFF | $2000 | PRG RAM, mirrored as necessary to fill entire 8 KiB window
@@ -97,10 +101,16 @@ public class NRom implements Mapper {
             value += 256;
         }
 
-        if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
+        if        (address < Integer.parseInt("6000", 16)) {    // Out of Bounds
+            return false;
+        } else if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
             prgRam[address - Integer.parseInt("6000", 16)] = value;
-        } else {                                                   // PRG ROM. mirrored for NROM-128 in the constructor.
+            return true;
+        } else if (address <= Integer.parseInt("F7FF", 16)) { // PRG ROM. mirrored for NROM-128.
             prgRom[address - Integer.parseInt("8000", 16)] = value;
+            return true;
+        } else {
+            return false;
         }
     }
 

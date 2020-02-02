@@ -47,6 +47,7 @@ public class CPU {
 
     // Stack is decreasing stack.
     private int[] stack;
+    private Mapper mapper;
 
     // Memory
     // TODO: is it right to make ram have default visibility?
@@ -105,14 +106,15 @@ public class CPU {
                                                                              // normally disabled.
             return 0; // TODO add when the apu is implemented.
         } else {
-            return 0; // TODO will complete when mapper added
+            return mapper.readMemory(address);
         }
     }
 
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // MODIFIES: ram
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
-    protected void writeMemory(int address, int rawValue) {
+    //          returns true if writing to memory was successful. returns false otherwise.
+    protected boolean writeMemory(int address, int rawValue) {
         // https://wiki.nesdev.com/w/index.php/CPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
         // $0000 - $07FF | $0800 | 2KB internal RAM
@@ -131,15 +133,18 @@ public class CPU {
 
         if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
             ram[address % Integer.parseInt("0800",16)] = value;
+            return true;
         } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
             // TODO add when the ppu is implemented. remember to add mirrors.
+            return true;
         } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
             // TODO add when the apu is implemented.
+            return true;
         } else if (address <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
-                                                                             // normally disabled.
+            return true;                                                     // normally disabled.
             // TODO add when the apu is implemented.
         } else {
-            // TODO will complete when mapper added
+            return mapper.writeMemory(address, rawValue);
         }
     }
 
@@ -268,6 +273,11 @@ public class CPU {
         return cycles;
     }
 
+    // EFFECTS: returns the mapper
+    public Mapper getMapper() {
+        return mapper;
+    }
+
     // MODIFIES: registerA
     // EFFECTS: sets registerA to a new value wrapped around (0...MAXIMUM_REGISTER_A_VALUE)
     // example: setRegisterA(256) sets registerS to 0.
@@ -388,5 +398,11 @@ public class CPU {
     // EFFECTS: sets flagN to the given value
     public void setFlagN(int flagN) {
         this.flagN = flagN;
+    }
+
+    // MODIFIES: mapper
+    // EFFECTS: the mapper is set to the given mapper
+    public void setMapper(Mapper mapper) {
+        this.mapper = mapper;
     }
 }

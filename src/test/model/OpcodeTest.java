@@ -214,6 +214,7 @@ class OpcodeTest {
     @Test
     void testBrk() {
         cpu.setStatus(142);
+        cpu.setMapper(new NRom());
         cpu.writeMemory(Integer.parseInt("FFFE", 16), 71);
         cpu.setRegisterPC(47);
         Opcode.runOpcode("BRK", 0, cpu);

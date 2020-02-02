@@ -2,6 +2,7 @@ package model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -58,6 +59,11 @@ public class NRomTest {
         assertTrue(Arrays.hashCode(result) == 55642);
     }
 
+
+
+
+    // ######### TESTS FOR READING MEMORY ##########
+
     @Test
     void testReadMemoryPrgRam() {
         nRom.setPrgRam(Integer.parseInt("17", 16), 125);
@@ -70,39 +76,92 @@ public class NRomTest {
         assertTrue(nRom.readMemory(Integer.parseInt("8017", 16)) == 125);
     }
 
-    @Test
-    void testWriteMemoryPrgRam() {
-        nRom.writeMemory(Integer.parseInt("6017", 16), 125);
-        assertTrue(nRom.getPrgRam(Integer.parseInt("17", 16)) == 125);
-    }
+
+
+
+    // ######### TESTS FOR WRITING MEMORY: PRG RAM ##########
 
     @Test
-    void testWriteMemoryPrgRom() {
-        nRom.writeMemory(Integer.parseInt("8017", 16), 125);
-        assertTrue(nRom.getPrgRom(Integer.parseInt("17", 16)) == 125);
+    void testWriteMemoryPrgRam() {
+        int address = Integer.parseInt("6017", 16);
+        nRom.writeMemory(address, 125);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
     }
 
     @Test
     void testWriteMemoryPrgRamOverflow() {
-        nRom.writeMemory(Integer.parseInt("6017", 16), 125 + 256);
-        assertTrue(nRom.getPrgRam(Integer.parseInt("17", 16)) == 125);
-    }
-
-    @Test
-    void testWriteMemoryPrgRomOverflow() {
-        nRom.writeMemory(Integer.parseInt("8017", 16), 125 + 256);
-        assertTrue(nRom.getPrgRom(Integer.parseInt("17", 16)) == 125);
+        int address = Integer.parseInt("6017", 16);
+        nRom.writeMemory(address, 125 + 256);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
     }
 
     @Test
     void testWriteMemoryPrgRamUnderflow() {
-        nRom.writeMemory(Integer.parseInt("6017", 16), 125 - 256);
-        assertTrue(nRom.getPrgRam(Integer.parseInt("17", 16)) == 125);
+        int address = Integer.parseInt("6017", 16);
+        nRom.writeMemory(address, 125 - 256);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
+    }
+
+    @Test
+    void testWriteMemoryPrgRamLowerBound() {
+        int address = Integer.parseInt("6000", 16);
+        nRom.writeMemory(address, 125 - 256);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
+    }
+
+    @Test
+    void testWriteMemoryPrgRamUpperBound() {
+        int address = Integer.parseInt("7FFF", 16);
+        nRom.writeMemory(address, 125 - 256);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
+
+    }
+
+
+
+
+    // ######### TESTS FOR WRITING MEMORY: PRG ROM ##########
+
+    @Test
+    void testWriteMemoryPrgRom() {
+        int address = Integer.parseInt("8017", 16);
+        nRom.writeMemory(address, 125);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
     }
 
     @Test
     void testWriteMemoryPrgRomUnderflow() {
-        nRom.writeMemory(Integer.parseInt("8017", 16), 125 - 256);
-        assertTrue(nRom.getPrgRom(Integer.parseInt("17", 16)) == 125);
+        int address = Integer.parseInt("8017", 16);
+        nRom.writeMemory(address, 125 - 256);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+    }
+
+    @Test
+    void testWriteMemoryPrgRomOverflow() {
+        int address = Integer.parseInt("8017", 16);
+        nRom.writeMemory(address, 125 + 256);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+    }
+
+    @Test
+    void testWriteMemoryPrgRomLowerBound() {
+        int address = Integer.parseInt("8000", 16);
+        nRom.writeMemory(address, 125);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+    }
+
+    @Test
+    void testWriteMemoryPrgRomUpperBound() {
+        int address = Integer.parseInt("F7FF", 16);
+        nRom.writeMemory(address, 125);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+    }
+
+    @Test
+    void testWriteMemoryFailure() {
+        boolean isSuccessful = nRom.writeMemory(Integer.parseInt("5000", 16), 47);
+        assertTrue(!isSuccessful);
+        isSuccessful         = nRom.writeMemory(Integer.parseInt("FFFF", 16), 47);
+        assertTrue(!isSuccessful);
     }
 }

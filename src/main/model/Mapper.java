@@ -7,5 +7,5 @@ public interface Mapper {
 
     int readMemory(int address);
 
-    void writeMemory(int address, int value);
+    boolean writeMemory(int address, int value);
 }
