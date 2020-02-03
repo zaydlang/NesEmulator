@@ -63,12 +63,18 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         return arguments[0] + arguments[1] * 256;
     };
 
+    // REQUIRES: arguments has a length of 1.
+    // EFFECTS: adds the little endian number represented by the two arguments given added to registerX and returns
+    //          the associated address on the zero page
     public static ModeAction getZeroPageIndexedX = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return (arguments[0] + cpu.getRegisterX()) % Integer.parseInt("FF", 16);
     };
 
+    // REQUIRES: arguments has a length of 1.
+    // EFFECTS: adds the little endian number represented by the two arguments given added to registery and returns
+    //          the associated address on the zero page
     public static ModeAction getZeroPageIndexedY = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return (arguments[0] + cpu.getRegisterY()) % Integer.parseInt("FF", 16);
     };
 
     // REQUIRES: arguments has a length of 0 or 2.

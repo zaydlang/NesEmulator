@@ -190,21 +190,22 @@ public class ModeTest {
 
     // TODO: there is an absolute indexed x that uses zero arguments, but as that instruction hasn't been fully
     // TODO: implemented yet, i will write that test later. Same goes for absolute indexed y
+    // TODO: remove the separation of implementation and declaration maybe? ask in office hours.
     @Test
     void testAbsoluteIndexedXTwoArguments() {
         int argumentOne;
         int argumentTwo;
         int fullArgument;
-        int oldRegisterX;
+        int registerX;
 
         argumentOne  = Integer.parseInt("A4", 16);
         argumentTwo  = Integer.parseInt("B7", 16);
-        oldRegisterX = 30;
+        registerX    = Integer.parseInt("30", 16);
 
         fullArgument = argumentOne + argumentTwo * 256;
-        int expectedResult = oldRegisterX + fullArgument;
+        int expectedResult = registerX + fullArgument;
         int[] arguments = new int[] {argumentOne, argumentTwo};
-        cpu.setRegisterX(oldRegisterX);
+        cpu.setRegisterX(registerX);
         assertTrue(Mode.runMode("ABSOLUTE_INDEXED_X", arguments, cpu) == expectedResult);
     }
 
@@ -213,16 +214,52 @@ public class ModeTest {
         int argumentOne;
         int argumentTwo;
         int fullArgument;
-        int oldRegisterY;
+        int registerY;
 
         argumentOne  = Integer.parseInt("A4", 16);
         argumentTwo  = Integer.parseInt("B7", 16);
-        oldRegisterY = 30;
+        registerY    = Integer.parseInt("30", 16);
 
         fullArgument = argumentOne + argumentTwo * 256;
-        int expectedResult = oldRegisterY + fullArgument;
+        int expectedResult = registerY + fullArgument;
         int[] arguments = new int[] {argumentOne, argumentTwo};
-        cpu.setRegisterY(oldRegisterY);
+        cpu.setRegisterY(registerY);
         assertTrue(Mode.runMode("ABSOLUTE_INDEXED_Y", arguments, cpu) == expectedResult);
+    }
+
+    @Test
+    void testZeroPageIndexedXOneArgument() {
+        int argument  = Integer.parseInt("A4", 16);
+        int registerX = Integer.parseInt("30", 16);
+        int expectedResult = registerX + argument;
+        cpu.setRegisterX(registerX);
+        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_X", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @Test
+    void testZeroPageIndexedXOneArgumentOverflow() {
+        int argument  = Integer.parseInt("A4", 16);
+        int registerX = Integer.parseInt("FE", 16);
+        int expectedResult = (registerX + argument) % Integer.parseInt("FF", 16);
+        cpu.setRegisterX(registerX);
+        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_X", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @Test
+    void testZeroPageIndexedYOneArgument() {
+        int argument  = Integer.parseInt("A4", 16);
+        int registerY = Integer.parseInt("30", 16);
+        int expectedResult = registerY + argument;
+        cpu.setRegisterY(registerY);
+        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_Y", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @Test
+    void testZeroPageIndexedYOneArgumentOverflow() {
+        int argument  = Integer.parseInt("A4", 16);
+        int registerY = Integer.parseInt("FE", 16);
+        int expectedResult = (registerY + argument) % Integer.parseInt("FF", 16);
+        cpu.setRegisterY(registerY);
+        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_Y", new int[] {argument}, cpu) == expectedResult);
     }
 }
