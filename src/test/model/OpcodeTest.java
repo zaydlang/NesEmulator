@@ -785,7 +785,7 @@ class OpcodeTest {
     @Test
     void testJmp() {
         cpu.setRegisterPC(18);
-        Opcode.runOpcode("JMP", 234, cpu);
+        Opcode.runOpcode("JMP", CPU.REGISTER_PC_OFFSET + 234, cpu);
         assertTrue(cpu.getRegisterPC() == 234);
     }
 

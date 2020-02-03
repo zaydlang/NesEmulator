@@ -21,12 +21,15 @@ public class NRom implements Mapper {
     int[] chrRom;
     int[] prgRom;
 
+    private boolean isNRom128;
+
     public NRom() {
         header  = new int[HEADER_SIZE];
         trainer = new int[TRAINER_SIZE];
         prgRam  = new int[NROM_RAM_LENGTH];
         chrRom  = new int[CHR_ROM_SIZE];
         prgRom  = new int[NROM_ROM_128_LENGTH + NROM_ROM_256_LENGTH];
+        isNRom128 = false;
     }
 
     // MODIFIES: header, trainer, prgRom, chrRom
@@ -49,6 +52,7 @@ public class NRom implements Mapper {
             }
             prgRom = readFile(file, 0, header[4] * PRG_ROM_SIZE);
             chrRom = readFile(file, 0, header[5] * CHR_ROM_SIZE);
+            isNRom128 = header[4] * PRG_ROM_SIZE >= NROM_ROM_128_LENGTH;
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -81,7 +85,11 @@ public class NRom implements Mapper {
         } else if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
             return prgRam[address - Integer.parseInt("6000", 16)];
         } else {                                                          // PRG ROM. mirrored for NROM-128
-            return prgRom[address - Integer.parseInt("8000", 16)];
+            if (isNRom128) {
+                return prgRom[(address - Integer.parseInt("8000", 16)) % NROM_ROM_128_LENGTH];
+            } else {
+                return prgRom[address - Integer.parseInt("8000", 16)];
+            }
         }
     }
 
@@ -107,7 +115,11 @@ public class NRom implements Mapper {
             prgRam[address - Integer.parseInt("6000", 16)] = value;
             return true;
         } else {                                                         // PRG ROM. mirrored for NROM-128.
-            prgRom[address - Integer.parseInt("8000", 16)] = value;
+            if (isNRom128) {
+                prgRom[(address - Integer.parseInt("8000", 16)) % NROM_ROM_128_LENGTH] = value;
+            } else {
+                prgRom[address - Integer.parseInt("8000", 16)] = value;
+            }
             return true;
         }
     }

@@ -17,31 +17,35 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         return modes.get(mode).run(arguments, cpu);
     }
 
-    // REQUIRES: arguments has a length of either 0 or 1.
+    // REQUIRES: arguments has a length of 0.
     // EFFECTS: An instruction with an implicit addressing mode won't use its argument anyway,
     //          so it doesn't matter what's returned here. Nevertheless, returns 0.
     public static ModeAction getImplicit = (int[] arguments, CPU cpu) -> {
         return 0;
     };
 
-    // REQUIRES: arguments has a length of 1.
+    // REQUIRES: arguments has a length of 0.
     // EFFECTS: returns the value of the accumulator.
     public static ModeAction getAccumulator = (int[] arguments, CPU cpu) -> {
         return cpu.getRegisterA();
     };
 
-    // REQUIRES: arguments has a length of 1 or 2.
+    // REQUIRES: arguments has a length of 0 or 1.
     // EFFECTS: returns the first argument in the list of arguments.
+    //          if arguments.length == 0, then returns 0
     public static ModeAction getImmediate = (int[] arguments, CPU cpu) -> {
-        return arguments[0];
+        return (arguments.length == 0) ? 0 : arguments[0];
     };
 
+    // REQUIRES: arguments has a length of 0 or 1.
+    // EFFECTS: returns the value in memory at arguments[0].
+    //          if arguments.length == 0, then returns 0
     public static ModeAction getZeroPage = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return cpu.readMemory(arguments.length == 0 ? 0 : arguments[0]);
     };
 
     public static ModeAction getAbsolute = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return arguments[0] + arguments[1] * 256;
     };
 
     public static ModeAction getRelative = (int[] arguments, CPU cpu) -> {

@@ -26,6 +26,9 @@ public class CPU {
     public static final int MAXIMUM_REGISTER_S_VALUE  = (int) Math.pow(2, 8 * 1);
     public static final int MAXIMUM_REGISTER_P_VALUE  = (int) Math.pow(2, 6);
 
+    // TODO: after cpu is done, see if this variable can be removed.
+    public static final int REGISTER_PC_OFFSET        = Integer.parseInt("C000", 16);
+
     // CPU Flags
     protected int flagC;  // Carry
     protected int flagZ;  // Zero
@@ -83,13 +86,14 @@ public class CPU {
     // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
     // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
     public void cycle() {
-        Instruction instruction = Instruction.instructions[readMemory(registerPC)];
-        int[] modeArgument = new int[instruction.getNumArguments()];
-        for (int i = 0; i < instruction.getNumArguments(); i++) {
-            modeArgument[i] = readMemory(registerPC + 1 + i);
+        int valueAtProgramCounter = readMemory(REGISTER_PC_OFFSET + registerPC);
+        Instruction instruction = Instruction.instructions[valueAtProgramCounter];
+        int[] modeArguments = new int[instruction.getNumArguments() - 1];
+        for (int i = 1; i < instruction.getNumArguments(); i++) {
+            modeArguments[i - 1] = readMemory(REGISTER_PC_OFFSET + registerPC + i);
         }
 
-        int opcodeArgument = Mode.runMode(instruction.getMode(), modeArgument, this);
+        int opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
         Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
 
         cycles += instruction.getNumCycles();

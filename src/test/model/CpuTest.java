@@ -2,9 +2,6 @@ package model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
-
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -251,6 +248,12 @@ public class CpuTest {
 
 
     // ########## TESTS FOR MISCELLANEOUS CPU METHODS ##########
+
+    // TODO: unsure how to implement such a test, considering there's 192 different instructions.
+    @Test
+    void testCycle() {
+
+    }
 
     @Test
     void testSetStatus() {

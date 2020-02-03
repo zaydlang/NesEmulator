@@ -273,7 +273,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // MODIFIES: cpu.registerPC
     // EFFECTS: sets registerPC (the program counter) to the argument specified.
     private static OpcodeAction runJMP = (int argument, CPU cpu) -> {
-        cpu.setRegisterPC(argument);
+        cpu.setRegisterPC(argument - CPU.REGISTER_PC_OFFSET);
     };
 
     // MODIFIES: cpu.registerPC, cpu.stack
