@@ -118,7 +118,7 @@ public class ModeTest {
     }
 
     @Test
-    void testRelativePositiveSign() {
+    void testRelativePositiveSignOneArgument() {
         int argument      = 43;
         int oldRegisterPC = 50;
 
@@ -128,8 +128,8 @@ public class ModeTest {
     }
 
     @Test
-    void testRelativePositiveSignLowerBound() {
-        int argument = 1;
+    void testRelativePositiveSignLowerBoundOneArgument() {
+        int argument      = 1;
         int oldRegisterPC = 50;
 
         int expectedResult = oldRegisterPC + argument;
@@ -138,8 +138,8 @@ public class ModeTest {
     }
 
     @Test
-    void testRelativePositiveSignUpperBound() {
-        int argument = 127;
+    void testRelativePositiveSignUpperBoundOneArgument() {
+        int argument      = 127;
         int oldRegisterPC = 50;
 
         int expectedResult = oldRegisterPC + argument;
@@ -148,7 +148,7 @@ public class ModeTest {
     }
 
     @Test
-    void testRelativeNegativeSign() {
+    void testRelativeNegativeSignOneArgument() {
         int argument      = 174;
         int oldRegisterPC = 50;
 
@@ -158,8 +158,8 @@ public class ModeTest {
     }
 
     @Test
-    void testRelativeNegativeSignLowerBound() {
-        int argument = 128;
+    void testRelativeNegativeSignLowerBoundOneArgument() {
+        int argument      = 128;
         int oldRegisterPC = 50;
 
         int expectedResult = oldRegisterPC - (256 - argument);
@@ -168,8 +168,8 @@ public class ModeTest {
     }
 
     @Test
-    void testRelativeNegativeSignUpperBound() {
-        int argument = 255;
+    void testRelativeNegativeSignUpperBoundOneArgument() {
+        int argument      = 255;
         int oldRegisterPC = 50;
 
         int expectedResult = oldRegisterPC - (256 - argument);
@@ -179,12 +179,50 @@ public class ModeTest {
 
     @SuppressWarnings("UnnecessaryLocalVariable")
     @Test
-    void testRelativeNoSign() {
-        int argument = 0;
+    void testRelativeNoSignOneArgument() {
+        int argument      = 0;
         int oldRegisterPC = 50;
 
         int expectedResult = oldRegisterPC;
         cpu.setRegisterPC(oldRegisterPC);
         assertTrue(Mode.runMode("RELATIVE", new int[] {argument}, cpu) == oldRegisterPC + argument);
+    }
+
+    // TODO: there is an absolute indexed x that uses zero arguments, but as that instruction hasn't been fully
+    // TODO: implemented yet, i will write that test later. Same goes for absolute indexed y
+    @Test
+    void testAbsoluteIndexedXTwoArguments() {
+        int argumentOne;
+        int argumentTwo;
+        int fullArgument;
+        int oldRegisterX;
+
+        argumentOne  = Integer.parseInt("A4", 16);
+        argumentTwo  = Integer.parseInt("B7", 16);
+        oldRegisterX = 30;
+
+        fullArgument = argumentOne + argumentTwo * 256;
+        int expectedResult = oldRegisterX + fullArgument;
+        int[] arguments = new int[] {argumentOne, argumentTwo};
+        cpu.setRegisterX(oldRegisterX);
+        assertTrue(Mode.runMode("ABSOLUTE_INDEXED_X", arguments, cpu) == expectedResult);
+    }
+
+    @Test
+    void testAbsoluteIndexedYTwoArguments() {
+        int argumentOne;
+        int argumentTwo;
+        int fullArgument;
+        int oldRegisterY;
+
+        argumentOne  = Integer.parseInt("A4", 16);
+        argumentTwo  = Integer.parseInt("B7", 16);
+        oldRegisterY = 30;
+
+        fullArgument = argumentOne + argumentTwo * 256;
+        int expectedResult = oldRegisterY + fullArgument;
+        int[] arguments = new int[] {argumentOne, argumentTwo};
+        cpu.setRegisterY(oldRegisterY);
+        assertTrue(Mode.runMode("ABSOLUTE_INDEXED_Y", arguments, cpu) == expectedResult);
     }
 }

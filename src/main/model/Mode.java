@@ -71,12 +71,16 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         return 0; // stub
     };
 
+    // REQUIRES: arguments has a length of 0 or 2.
+    // EFFECTS: returns the little endian number represented by the two arguments given added to registerX.
     public static ModeAction getAbsoluteIndexedX = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return arguments[0] + arguments[1] * 256 + cpu.getRegisterX();
     };
 
+    // REQUIRES: arguments has a length of 0 or 2.
+    // EFFECTS: returns the little endian number represented by the two arguments given added to registerY.
     public static ModeAction getAbsoluteIndexedY = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return arguments[0] + arguments[1] * 256 + cpu.getRegisterY();
     };
 
     public static ModeAction getIndexedIndirect = (int[] arguments, CPU cpu) -> {
