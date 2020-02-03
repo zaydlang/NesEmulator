@@ -80,6 +80,21 @@ public class CPU {
         Arrays.fill(stack, CPU.INITIAL_STACK_STATE);
     }
 
+    // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
+    // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
+    public void cycle() {
+        Instruction instruction = Instruction.instructions[readMemory(registerPC)];
+        int[] modeArgument = new int[instruction.getNumArguments()];
+        for (int i = 0; i < instruction.getNumArguments(); i++) {
+            modeArgument[i] = readMemory(registerPC + 1 + i);
+        }
+
+        int opcodeArgument = Mode.runMode(instruction.getMode(), modeArgument, this);
+        Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
+
+        cycles += instruction.getNumCycles();
+    }
+
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     // see the table below for a detailed description of what is stored at which address.

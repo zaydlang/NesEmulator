@@ -106,11 +106,9 @@ public class NRom implements Mapper {
         } else if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
             prgRam[address - Integer.parseInt("6000", 16)] = value;
             return true;
-        } else if (address <= Integer.parseInt("F7FF", 16)) { // PRG ROM. mirrored for NROM-128.
+        } else {                                                         // PRG ROM. mirrored for NROM-128.
             prgRom[address - Integer.parseInt("8000", 16)] = value;
             return true;
-        } else {
-            return false;
         }
     }
 

@@ -219,7 +219,7 @@ class OpcodeTest {
         cpu.setRegisterPC(47);
         Opcode.runOpcode("BRK", 0, cpu);
 
-        assertTrue(cpu.getRegisterPC() == cpu.readMemory(71));
+        assertTrue(cpu.getRegisterPC() == cpu.readMemory(Integer.parseInt("FFFE", 16)));
         assertTrue(cpu.pullStack()     == 142);
         assertTrue(cpu.pullStack()     == 47);
         assertTrue(cpu.getFlagB()      == 1);

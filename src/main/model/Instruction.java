@@ -3,14 +3,38 @@ package model;
 public class Instruction {
     private String opcode;
     private String mode;
-    private int numBytes;
+    private int numArguments;
     private int numCycles;
 
-    public Instruction(String opcode, String mode, int numBytes, int numCycles) {
-        this.opcode    = opcode;
-        this.mode      = mode;
-        this.numBytes  = numBytes;
-        this.numCycles = numCycles;
+    public Instruction(String opcode, String mode, int numArguments, int numCycles) {
+        this.opcode       = opcode;
+        this.mode         = mode;
+        this.numArguments = numArguments;
+        this.numCycles    = numCycles;
+    }
+
+    // EFFECTS: returns the opcode
+    public String getOpcode() {
+        return opcode;
+    }
+
+    // EFFECTS: returns the mode
+    public String getMode() {
+        return mode;
+    }
+
+    // EFFECTS: returns the number of bytes
+    public int getNumArguments() {
+        return numArguments;
+    }
+
+    // EFFECTS: returns the number of cycles
+    public int getNumCycles() {
+        return numCycles;
+    }
+
+    public static Instruction[] getInstructions() {
+        return instructions;
     }
 
     public static final Instruction[] instructions = new Instruction[]{
@@ -270,6 +294,5 @@ public class Instruction {
             new Instruction("SBC", "ABSOLUTE_INDEXED_X",  3, 4),
             new Instruction("INC", "ABSOLUTE_INDEXED_X",  3, 7),
             new Instruction("NOP", "IMPLICIT",            0, 0), // unused instruction
-
     };
 }

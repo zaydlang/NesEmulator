@@ -161,7 +161,5 @@ public class NRomTest {
     void testWriteMemoryFailure() {
         boolean isSuccessful = nRom.writeMemory(Integer.parseInt("5000", 16), 47);
         assertTrue(!isSuccessful);
-        isSuccessful         = nRom.writeMemory(Integer.parseInt("FFFF", 16), 47);
-        assertTrue(!isSuccessful);
     }
 }
