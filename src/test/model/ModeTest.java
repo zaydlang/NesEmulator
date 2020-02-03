@@ -2,6 +2,7 @@ package model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,12 +17,12 @@ public class ModeTest {
     }
 
     @Test
-    void testImplicit() {
+    void testImplicitNoArguments() {
         assertTrue(Mode.runMode("IMPLICIT", new int[0], cpu) == 0);
     }
 
     @Test
-    void testAccumulator() {
+    void testAccumulatorNoArguments() {
         cpu.setRegisterA(0);
         assertTrue(Mode.runMode("ACCUMULATOR", new int[0], cpu) == 0);
         cpu.setRegisterA(47);
@@ -33,7 +34,7 @@ public class ModeTest {
     }
 
     @Test
-    void testImmediateNoArgument() {
+    void testImmediateNoArguments() {
         assertTrue(Mode.runMode("IMMEDIATE", new int[0], cpu) == 0);
     }
 
@@ -87,5 +88,103 @@ public class ModeTest {
         argumentTwo  = Integer.parseInt("58", 16);
         fullArgument = argumentOne + argumentTwo * 256;
         assertTrue(Mode.runMode("ABSOLUTE", new int[] {argumentOne, argumentTwo}, cpu) == fullArgument);
+    }
+
+    @Test
+    void testIndirectTwoArguments() {
+        int argumentOne;
+        int argumentTwo;
+        int fullArgument;
+
+        argumentOne  = Integer.parseInt("C5", 16);
+        argumentTwo  = Integer.parseInt("F5", 16);
+        fullArgument = argumentOne + argumentTwo * 256;
+        assertTrue(Mode.runMode("INDIRECT", new int[] {argumentOne, argumentTwo}, cpu) == fullArgument);
+
+        argumentOne  = Integer.parseInt("A4", 16);
+        argumentTwo  = Integer.parseInt("B7", 16);
+        fullArgument = argumentOne + argumentTwo * 256;
+        assertTrue(Mode.runMode("INDIRECT", new int[] {argumentOne, argumentTwo}, cpu) == fullArgument);
+
+        argumentOne  = Integer.parseInt("07", 16);
+        argumentTwo  = Integer.parseInt("62", 16);
+        fullArgument = argumentOne + argumentTwo * 256;
+        assertTrue(Mode.runMode("INDIRECT", new int[] {argumentOne, argumentTwo}, cpu) == fullArgument);
+
+        argumentOne  = Integer.parseInt("24", 16);
+        argumentTwo  = Integer.parseInt("58", 16);
+        fullArgument = argumentOne + argumentTwo * 256;
+        assertTrue(Mode.runMode("INDIRECT", new int[] {argumentOne, argumentTwo}, cpu) == fullArgument);
+    }
+
+    @Test
+    void testRelativePositiveSign() {
+        int argument      = 43;
+        int oldRegisterPC = 50;
+
+        int expectedResult = oldRegisterPC + argument;
+        cpu.setRegisterPC(oldRegisterPC);
+        assertTrue(Mode.runMode("RELATIVE", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @Test
+    void testRelativePositiveSignLowerBound() {
+        int argument = 1;
+        int oldRegisterPC = 50;
+
+        int expectedResult = oldRegisterPC + argument;
+        cpu.setRegisterPC(oldRegisterPC);
+        assertTrue(Mode.runMode("RELATIVE", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @Test
+    void testRelativePositiveSignUpperBound() {
+        int argument = 127;
+        int oldRegisterPC = 50;
+
+        int expectedResult = oldRegisterPC + argument;
+        cpu.setRegisterPC(oldRegisterPC);
+        assertTrue(Mode.runMode("RELATIVE", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @Test
+    void testRelativeNegativeSign() {
+        int argument      = 174;
+        int oldRegisterPC = 50;
+
+        int expectedResult = oldRegisterPC - (256 - argument);
+        cpu.setRegisterPC(oldRegisterPC);
+        assertTrue(Mode.runMode("RELATIVE", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @Test
+    void testRelativeNegativeSignLowerBound() {
+        int argument = 128;
+        int oldRegisterPC = 50;
+
+        int expectedResult = oldRegisterPC - (256 - argument);
+        cpu.setRegisterPC(oldRegisterPC);
+        assertTrue(Mode.runMode("RELATIVE", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @Test
+    void testRelativeNegativeSignUpperBound() {
+        int argument = 255;
+        int oldRegisterPC = 50;
+
+        int expectedResult = oldRegisterPC - (256 - argument);
+        cpu.setRegisterPC(oldRegisterPC);
+        assertTrue(Mode.runMode("RELATIVE", new int[] {argument}, cpu) == expectedResult);
+    }
+
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    @Test
+    void testRelativeNoSign() {
+        int argument = 0;
+        int oldRegisterPC = 50;
+
+        int expectedResult = oldRegisterPC;
+        cpu.setRegisterPC(oldRegisterPC);
+        assertTrue(Mode.runMode("RELATIVE", new int[] {argument}, cpu) == oldRegisterPC + argument);
     }
 }

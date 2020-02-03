@@ -44,16 +44,23 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         return cpu.readMemory(arguments.length == 0 ? 0 : arguments[0]);
     };
 
+    // REQUIRES: arguments has a length of 2.
+    // EFFECTS: returns the little endian number represented by the two arguments given.
     public static ModeAction getAbsolute = (int[] arguments, CPU cpu) -> {
         return arguments[0] + arguments[1] * 256;
     };
 
+    // REQUIRES: arguments has a length of 1.
+    // EFFECTS: returns the argument (interpreted as a signed bit) added to the program counter (registerPC)
     public static ModeAction getRelative = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        int signedArgument = arguments[0] < 128 ? arguments[0] : arguments[0] - 256;
+        return signedArgument + cpu.getRegisterPC();
     };
 
+    // REQUIRES: arguments has a length of 2.
+    // EFFECTS: returns the little endian number represented by the two arguments given.
     public static ModeAction getIndirect = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return arguments[0] + arguments[1] * 256;
     };
 
     public static ModeAction getZeroPageIndexedX = (int[] arguments, CPU cpu) -> {
