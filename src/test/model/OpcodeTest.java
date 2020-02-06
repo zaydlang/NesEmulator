@@ -87,8 +87,13 @@ class OpcodeTest {
 
     @Test
     void testBitNoFlags() {
-        cpu.setRegisterA(Integer.parseInt("10010101", 2));
-        Opcode.runOpcode("BIT", Integer.parseInt("00011110", 2), cpu);
+        int registerA = Integer.parseInt("10010101", 2);
+        int memory    = Integer.parseInt("00011110", 2);
+        int address   = 24;
+
+        cpu.setRegisterA(registerA);
+        cpu.writeMemory(address, memory);
+        Opcode.runOpcode("BIT", address, cpu);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagN() == 0);
@@ -96,8 +101,13 @@ class OpcodeTest {
 
     @Test
     void testBitVFlag() {
-        cpu.setRegisterA(Integer.parseInt("11010101", 2));
-        Opcode.runOpcode("BIT", Integer.parseInt("01011011", 2), cpu);
+        int registerA = Integer.parseInt("11010101", 2);
+        int memory    = Integer.parseInt("01011011", 2);
+        int address   = 24;
+
+        cpu.setRegisterA(registerA);
+        cpu.writeMemory(address, memory);
+        Opcode.runOpcode("BIT", address, cpu);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagV() == 1);
         assertTrue(cpu.getFlagN() == 0);
@@ -105,14 +115,17 @@ class OpcodeTest {
 
     @Test
     void testBitNFlag() {
-        cpu.setRegisterA(Integer.parseInt("11010101", 2));
-        Opcode.runOpcode("BIT", Integer.parseInt("10011011", 2), cpu);
+        int registerA = Integer.parseInt("11010101", 2);
+        int memory    = Integer.parseInt("10011011", 2);
+        int address   = 24;
+
+        cpu.setRegisterA(registerA);
+        cpu.writeMemory(address, memory);
+        Opcode.runOpcode("BIT", address, cpu);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagN() == 1);
     }
-
-
 
     @Test
     void testBmiBranch() {
@@ -475,13 +488,13 @@ class OpcodeTest {
 
     @Test
     void testJmp() {
-        Opcode.runOpcode("JMP", 234, cpu);
+        Opcode.runOpcode("JMP", CPU.INITIAL_REGISTER_PC + 234, cpu);
         assertTrue(cpu.getRegisterPC() == CPU.INITIAL_REGISTER_PC + 234 - 3);
     }
 
     @Test
     void testJsr() {
-        Opcode.runOpcode("JSR", 234, cpu);
+        Opcode.runOpcode("JSR", CPU.INITIAL_REGISTER_PC + 234, cpu);
         assertTrue(cpu.getRegisterPC() == CPU.INITIAL_REGISTER_PC + 234 - 3);
         assertTrue(cpu.peekStack()     == CPU.INITIAL_REGISTER_PC);
     }

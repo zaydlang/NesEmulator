@@ -21,8 +21,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.getRegisterA, cpu.flagZ, cpu.flagN
     // EFFECTS: does a bitwise AND on registerA and the argument, and sets registerA to that value
-    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerA is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerA is zero     after the operation.
+    //          flagN set if registerA is negative after the operation.
     private static OpcodeAction runAND = (int argument, CPU cpu) -> {
         cpu.setRegisterA(cpu.getRegisterA() & argument);
 
@@ -62,7 +62,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.flagZ, cpu.flagV, cpu.flagN
     // EFFECTS: performs bitwise and on register A and the argument.
-    // flagZ is set if the result is 0, not changed if otherwise.
+    // flagZ is set if the result is 0.
     // flagV is set to the 6th bit of the value in memory using argument as the address.
     // flagN is set to the 7th bit of the value in memory using argument as the address.
     private static OpcodeAction runBIT = (int argument, CPU cpu) -> {
@@ -193,8 +193,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu's memory
     // EFFECTS: decreases the value in the cpu's memory by one, using argument as an address.
-    //          flagZ set if the new value in memory is zero     after the operation, not changed if otherwise.
-    //          flagN set if the new value in memory is negative after the operation, not changed if otherwise.
+    //          flagZ set if the new value in memory is zero     after the operation.
+    //          flagN set if the new value in memory is negative after the operation.
     private static OpcodeAction runDEC = (int argument, CPU cpu) -> {
         int newValue = cpu.readMemory(argument) - 1;
         cpu.writeMemory(argument, newValue);
@@ -205,8 +205,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.getRegisterX
     // EFFECTS: decreases registerX by one.
-    //          flagZ set if registerX is zero,               not changed if otherwise.
-    //          flagN set if the 7th bit of registerX is set, not changed if otherwise.
+    //          flagZ set if registerX is zero,               
+    //          flagN set if the 7th bit of registerX is set.
     private static OpcodeAction runDEX = (int argument, CPU cpu) -> {
         cpu.setRegisterX(cpu.getRegisterX() - 1);
 
@@ -216,8 +216,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.registerY
     // EFFECTS: decreases registerY by one.
-    //          flagZ set if registerY is zero,               not changed if otherwise.
-    //          flagN set if the 7th bit of registerY is set, not changed if otherwise.
+    //          flagZ set if registerY is zero,               
+    //          flagN set if the 7th bit of registerY is set.
     private static OpcodeAction runDEY = (int argument, CPU cpu) -> {
         cpu.setRegisterY(cpu.getRegisterY() - 1);
 
@@ -227,8 +227,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.registerA, cpu.flagZ, cpu.flagN
     // EFFECTS: does a bitwise XOR on registerA and the argument, and sets registerA to that value
-    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerA is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerA is zero     after the operation.
+    //          flagN set if registerA is negative after the operation.
     private static OpcodeAction runEOR = (int argument, CPU cpu) -> {
         cpu.setRegisterA(cpu.getRegisterA() ^ argument);
 
@@ -238,8 +238,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu's memory
     // EFFECTS: increases the value in the cpu's memory by one, using argument as an address.
-    //          flagZ set if the new value in memory is zero     after the operation, not changed if otherwise.
-    //          flagN set if the new value in memory is negative after the operation, not changed if otherwise.
+    //          flagZ set if the new value in memory is zero     after the operation.
+    //          flagN set if the new value in memory is negative after the operation.
     private static OpcodeAction runINC = (int argument, CPU cpu) -> {
         int newValue = cpu.readMemory(argument) + 1;
         cpu.writeMemory(argument, newValue);
@@ -250,8 +250,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.registerX
     // EFFECTS: increases registerX by one.
-    //          flagZ set if registerX is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerX is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerX is zero     after the operation.
+    //          flagN set if registerX is negative after the operation.
     private static OpcodeAction runINX = (int argument, CPU cpu) -> {
         cpu.setRegisterX(cpu.getRegisterX() + 1);
 
@@ -261,8 +261,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.registerY
     // EFFECTS: increases registerY by one.
-    //          flagZ set if registerY is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerY is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerY is zero     after the operation.
+    //          flagN set if registerY is negative after the operation.
     private static OpcodeAction runINY = (int argument, CPU cpu) -> {
         cpu.setRegisterY(cpu.getRegisterY() + 1);
 
@@ -327,8 +327,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.getRegisterA, cpu.flagZ, cpu.flagN
     // EFFECTS: does a bitwise OR on registerA and the argument, and sets registerA to that value
-    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerA is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerA is zero     after the operation.
+    //          flagN set if registerA is negative after the operation.
     private static OpcodeAction runORA = (int argument, CPU cpu) -> {
         cpu.setRegisterA(cpu.getRegisterA() | argument);
 
@@ -432,8 +432,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.getRegisterA, cpu.getRegisterX, cpu.flagZ, cpu.flagN
     // EFFECTS: transfers cpu.getRegisterA to cpu.getRegisterX
-    //          flagZ set if registerX is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerX is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerX is zero     after the operation.
+    //          flagN set if registerX is negative after the operation.
     private static OpcodeAction runTAX = (int argument, CPU cpu) -> {
         cpu.setRegisterX(cpu.getRegisterA());
 
@@ -443,8 +443,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.getRegisterA, cpu.getRegisterY, cpu.flagZ, cpu.flagN
     // EFFECTS: transfers cpu.getRegisterA to cpu.getRegisterY
-    //          flagZ set if registerY is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerY is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerY is zero     after the operation.
+    //          flagN set if registerY is negative after the operation.
     private static OpcodeAction runTAY = (int argument, CPU cpu) -> {
         cpu.setRegisterY(cpu.getRegisterA());
 
@@ -454,8 +454,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.getRegisterS, cpu.getRegisterX, cpu.flagZ, cpu.flagN
     // EFFECTS: transfers cpu.getRegisterS to cpu.getRegisterX
-    //          flagZ set if registerX is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerX is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerX is zero     after the operation.
+    //          flagN set if registerX is negative after the operation.
     private static OpcodeAction runTSX = (int argument, CPU cpu) -> {
         cpu.setRegisterX(cpu.getRegisterS());
 
@@ -465,8 +465,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.getRegisterS, cpu.getRegisterX, cpu.flagZ, cpu.flagN
     // EFFECTS: transfers cpu.getRegisterX to cpu.getRegisterA
-    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerA is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerA is zero     after the operation.
+    //          flagN set if registerA is negative after the operation.
     private static OpcodeAction runTXA = (int argument, CPU cpu) -> {
         cpu.setRegisterA(cpu.getRegisterX());
 
@@ -482,8 +482,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // MODIFIES: cpu.getRegisterY, cpu.getRegisterA
     // EFFECTS: transfers cpu.getRegisterY to cpu.getRegisterA
-    //          flagZ set if registerA is zero     after the operation, not changed if otherwise.
-    //          flagN set if registerA is negative after the operation, not changed if otherwise.
+    //          flagZ set if registerA is zero     after the operation.
+    //          flagN set if registerA is negative after the operation.
     private static OpcodeAction runTYA = (int argument, CPU cpu) -> {
         cpu.setRegisterA(cpu.getRegisterY());
 
