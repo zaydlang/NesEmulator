@@ -10,6 +10,8 @@ public class NES {
         rom.loadCartridge("./test/nestest.nes");
         cpu.setMapper(rom);
 
-        cpu.cycle();
+        while (true) {
+            cpu.cycle();
+        }
     }
 }

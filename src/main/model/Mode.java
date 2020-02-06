@@ -89,12 +89,14 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         return arguments[0] + arguments[1] * 256 + cpu.getRegisterY();
     };
 
+    // REQUIRES: arguments has a length of 1.
     public static ModeAction getIndexedIndirect = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return (arguments[0] + cpu.getRegisterX()) % Integer.parseInt("FF", 16);
     };
 
+    // REQUIRES: arguments has a length of 1.
     public static ModeAction getIndirectIndexed = (int[] arguments, CPU cpu) -> {
-        return 0; // stub
+        return 0;
     };
 
     static {

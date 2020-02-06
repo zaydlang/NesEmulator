@@ -1,2 +1,3 @@
 *.class
 workspace.xml
+src/main/model/NES.java

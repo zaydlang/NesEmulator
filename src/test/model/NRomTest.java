@@ -43,6 +43,7 @@ public class NRomTest {
         assertTrue(Arrays.hashCode(nRom.chrRom)  == -245463348);
     }
 
+    // TODO: check boundary cases and 3-4 number in between. AND ask ta
     @Test
     void testReadFileNoOffset() throws IOException {
         FileInputStream file = new FileInputStream("./data/test/TestReadFile.nes");

@@ -12,7 +12,7 @@ public class CPU {
     public static final int INITIAL_REGISTER_X        = 0;
     public static final int INITIAL_REGISTER_Y        = 0;
 
-    public static final int INITIAL_REGISTER_PC       = 0;
+    public static final int INITIAL_REGISTER_PC       = Integer.parseInt("C000", 16);
     public static final int INITIAL_REGISTER_P        = 34;
     public static final int INITIAL_REGISTER_S        = "FD".getBytes()[0];
     public static final int INITIAL_CYCLES            = 0;
@@ -26,8 +26,7 @@ public class CPU {
     public static final int MAXIMUM_REGISTER_S_VALUE  = (int) Math.pow(2, 8 * 1);
     public static final int MAXIMUM_REGISTER_P_VALUE  = (int) Math.pow(2, 6);
 
-    // TODO: after cpu is done, see if this variable can be removed.
-    public static final int REGISTER_PC_OFFSET        = Integer.parseInt("C000", 16);
+    public static final int REGISTER_PC_OFFSET        = INITIAL_REGISTER_PC;
 
     // CPU Flags
     protected int flagC;  // Carry
@@ -86,17 +85,23 @@ public class CPU {
     // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
     // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
     public void cycle() {
-        int valueAtProgramCounter = readMemory(REGISTER_PC_OFFSET + registerPC);
+        int valueAtProgramCounter = readMemory(registerPC);
         Instruction instruction = Instruction.instructions[valueAtProgramCounter];
-        int[] modeArguments = new int[instruction.getNumArguments() - 1];
-        for (int i = 1; i < instruction.getNumArguments(); i++) {
-            modeArguments[i - 1] = readMemory(REGISTER_PC_OFFSET + registerPC + i);
+        int[] modeArguments = new int[instruction.getNumArguments()];
+
+        System.out.print(Integer.toHexString(getRegisterPC()) + " : ");
+        System.out.print(Integer.toHexString(valueAtProgramCounter) + " ");
+        for (int i = 0; i < instruction.getNumArguments(); i++) {
+            modeArguments[i] = readMemory(registerPC + i + 1);
+            System.out.print(Integer.toHexString(readMemory(registerPC + i + 1)) + " ");
         }
+        System.out.println();
 
         int opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
         Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
 
-        cycles += instruction.getNumCycles();
+        registerPC += instruction.getNumArguments() + 1;
+        cycles     += instruction.getNumCycles();
     }
 
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
@@ -331,11 +336,10 @@ public class CPU {
     }
 
     // MODIFIES: registerPC
-    // EFFECTS: sets registerPC to a new value wrapped around (0...MAXIMUM_REGISTER_PC_VALUE)
-    // example: setRegisterPC(256) sets registerA to 0.
-    // example: setRegisterPC(-1)  sets registerA to MAXIMUM_REGISTER_PC_VALUE - 1.
+    // EFFECTS: sets registerPC to a new value wrapped around REGISTER_PC_OFFSET + (0...MAXIMUM_REGISTER_PC_VALUE)
     public void setRegisterPC(int registerPC) {
-        this.registerPC = registerPC % CPU.MAXIMUM_REGISTER_PC_VALUE;
+        int offsetAddress = registerPC - CPU.REGISTER_PC_OFFSET;
+        this.registerPC = CPU.REGISTER_PC_OFFSET + (offsetAddress) % CPU.MAXIMUM_REGISTER_PC_VALUE;
         if (registerPC < 0) {
             this.registerPC += CPU.MAXIMUM_REGISTER_PC_VALUE;
         }
