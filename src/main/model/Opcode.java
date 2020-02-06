@@ -66,10 +66,10 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // flagV is set to the 6th bit of the value in memory using argument as the address.
     // flagN is set to the 7th bit of the value in memory using argument as the address.
     private static OpcodeAction runBIT = (int argument, CPU cpu) -> {
-        int result = cpu.getRegisterA() & argument;
+        int result = cpu.getRegisterA() & cpu.readMemory(argument);
         cpu.flagZ = (result == 0) ? 1 : 0;
-        cpu.flagV = Util.getNthBit(argument, 6);
-        cpu.flagN = Util.getNthBit(argument, 7);
+        cpu.flagV = Util.getNthBit(cpu.readMemory(argument), 6);
+        cpu.flagN = Util.getNthBit(cpu.readMemory(argument), 7);
     };
 
     // MODIFIES: cpu.registerPC
@@ -273,7 +273,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // MODIFIES: cpu.registerPC
     // EFFECTS: sets registerPC (the program counter) to the argument specified, minus 3.
     private static OpcodeAction runJMP = (int argument, CPU cpu) -> {
-        cpu.setRegisterPC(CPU.INITIAL_REGISTER_PC + argument - 3);
+        cpu.setRegisterPC(argument - 3);
     };
 
     // MODIFIES: cpu.registerPC, cpu.stack
@@ -281,7 +281,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          then, sets registerPC to the argument specified, minus 3.
     private static OpcodeAction runJSR = (int argument, CPU cpu) -> {
         cpu.pushStack(CPU.INITIAL_REGISTER_PC);
-        cpu.setRegisterPC(CPU.INITIAL_REGISTER_PC + argument - 3);
+        cpu.setRegisterPC(argument - 3);
     };
 
     // MODIFIES: cpu.registerA, flagZ, flagN
