@@ -194,16 +194,15 @@ public class CPU {
     // REQUIRES: status can be represented as an 8bit binary integer
     // EFFECTS: use the flags to construct the status by concatenating them like this:
     // VN0BDIZC where the 5th bit (little endian) is 0.
-    @SuppressWarnings({"checkstyle:Indentation", "CheckStyle"})
     public int getStatus() {
-       return (int) (getFlagC() * Math.pow(2, 0))
-            + (int) (getFlagZ() * Math.pow(2, 1))
-            + (int) (getFlagI() * Math.pow(2, 2))
-            + (int) (getFlagD() * Math.pow(2, 3))
-            + (int) (getFlagB() * Math.pow(2, 4))
-            + (int) (0          * Math.pow(2, 5)) // bit 5 in the flags byte is empty
-            + (int) (getFlagV() * Math.pow(2, 6))
-            + (int) (getFlagN() * Math.pow(2, 7));
+        return (int) (getFlagC() * Math.pow(2, 0))
+             + (int) (getFlagZ() * Math.pow(2, 1))
+             + (int) (getFlagI() * Math.pow(2, 2))
+             + (int) (getFlagD() * Math.pow(2, 3))
+             + (int) (getFlagB() * Math.pow(2, 4))
+             + (int) (0          * Math.pow(2, 5)) // bit 5 in the flags byte is empty
+             + (int) (getFlagV() * Math.pow(2, 6))
+             + (int) (getFlagN() * Math.pow(2, 7));
     }
 
     // REQUIRES: status can be represented as an 8bit binary integer
