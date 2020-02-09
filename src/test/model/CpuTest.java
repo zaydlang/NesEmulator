@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class CpuTest {
@@ -12,21 +13,23 @@ public class CpuTest {
     @BeforeEach
     void runBefore() {
         cpu = new CPU();
+
+        NRom nRom = new NRom();
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        cpu.setMapper(nRom);
     }
 
     @Test
     void testConstructor() {
-        assertTrue(cpu.getRegisterA()  == CPU.INITIAL_REGISTER_A);
-        assertTrue(cpu.getRegisterX()  == CPU.INITIAL_REGISTER_X);
-        assertTrue(cpu.getRegisterY()  == CPU.INITIAL_REGISTER_Y);
-        assertTrue(cpu.getRegisterPC() == CPU.INITIAL_REGISTER_PC);
-        assertTrue(cpu.getRegisterP()  == CPU.INITIAL_REGISTER_P);
-        assertTrue(cpu.getRegisterS()  == CPU.INITIAL_REGISTER_S);
-        assertTrue(cpu.getCycles()     == CPU.INITIAL_CYCLES);
-        assertTrue(cpu.peekStack()     == CPU.INITIAL_STACK_STATE);
+        assertTrue(cpu.getRegisterA().getValue()  == CPU.INITIAL_REGISTER_A);
+        assertTrue(cpu.getRegisterX().getValue()  == CPU.INITIAL_REGISTER_X);
+        assertTrue(cpu.getRegisterY().getValue()  == CPU.INITIAL_REGISTER_Y);
+        assertTrue(cpu.getRegisterPC().getValue() == CPU.INITIAL_REGISTER_PC);
+        assertTrue(cpu.getRegisterS().getValue()  == CPU.INITIAL_REGISTER_S);
+        assertTrue(cpu.getCycles()                == CPU.INITIAL_CYCLES);
 
-        for (int i : cpu.ram) {
-            assertTrue(i == CPU.INITIAL_RAM_STATE);
+        for (Address address : cpu.ram) {
+            assertTrue(address.getValue() == CPU.INITIAL_RAM_STATE);
         }
     }
 
@@ -35,22 +38,22 @@ public class CpuTest {
     @Test
     void testReadMemoryInternalRam() {
         int address = Integer.parseInt("0547", 16);
-        cpu.ram[address] = 157;
-        assertTrue(cpu.readMemory(address) == 157);
+        cpu.ram[address] = new Address(157);
+        assertTrue(cpu.readMemory(address).getValue() == 157);
     }
 
     @Test
     void testReadMemoryInternalRamLowerBound() {
         int address = Integer.parseInt("0000", 16);
-        cpu.ram[address] = 157;
-        assertTrue(cpu.readMemory(address) == 157);
+        cpu.ram[address] = new Address(157);
+        assertTrue(cpu.readMemory(address).getValue() == 157);
     }
 
     @Test
     void testReadMemoryInternalRamUpperBound() {
         int address = Integer.parseInt("07FF", 16);
-        cpu.ram[address] = 157;
-        assertTrue(cpu.readMemory(address) == 157);
+        cpu.ram[address] = new Address(157);
+        assertTrue(cpu.readMemory(address).getValue() == 157);
     }
 
 
@@ -61,30 +64,30 @@ public class CpuTest {
     @Test
     void testReadMemoryInternalRamMirrors() {
         int baseAddress = Integer.parseInt("0547", 16);
-        cpu.ram[baseAddress] = 157;
+        cpu.ram[baseAddress] = new Address(157);
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16);
-            assertTrue(cpu.readMemory(address) == 157);
+            assertTrue(cpu.readMemory(address).getValue() == 157);
         }
     }
 
     @Test
     void testReadMemoryInternalRamMirrorsLowerBound() {
         int baseAddress = Integer.parseInt("0000", 16);
-        cpu.ram[baseAddress] = 157;
+        cpu.ram[baseAddress] = new Address(157);
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16);
-            assertTrue(cpu.readMemory(address) == 157);
+            assertTrue(cpu.readMemory(address).getValue() == 157);
         }
     }
 
     @Test
     void testReadMemoryInternalRamMirrorsUpperBound() {
         int baseAddress = Integer.parseInt("07FF", 16);
-        cpu.ram[baseAddress] = 157;
+        cpu.ram[baseAddress] = new Address(157);
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16);
-            assertTrue(cpu.readMemory(address) == 157);
+            assertTrue(cpu.readMemory(address).getValue() == 157);
         }
     }
 
@@ -98,35 +101,35 @@ public class CpuTest {
     void testWriteMemoryInternalRam() {
         int address = Integer.parseInt("0547", 16);
         cpu.writeMemory(address, 157);
-        assertTrue(cpu.ram[address] == 157);
+        assertTrue(cpu.ram[address].getValue() == 157);
     }
 
     @Test
     void testWriteMemoryInternalRamUnderflow() {
         int address = Integer.parseInt("0547", 16);
         cpu.writeMemory(address, 157 - 256);
-        assertTrue(cpu.ram[address] == 157);
+        assertTrue(cpu.ram[address].getValue() == 157);
     }
 
     @Test
     void testWriteMemoryInternalRamOverflow() {
         int address = Integer.parseInt("0547", 16);
         cpu.writeMemory(address, 157 + 256);
-        assertTrue(cpu.ram[address] == 157);
+        assertTrue(cpu.ram[address].getValue() == 157);
     }
 
     @Test
     void testWriteMemoryInternalRamLowerBound() {
         int address = Integer.parseInt("0000", 16);
         cpu.writeMemory(address, 157 - 256);
-        assertTrue(cpu.ram[address] == 157);
+        assertTrue(cpu.ram[address].getValue() == 157);
     }
 
     @Test
     void testWriteMemoryInternalRamUpperBound() {
         int address = Integer.parseInt("07FF", 16);
         cpu.writeMemory(address, 157 - 256);
-        assertTrue(cpu.ram[address] == 157);
+        assertTrue(cpu.ram[address].getValue() == 157);
     }
 
 
@@ -140,7 +143,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16) - i;
             cpu.writeMemory(address, 157 + i);
-            assertTrue(cpu.ram[baseAddress - i] == 157 + i);
+            assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
         }
     }
 
@@ -150,7 +153,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16) - i;
             cpu.writeMemory(address, 157 + i - Integer.parseInt("0800",16));
-            assertTrue(cpu.ram[baseAddress - i] == 157 + i);
+            assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
         }
     }
 
@@ -160,7 +163,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16) - i;
             cpu.writeMemory(address, 157 + i + Integer.parseInt("0800",16));
-            assertTrue(cpu.ram[baseAddress - i] == 157 + i);
+            assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
         }
     }
 
@@ -170,7 +173,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16) + i;
             cpu.writeMemory(address, 157 + i + Integer.parseInt("0800",16));
-            assertTrue(cpu.ram[baseAddress + i] == 157 + i);
+            assertTrue(cpu.ram[baseAddress + i].getValue() == 157 + i);
         }
     }
 
@@ -180,7 +183,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16) - i;
             cpu.writeMemory(address, 157 + i + Integer.parseInt("0800",16));
-            assertTrue(cpu.ram[baseAddress - i] == 157 + i);
+            assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
         }
     }
 
@@ -192,51 +195,46 @@ public class CpuTest {
     @Test
     void testWriteMemoryMapper() {
         int address = Integer.parseInt("6017", 16);
-        cpu.setMapper(new NRom());
         cpu.writeMemory(address, 137);
-        assertTrue(cpu.getMapper().readMemory(address) == 137);
+        assertTrue(cpu.getMapper().readMemory(address).getValue() == 137);
     }
 
     @Test
     void testWriteMemoryMapperUnderflow() {
         int address = Integer.parseInt("6017", 16);
-        cpu.setMapper(new NRom());
         cpu.writeMemory(address, 137 - 256);
-        assertTrue(cpu.getMapper().readMemory(Integer.parseInt("6017", 16)) == 137);
+        assertTrue(cpu.getMapper().readMemory(Integer.parseInt("6017", 16)).getValue() == 137);
     }
 
     @Test
     void testWriteMemoryMapperOverflow() {
         int address = Integer.parseInt("6017", 16);
-        cpu.setMapper(new NRom());
         cpu.writeMemory(address, 137 + 256);
-        assertTrue(cpu.getMapper().readMemory(address) == 137);
+        assertTrue(cpu.getMapper().readMemory(address).getValue() == 137);
     }
 
     @Test
     void testWriteMemoryMapperLowerBound() {
-        int address = Integer.parseInt("4020", 16);
-        cpu.setMapper(new NRom());
-        boolean isSuccessful = cpu.writeMemory(address, 137);
-        assertTrue(cpu.getMapper().readMemory(address) == 137 || !isSuccessful);
+        int address = Integer.parseInt("6000", 16);
+        cpu.writeMemory(address, 137);
+        assertTrue(cpu.getMapper().readMemory(address).getValue() == 137);
     }
 
     @Test
     void testWriteMemoryMapperUpperBound() {
         int address = Integer.parseInt("FFFF", 16);
-        cpu.setMapper(new NRom());
-        boolean isSuccessful = cpu.writeMemory(address, 137);
-        assertTrue(cpu.getMapper().readMemory(address) == 137 || !isSuccessful);
+        cpu.writeMemory(address, 137);
+        assertTrue(cpu.getMapper().readMemory(address).getValue() == 137);
     }
 
     @Test
     void testGetStatus() {
-        int testCpuStatus = Integer.parseInt("11010001", 2);
+        int testCpuStatus = Integer.parseInt("11110001", 2);
         cpu.setFlagC(Util.getNthBit(testCpuStatus, 0));
         cpu.setFlagZ(Util.getNthBit(testCpuStatus, 1));
         cpu.setFlagI(Util.getNthBit(testCpuStatus, 2));
         cpu.setFlagD(Util.getNthBit(testCpuStatus, 3));
-        cpu.setFlagB(Util.getNthBit(testCpuStatus, 4));
+        // bit 4 in the flags byte is empty
         // bit 5 in the flags byte is empty
         cpu.setFlagV(Util.getNthBit(testCpuStatus, 6));
         cpu.setFlagN(Util.getNthBit(testCpuStatus, 7));
@@ -249,10 +247,28 @@ public class CpuTest {
 
     // ########## TESTS FOR MISCELLANEOUS CPU METHODS ##########
 
-    // TODO: unsure how to implement such a test, considering there's 192 different instructions.
     @Test
     void testCycle() {
+        for (int i = 0; i < Instruction.getInstructions().length; i++) {
+            Instruction instruction = Instruction.getInstructions()[i];
+            cpu.setRegisterPC(Integer.parseInt("C000", 16));
 
+            // Simulate an instruction at the Program Counter
+            cpu.writeMemory(cpu.getRegisterPC().getValue(), i);
+            int numArguments = instruction.getNumArguments();
+            for (int j = 0; j < numArguments; j++) {
+                cpu.writeMemory(cpu.getRegisterPC().getValue() + j + 1, Integer.parseInt("0000", 16));
+            }
+
+            // Cycle the cpu, and make sure no exceptions are thrown
+            // Note: Opcode / Mode testing are done separately, so this may be a bit redundant, which is why I'm only
+            // checking for exceptions being thrown.
+            try {
+                cpu.cycle();
+            } catch (Exception e) {
+                fail();
+            }
+        }
     }
 
     @Test
@@ -263,7 +279,7 @@ public class CpuTest {
         assertTrue(cpu.getFlagZ() == Util.getNthBit(testCpuStatus, 1));
         assertTrue(cpu.getFlagI() == Util.getNthBit(testCpuStatus, 2));
         assertTrue(cpu.getFlagD() == Util.getNthBit(testCpuStatus, 3));
-        assertTrue(cpu.getFlagB() == Util.getNthBit(testCpuStatus, 4));
+        // bit 4 in the flags byte is empty
         // bit 5 in the flags byte is empty
         assertTrue(cpu.getFlagV() == Util.getNthBit(testCpuStatus, 6));
         assertTrue(cpu.getFlagN() == Util.getNthBit(testCpuStatus, 7));
@@ -272,31 +288,31 @@ public class CpuTest {
     @Test
     void testPushStack() {
         cpu.pushStack(100);
-        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1);
-        assertTrue(cpu.peekStack()    == 100);
+        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 1);
+        assertTrue(cpu.peekStack().getValue()    == 100);
 
-        cpu.pushStack(370);
-        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 2);
-        assertTrue(cpu.peekStack()    == 370);
+        cpu.pushStack(255);
+        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 2);
+        assertTrue(cpu.peekStack().getValue()    == 255);
 
-        cpu.pushStack(123);
-        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 3);
-        assertTrue(cpu.peekStack()    == 123);
+        cpu.pushStack(0);
+        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 3);
+        assertTrue(cpu.peekStack().getValue()    == 0);
     }
 
     @Test
     void testPullStack() {
-        cpu.pushStack(100);
-        cpu.pushStack(370);
+        cpu.pushStack(0);
+        cpu.pushStack(255);
         cpu.pushStack(123);
 
-        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 3);
-        assertTrue(cpu.pullStack()    == 123);
+        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 3);
+        assertTrue(cpu.pullStack().getValue()    == 123);
 
-        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 2);
-        assertTrue(cpu.pullStack()    == 370);
+        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 2);
+        assertTrue(cpu.pullStack().getValue()    == 255);
 
-        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1);
-        assertTrue(cpu.pullStack()    == 100);
+        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 1);
+        assertTrue(cpu.pullStack().getValue()    == 0);
     }
 }

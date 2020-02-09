@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 public interface Mapper {
     String CARTRIDGE_LOCATION = "./data/";
 
-    int readMemory(int address);
+    Address readMemory(int address);
 
-    boolean writeMemory(int address, int value);
+    void writeMemory(int address, int value);
 }

@@ -6,7 +6,7 @@ public class Instruction {
     private int numArguments;
     private int numCycles;
 
-    public Instruction(String opcode, String mode, int numArguments, int numCycles) {
+    private Instruction(String opcode, String mode, int numArguments, int numCycles) {
         this.opcode       = opcode;
         this.mode         = mode;
         this.numArguments = numArguments;
@@ -37,11 +37,11 @@ public class Instruction {
         return instructions;
     }
 
-    public static final Instruction[] instructions = new Instruction[]{
+    private static final Instruction[] instructions = new Instruction[]{
             new Instruction("BRK", "IMPLICIT",            0, 7),
             new Instruction("ORA", "INDEXED_INDIRECT",    1, 6),
             new Instruction("STP", "IMPLICIT",            0, 2),
-            new Instruction("NOP", "IMPLICIT",            0, 0), // unused instruction
+            new Instruction("NOP", "IMPLICIT",            1, 0), // unused instruction
             new Instruction("NOP", "ZERO_PAGE",           1, 3),
             new Instruction("ORA", "ZERO_PAGE",           1, 3),
             new Instruction("ASL", "ZERO_PAGE",           1, 5),
@@ -106,7 +106,7 @@ public class Instruction {
             new Instruction("EOR", "INDEXED_INDIRECT",    1, 6),
             new Instruction("STP", "IMPLICIT",            0, 2),
             new Instruction("NOP", "IMPLICIT",            0, 0), // unused instruction
-            new Instruction("NOP", "ZERO_PAGE",           0, 3),
+            new Instruction("NOP", "ZERO_PAGE",           1, 3),
             new Instruction("EOR", "ZERO_PAGE",           1, 3),
             new Instruction("LSR", "ZERO_PAGE",           1, 5),
             new Instruction("NOP", "IMPLICIT",            0, 0), // unused instruction
@@ -194,9 +194,9 @@ public class Instruction {
             new Instruction("STA", "ABSOLUTE_INDEXED_Y",  2, 5),
             new Instruction("TXS", "IMPLICIT",            0, 2),
             new Instruction("NOP", "IMPLICIT",            0, 0), // unused instruction
-            new Instruction("SHY", "ABSOLUTE_INDEXED_X",  0, 5),
-            new Instruction("STA", "ABSOLUTE_INDEXED_X",  2, 5),
-            new Instruction("SHX", "ABSOLUTE_INDEXED_Y",  0, 5),
+            new Instruction("SHX", "ABSOLUTE_INDEXED_X",  2, 5), // TODO: CHANGE TO 0 ARG WHEN IMPLEMENTED
+            new Instruction("SHY", "ABSOLUTE_INDEXED_X",  2, 5), // TODO: CHANGE TO 0 ARG WHEN IMPLEMENTED
+            new Instruction("SHX", "ABSOLUTE_INDEXED_Y",  2, 5), // TODO: CHANGE TO 0 ARG WHEN IMPLEMENTED
             new Instruction("NOP", "IMPLICIT",            0, 0), // unused instruction
             new Instruction("LDY", "IMMEDIATE",           1, 2),
             new Instruction("LDA", "INDEXED_INDIRECT",    1, 6),

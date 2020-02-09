@@ -2,31 +2,36 @@ package model;
 
 import java.util.Arrays;
 
-@SuppressWarnings("PointlessArithmeticExpression")
 public class CPU {
     // Constants
     private static final int RAM_SIZE                 = (int) Math.pow(2, 11);
-    private static final int STACK_SIZE               = (int) Math.pow(2, 8);
 
-    public static final int INITIAL_REGISTER_A        = 0;
-    public static final int INITIAL_REGISTER_X        = 0;
-    public static final int INITIAL_REGISTER_Y        = 0;
-
+    public static final int INITIAL_REGISTER_A        = Integer.parseInt("0000", 16);
+    public static final int INITIAL_REGISTER_X        = Integer.parseInt("0000", 16);
+    public static final int INITIAL_REGISTER_Y        = Integer.parseInt("0000", 16);
     public static final int INITIAL_REGISTER_PC       = Integer.parseInt("C000", 16);
-    public static final int INITIAL_REGISTER_P        = 34;
-    public static final int INITIAL_REGISTER_S        = "FD".getBytes()[0];
-    public static final int INITIAL_CYCLES            = 0;
-    public static final int INITIAL_RAM_STATE         = 0;
-    public static final int INITIAL_STACK_STATE       = 0;
+    public static final int INITIAL_REGISTER_S        = Integer.parseInt("00FD", 16);
 
-    public static final int MAXIMUM_REGISTER_A_VALUE  = (int) Math.pow(2, 8 * 1);
-    public static final int MAXIMUM_REGISTER_X_VALUE  = (int) Math.pow(2, 8 * 1);
-    public static final int MAXIMUM_REGISTER_Y_VALUE  = (int) Math.pow(2, 8 * 1);
-    public static final int MAXIMUM_REGISTER_PC_VALUE = (int) Math.pow(2, 8 * 2);
-    public static final int MAXIMUM_REGISTER_S_VALUE  = (int) Math.pow(2, 8 * 1);
-    public static final int MAXIMUM_REGISTER_P_VALUE  = (int) Math.pow(2, 6);
+    public static final int MINIMUM_REGISTER_A        = Integer.parseInt("0000", 16);
+    public static final int MINIMUM_REGISTER_X        = Integer.parseInt("0000", 16);
+    public static final int MINIMUM_REGISTER_Y        = Integer.parseInt("0000", 16);
+    public static final int MINIMUM_REGISTER_PC       = Integer.parseInt("0000", 16);
+    public static final int MINIMUM_REGISTER_S        = Integer.parseInt("0000", 16);
+    
+    public static final int MAXIMUM_REGISTER_A        = Integer.parseInt("00FF", 16);
+    public static final int MAXIMUM_REGISTER_X        = Integer.parseInt("00FF", 16);
+    public static final int MAXIMUM_REGISTER_Y        = Integer.parseInt("00FF", 16);
+    public static final int MAXIMUM_REGISTER_PC       = Integer.parseInt("FFFF", 16);
+    public static final int MAXIMUM_REGISTER_S        = Integer.parseInt("00FF", 16);
 
-    public static final int REGISTER_PC_OFFSET        = INITIAL_REGISTER_PC;
+    public static final int OFFSET_REGISTER_A         = Integer.parseInt("0000", 16);
+    public static final int OFFSET_REGISTER_X         = Integer.parseInt("0000", 16);
+    public static final int OFFSET_REGISTER_Y         = Integer.parseInt("0000", 16);
+    public static final int OFFSET_REGISTER_PC        = Integer.parseInt("C000", 16);
+    public static final int OFFSET_REGISTER_S         = Integer.parseInt("0100", 16);
+
+    public static final int INITIAL_CYCLES            = Integer.parseInt("0000", 16);
+    public static final int INITIAL_RAM_STATE         = Integer.parseInt("0000", 16);
 
     // CPU Flags
     protected int flagC;  // Carry
@@ -38,22 +43,19 @@ public class CPU {
     protected int flagV;  // Overflow
     protected int flagN;  // Negative
 
-    // Registers
-    private int registerA;  // Accumulator for ALU
-    private int registerX;  // Index
-    private int registerY;  // Index
-    private int registerPC; // The program counter
-    private int registerS;  // The stack pointer
-    private int registerP;  // The status register
+    // Registers / Cycles
+    private Address registerA;  // Accumulator for ALU
+    private Address registerX;  // Index
+    private Address registerY;  // Index
+    private Address registerPC; // The program counter
+    private Address registerS;  // The stack pointer
     private int cycles;
 
-    // Stack is decreasing stack.
-    private int[] stack;
     private Mapper mapper;
 
     // Memory
     // TODO: is it right to make ram have default visibility?
-    int[] ram;
+    Address[] ram;
 
     // EFFECTS: initializes the RAM and STACK and calls reset() to reset all values in the cpu to their default states.
     public CPU() {
@@ -63,51 +65,46 @@ public class CPU {
 
     // EFFECTS: initializes the RAM and STACK with their appropriate sizes.
     private void init() {
-        ram   = new int[CPU.RAM_SIZE];
-        stack = new int[CPU.STACK_SIZE];
+        ram = new Address[CPU.RAM_SIZE];
     }
 
     // EFFECTS: resets all values in the cpu (registers, cycles, ram, stack) to their default states.
     private void reset() {
-        registerA  = CPU.INITIAL_REGISTER_A;
-        registerX  = CPU.INITIAL_REGISTER_X;
-        registerY  = CPU.INITIAL_REGISTER_Y;
-        registerPC = CPU.INITIAL_REGISTER_PC;
-        registerP  = CPU.INITIAL_REGISTER_P;
-        registerS  = CPU.INITIAL_REGISTER_S;
+        registerA  = new Address(CPU.INITIAL_REGISTER_A,   CPU.MINIMUM_REGISTER_A,  CPU.MAXIMUM_REGISTER_A);
+        registerX  = new Address(CPU.INITIAL_REGISTER_X,   CPU.MINIMUM_REGISTER_X,  CPU.MAXIMUM_REGISTER_X);
+        registerY  = new Address(CPU.INITIAL_REGISTER_Y,   CPU.MINIMUM_REGISTER_Y,  CPU.MAXIMUM_REGISTER_Y);
+        registerPC = new Address(CPU.INITIAL_REGISTER_PC,  CPU.MINIMUM_REGISTER_PC, CPU.MAXIMUM_REGISTER_PC);
+        registerS  = new Address(CPU.INITIAL_REGISTER_S,   CPU.MINIMUM_REGISTER_S,  CPU.MAXIMUM_REGISTER_S);
         cycles     = CPU.INITIAL_CYCLES;
 
         // Note: ram state and stack pointer considered unreliable after reset.
-        Arrays.fill(ram,   CPU.INITIAL_RAM_STATE);
-        Arrays.fill(stack, CPU.INITIAL_STACK_STATE);
+        for (int i = 0; i < ram.length; i++) {
+            ram[i] = new Address(CPU.INITIAL_RAM_STATE, i,0, 255);
+        }
     }
 
     // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
     // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
     public void cycle() {
-        int valueAtProgramCounter = readMemory(registerPC);
-        Instruction instruction = Instruction.instructions[valueAtProgramCounter];
-        int[] modeArguments = new int[instruction.getNumArguments()];
+        Address valueAtProgramCounter = readMemory(registerPC.getValue());
+        Instruction instruction = Instruction.getInstructions()[valueAtProgramCounter.getValue()];
+        Address[] modeArguments = new Address[instruction.getNumArguments()];
 
-        System.out.print(Integer.toHexString(getRegisterPC()) + " : ");
-        System.out.print(Integer.toHexString(valueAtProgramCounter) + " ");
         for (int i = 0; i < instruction.getNumArguments(); i++) {
-            modeArguments[i] = readMemory(registerPC + i + 1);
-            System.out.print(Integer.toHexString(readMemory(registerPC + i + 1)) + " ");
+            modeArguments[i] = readMemory(registerPC.getValue() + i + 1);
         }
-        System.out.println();
 
-        int opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
+        registerPC.setValue(registerPC.getValue() + instruction.getNumArguments() + 1);
+        cycles += instruction.getNumCycles();
+
+        Address opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
         Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
-
-        registerPC += instruction.getNumArguments() + 1;
-        cycles     += instruction.getNumCycles();
     }
 
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     // see the table below for a detailed description of what is stored at which address.
-    protected int readMemory(int address) {
+    protected Address readMemory(int address) {
         // https://wiki.nesdev.com/w/index.php/CPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
         // $0000 - $07FF | $0800 | 2KB internal RAM
@@ -123,12 +120,12 @@ public class CPU {
         if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
             return ram[address % Integer.parseInt("0800",16)];
         } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
-            return 0; // TODO add when the ppu is implemented. remember to add mirrors.
+            return new Address(0); // TODO add when the ppu is implemented. remember to add mirrors.
         } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
-            return 0; // TODO add when the apu is implemented.
+            return new Address(0); // TODO add when the apu is implemented.
         } else if (address <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
-                                                                             // normally disabled.
-            return 0; // TODO add when the apu is implemented.
+                                                                              // normally disabled.
+            return new Address(0); // TODO add when the apu is implemented.
         } else {
             return mapper.readMemory(address);
         }
@@ -137,8 +134,10 @@ public class CPU {
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // MODIFIES: ram
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
-    //          returns true if writing to memory was successful. returns false otherwise.
-    protected boolean writeMemory(int address, int rawValue) {
+    protected void writeMemory(int pointer, int rawValue) {
+        if (pointer == 0 && rawValue == 255) {
+            int x = 2;
+        }
         // https://wiki.nesdev.com/w/index.php/CPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
         // $0000 - $07FF | $0800 | 2KB internal RAM
@@ -155,52 +154,60 @@ public class CPU {
             value += 256;
         }
 
-        if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            ram[address % Integer.parseInt("0800",16)] = value;
-            return true;
-        } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
+        if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
+            ram[pointer % Integer.parseInt("0800",16)].setValue(value);/*
+        } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
             // TODO add when the ppu is implemented. remember to add mirrors.
-            return true;
-        } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
+        } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
             // TODO add when the apu is implemented.
-            return true;
-        } else if (address <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
-            return true;                                                     // normally disabled.
+        } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
+                                                                             // normally disabled.
             // TODO add when the apu is implemented.
+            */
         } else {
-            return mapper.writeMemory(address, rawValue);
+            mapper.writeMemory(pointer, rawValue);
+        }
+    }
+
+    // REQUIRES: 0 <= value < 2^8
+    // MODIFIES: registerS, stack
+    // EFFECTS: value is pushed onto the stack, registerS is decremented.
+    public void pushStack(int value) {
+        writeMemory(CPU.OFFSET_REGISTER_S + registerS.getValue(), value);
+
+        setRegisterS(getRegisterS().getValue() - 1);
+        int x = 2;
+        if (registerS.getValue() < 0) {
+            setRegisterS(255);
         }
     }
 
     // MODIFIES: registerS, stack
-    // EFFECTS: value is pushed onto the stack, registerS is decremented.
-    public void pushStack(int value) {
-        stack[registerS] = value;
-        registerS--;
-    }
-
-    // MODIFIES: registerS, stack
     // EFFECTS: value is pulled from the stack and returned, registerS is incremented.
-    public int pullStack() {
-        registerS++;
-        return stack[registerS];
+    public Address pullStack() {
+        setRegisterS(getRegisterS().getValue() + 1);
+        if (registerS.getValue() > 255) {
+            setRegisterS(0);
+        }
+
+        return readMemory(CPU.OFFSET_REGISTER_S + registerS.getValue());
     }
 
     // EFFECTS: peeks into the stack.
-    public int peekStack() {
-        return stack[registerS + 1];
+    public Address peekStack() {
+        return readMemory(CPU.OFFSET_REGISTER_S + registerS.getValue() + 1);
     }
 
     // REQUIRES: status can be represented as an 8bit binary integer
     // EFFECTS: use the flags to construct the status by concatenating them like this:
-    // VN0BDIZC where the 5th bit (little endian) is 0.
+    // VN11DIZC where the 4th and 5th bits (little endian) are 1.
     public int getStatus() {
         return (int) (getFlagC() * Math.pow(2, 0))
              + (int) (getFlagZ() * Math.pow(2, 1))
              + (int) (getFlagI() * Math.pow(2, 2))
              + (int) (getFlagD() * Math.pow(2, 3))
-             + (int) (getFlagB() * Math.pow(2, 4))
-             + (int) (0          * Math.pow(2, 5)) // bit 5 in the flags byte is empty
+             + (int) (1          * Math.pow(2, 4))
+             + (int) (1          * Math.pow(2, 5)) // bit 5 in the flags byte is empty
              + (int) (getFlagV() * Math.pow(2, 6))
              + (int) (getFlagN() * Math.pow(2, 7));
     }
@@ -211,8 +218,8 @@ public class CPU {
     // flagZ is the 1st bit of status
     // flagI is the 2nd bit of status
     // flagD is the 3rd bit of status
-    // flagB is the 4th bit of status
-    //          the 5th bit is not used
+    //          the 4th bit is disregarded
+    //          the 5th bit is disregarded
     // flagV is the 6th bit of status
     // flagN is the 7th bit of status
     public void setStatus(int status) {
@@ -220,8 +227,8 @@ public class CPU {
         setFlagZ(Util.getNthBit(status, 1));
         setFlagI(Util.getNthBit(status, 2));
         setFlagD(Util.getNthBit(status, 3));
-        setFlagB(Util.getNthBit(status, 4));
-        // bit 5 in the flags byte is empty
+        // bit 4 in the flags byte is disregarded
+        // bit 5 in the flags byte is disregarded
         setFlagV(Util.getNthBit(status, 6));
         setFlagN(Util.getNthBit(status, 7));
     }
@@ -262,33 +269,28 @@ public class CPU {
     }
 
     // EFFECTS: returns the A Register
-    public int getRegisterA() {
+    public Address getRegisterA() {
         return registerA;
     }
 
     // EFFECTS: returns the X Register
-    public int getRegisterX() {
+    public Address getRegisterX() {
         return registerX;
     }
 
     // EFFECTS: returns the Y Register
-    public int getRegisterY() {
+    public Address getRegisterY() {
         return registerY;
     }
 
     // EFFECTS: returns the PC Register (program counter)
-    public int getRegisterPC() {
+    public Address getRegisterPC() {
         return registerPC;
     }
 
     // EFFECTS: returns the S Register (stack pointer)
-    public int getRegisterS() {
+    public Address getRegisterS() {
         return registerS;
-    }
-
-    // EFFECTS: returns the P Register
-    public int getRegisterP() {
-        return registerP;
     }
 
     // EFFECTS: returns the number of cycles
@@ -306,10 +308,7 @@ public class CPU {
     // example: setRegisterA(256) sets registerS to 0.
     // example: setRegisterA(-1)  sets registerS to MAXIMUM_REGISTER_A_VALUE - 1.
     public void setRegisterA(int registerA) {
-        this.registerA = registerA % CPU.MAXIMUM_REGISTER_A_VALUE;
-        if (registerA < 0) {
-            this.registerA += CPU.MAXIMUM_REGISTER_A_VALUE;
-        }
+        this.registerA.setValue(registerA);
     }
 
     // MODIFIES: registerX
@@ -317,10 +316,7 @@ public class CPU {
     // example: setRegisterX(256) sets registerS to 0.
     // example: setRegisterX(-1)  sets registerS to MAXIMUM_REGISTER_X_VALUE - 1.
     public void setRegisterX(int registerX) {
-        this.registerX = registerX % CPU.MAXIMUM_REGISTER_X_VALUE;
-        if (registerX < 0) {
-            this.registerX += CPU.MAXIMUM_REGISTER_X_VALUE;
-        }
+        this.registerX.setValue(registerX);
     }
 
     // MODIFIES: registerY
@@ -328,20 +324,13 @@ public class CPU {
     // example: setRegisterY(256) sets registerY to 0.
     // example: setRegisterY(-1)  sets registerY to MAXIMUM_REGISTER_Y_VALUE - 1.
     public void setRegisterY(int registerY) {
-        this.registerY = registerY % CPU.MAXIMUM_REGISTER_Y_VALUE;
-        if (registerY < 0) {
-            this.registerY += CPU.MAXIMUM_REGISTER_Y_VALUE;
-        }
+        this.registerY.setValue(registerY);
     }
 
     // MODIFIES: registerPC
     // EFFECTS: sets registerPC to a new value wrapped around REGISTER_PC_OFFSET + (0...MAXIMUM_REGISTER_PC_VALUE)
     public void setRegisterPC(int registerPC) {
-        int offsetAddress = registerPC - CPU.REGISTER_PC_OFFSET;
-        this.registerPC = CPU.REGISTER_PC_OFFSET + (offsetAddress) % CPU.MAXIMUM_REGISTER_PC_VALUE;
-        if (registerPC < 0) {
-            this.registerPC += CPU.MAXIMUM_REGISTER_PC_VALUE;
-        }
+        this.registerPC.setValue(registerPC);
     }
 
     // MODIFIES: registerS
@@ -349,21 +338,7 @@ public class CPU {
     // example: setRegisterS(256) sets registerS to 0.
     // example: setRegisterS(-1)  sets registerS to MAXIMUM_REGISTER_S_VALUE - 1.
     public void setRegisterS(int registerS) {
-        this.registerS = registerS % CPU.MAXIMUM_REGISTER_S_VALUE;
-        if (registerS < 0) {
-            this.registerS += CPU.MAXIMUM_REGISTER_S_VALUE;
-        }
-    }
-
-    // MODIFIES: registerP
-    // EFFECTS: sets registerP to a new value wrapped around (0...MAXIMUM_REGISTER_P_VALUE)
-    // example: setRegisterP(256) sets registerP to 0.
-    // example: setRegisterP(-1)  sets registerP to MAXIMUM_REGISTER_P_VALUE - 1.
-    public void setRegisterP(int registerP) {
-        this.registerP = registerP % CPU.MAXIMUM_REGISTER_P_VALUE;
-        if (registerP < 0) {
-            this.registerP += CPU.MAXIMUM_REGISTER_P_VALUE;
-        }
+        this.registerS.setValue(registerS);
     }
 
     // MODIFIES: flagC

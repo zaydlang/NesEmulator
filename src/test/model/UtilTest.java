@@ -2,6 +2,7 @@ package model;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UtilTest {
@@ -17,5 +18,20 @@ public class UtilTest {
         assertTrue(Util.getNthBit(value, 5) == 0);
         assertTrue(Util.getNthBit(value, 6) == 0);
         assertTrue(Util.getNthBit(value, 7) == 1);
+    }
+
+    @Test
+    void testGetSignPositive() {
+        assertEquals(1, Util.getSign(120));
+    }
+
+    @Test
+    void testGetSignZero() {
+        assertEquals(0, Util.getSign(0));
+    }
+
+    @Test
+    void testGetSignNegative() {
+        assertEquals(Util.getSign(240), -1);
     }
 }

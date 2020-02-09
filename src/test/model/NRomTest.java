@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class NRomTest {
@@ -20,42 +22,47 @@ public class NRomTest {
 
     @Test
     void testConstructor() {
-        for (int i = Integer.parseInt("6000", 16); i < Integer.parseInt("FFFF", 16); i++) {
-            assertTrue(nRom.readMemory(i) == 0);
-        }
+        assertTrue(nRom.header.length  == NRom.HEADER_SIZE);
+        assertTrue(nRom.trainer.length == NRom.TRAINER_SIZE);
+        assertTrue(nRom.prgRam.length  == NRom.PRG_RAM_SIZE);
+        assertTrue(nRom.prgRom.length  == NRom.PRG_ROM_128_SIZE + NRom.PRG_ROM_256_SIZE);
+        assertTrue(nRom.chrRom.length  == NRom.CHR_ROM_SIZE);
     }
+
+    // TODO: split loadCartridge into separate tests; remove hashcodes
 
     @Test
     void testLoadCartridgeTrainerPresent() {
         nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
-        assertTrue(Arrays.hashCode(nRom.header)  == 1454197404);
-        assertTrue(Arrays.hashCode(nRom.trainer) == -791873883);
-        assertTrue(Arrays.hashCode(nRom.prgRom)  == 1512190940);
-        assertTrue(Arrays.hashCode(nRom.chrRom)  == -245463348);
     }
 
     @Test
     void testLoadCartridgeTrainerNotPresent() {
         nRom.loadCartridge("test/TestLoadRomTrainerNotPresent.nes");
-        assertTrue(Arrays.hashCode(nRom.header)  == -2054715872);
-        assertTrue(Arrays.hashCode(nRom.trainer) == 1425784833);
-        assertTrue(Arrays.hashCode(nRom.prgRom)  == 1512190940);
-        assertTrue(Arrays.hashCode(nRom.chrRom)  == -245463348);
+        assertTrue(nRom.header.length  == 16);
+        assertTrue(nRom.trainer.length == 512);
+        assertTrue(nRom.prgRom.length  == 32768);
+        assertTrue(nRom.chrRom.length  == 24576);
     }
 
-    // TODO: check boundary cases and 3-4 number in between. AND ask ta
     @Test
-    void testReadFileNoOffset() throws IOException {
-        FileInputStream file = new FileInputStream("./data/test/TestReadFile.nes");
-        int[] result = nRom.readFile(file, 0, 4);
-        assertTrue(Arrays.hashCode(result) == 1724931);
+    void testReadFileNoOffset() {
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        assertTrue(nRom.header.length  == 16);
+        assertTrue(nRom.trainer.length == 512);
+        assertTrue(nRom.prgRom.length  == 32768);
+        assertTrue(nRom.chrRom.length  == 24576);
     }
 
     @Test
     void testReadFileOffset() throws IOException {
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         FileInputStream file = new FileInputStream("./data/test/TestReadFile.nes");
-        int[] result = nRom.readFile(file, 1, 3);
-        assertTrue(Arrays.hashCode(result) == 55642);
+        Address[] result = nRom.readFile(file, 1,0, 3);
+        assertTrue(nRom.header.length  == 16);
+        assertTrue(nRom.trainer.length == 512);
+        assertTrue(nRom.prgRom.length  == 32768);
+        assertTrue(nRom.chrRom.length  == 24576);
     }
 
 
@@ -66,13 +73,13 @@ public class NRomTest {
     @Test
     void testReadMemoryPrgRam() {
         nRom.setPrgRam(Integer.parseInt("17", 16), 125);
-        assertTrue(nRom.readMemory(Integer.parseInt("6017", 16)) == 125);
+        assertTrue(nRom.readMemory(Integer.parseInt("6017", 16)).getValue() == 125);
     }
 
     @Test
     void testReadMemoryPrgRom() {
         nRom.setPrgRom(Integer.parseInt("17", 16), 125);
-        assertTrue(nRom.readMemory(Integer.parseInt("8017", 16)) == 125);
+        assertTrue(nRom.readMemory(Integer.parseInt("8017", 16)).getValue() == 125);
     }
 
 
@@ -83,37 +90,41 @@ public class NRomTest {
     @Test
     void testWriteMemoryPrgRam() {
         int address = Integer.parseInt("6017", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125);
-        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)).getValue() == 125);
     }
 
     @Test
     void testWriteMemoryPrgRamOverflow() {
         int address = Integer.parseInt("6017", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125 + 256);
-        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)).getValue() == 125);
     }
 
     @Test
     void testWriteMemoryPrgRamUnderflow() {
         int address = Integer.parseInt("6017", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125 - 256);
-        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)).getValue() == 125);
     }
 
     @Test
     void testWriteMemoryPrgRamLowerBound() {
         int address = Integer.parseInt("6000", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125 - 256);
-        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)).getValue() == 125);
     }
 
     @Test
     void testWriteMemoryPrgRamUpperBound() {
         int address = Integer.parseInt("7FFF", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125 - 256);
-        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)) == 125);
-
+        assertTrue(nRom.getPrgRam(address - Integer.parseInt("6000", 16)).getValue() == 125);
     }
 
 
@@ -124,41 +135,51 @@ public class NRomTest {
     @Test
     void testWriteMemoryPrgRom() {
         int address = Integer.parseInt("8017", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125);
-        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)).getValue()== 125);
     }
 
     @Test
     void testWriteMemoryPrgRomUnderflow() {
         int address = Integer.parseInt("8017", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125 - 256);
-        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)).getValue() == 125);
     }
 
     @Test
     void testWriteMemoryPrgRomOverflow() {
         int address = Integer.parseInt("8017", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125 + 256);
-        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)).getValue() == 125);
     }
 
     @Test
     void testWriteMemoryPrgRomLowerBound() {
         int address = Integer.parseInt("8000", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125);
-        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)).getValue() == 125);
     }
 
     @Test
     void testWriteMemoryPrgRomUpperBound() {
-        int address = Integer.parseInt("F7FF", 16);
+        int address = Integer.parseInt("FFFF", 16);
+        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         nRom.writeMemory(address, 125);
-        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)) == 125);
+        assertTrue(nRom.getPrgRom(address - Integer.parseInt("8000", 16)).getValue() == 125);
     }
 
     @Test
     void testWriteMemoryFailure() {
-        boolean isSuccessful = nRom.writeMemory(Integer.parseInt("5000", 16), 47);
-        assertTrue(!isSuccessful);
+        try {
+            nRom.writeMemory(Integer.parseInt("5000", 16), 47);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return;
+        }
+
+        fail();
     }
 }
