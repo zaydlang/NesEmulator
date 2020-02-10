@@ -118,7 +118,7 @@ public class CPU {
         // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
 
         if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            return ram[address % Integer.parseInt("0800",16)];
+            return ram[address % Integer.parseInt("0800",16)];/*
         } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
             return new Address(0); // TODO add when the ppu is implemented. remember to add mirrors.
         } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
@@ -126,6 +126,7 @@ public class CPU {
         } else if (address <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
                                                                               // normally disabled.
             return new Address(0); // TODO add when the apu is implemented.
+            */
         } else {
             return mapper.readMemory(address);
         }
@@ -182,9 +183,6 @@ public class CPU {
     // EFFECTS: value is pulled from the stack and returned, registerS is incremented.
     public Address pullStack() {
         setRegisterS(getRegisterS().getValue() + 1);
-        if (registerS.getValue() > 255) {
-            setRegisterS(0);
-        }
 
         return readMemory(CPU.OFFSET_REGISTER_S + registerS.getValue());
     }
@@ -292,11 +290,6 @@ public class CPU {
     // EFFECTS: returns the number of cycles
     public int getCycles() {
         return cycles;
-    }
-
-    // EFFECTS: returns the mapper
-    public Mapper getMapper() {
-        return mapper;
     }
 
     // MODIFIES: registerA

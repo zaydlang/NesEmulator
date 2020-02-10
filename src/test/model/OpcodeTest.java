@@ -3,7 +3,10 @@ package model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("SimplifiableJUnitAssertion")
 class OpcodeTest {
@@ -313,11 +316,14 @@ class OpcodeTest {
     @Test
     void testBrk() {
         NRom nrom = new NRom();
-        nrom.loadCartridge("./test/TestLoadRomTrainerPresent.nes");
+        try {
+            nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        } catch (IOException e) {
+            fail();
+        }
 
         cpu.setStatus(190);
         cpu.setMapper(nrom);
-        cpu.writeMemory(Integer.parseInt("FFFE", 16), 71);
         cpu.setRegisterPC(23 * 256 + 47);
         Opcode.runOpcode("BRK", new Address(0), cpu);
 

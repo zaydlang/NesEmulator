@@ -5,33 +5,36 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class NRom implements Mapper {
-    public static final int HEADER_SIZE         = 16;    // bytes
-    public static final int TRAINER_SIZE        = 512;   // bytes
-    public static final int PRG_ROM_SIZE        = 16384; // bytes
-    public static final int CHR_ROM_SIZE        = 8192;  // bytes
-    public static final int PRG_RAM_SIZE       = Integer.parseInt("2000", 16);
-    public static final int PRG_ROM_128_SIZE   = Integer.parseInt("4000", 16);
-    public static final int PRG_ROM_256_SIZE   = Integer.parseInt("4000", 16);
+    public static final int HEADER_SIZE           = 16;    // bytes
+    public static final int TRAINER_SIZE          = 512;   // bytes
+    public static final int PRG_ROM_SIZE          = 16384; // bytes
+    public static final int CHR_ROM_SIZE          = 8192;  // bytes
+    public static final int PRG_ROM_128_SIZE      = Integer.parseInt("4000", 16);
+    public static final int PRG_ROM_256_SIZE      = Integer.parseInt("4000", 16);
+
+    public static final int INITIAL_PRG_RAM_STATE = Integer.parseInt("00",   16);
+    public static final int PRG_RAM_SIZE          = Integer.parseInt("2000", 16);
 
     // TODO: is it right to have these at default visibility?
     Address[] header;
     Address[] trainer;
-    Address[] prgRam;
     Address[] chrRom;
     Address[] prgRom;
+
+    Address[] prgRam;
 
     private boolean isNRom128;
 
     public NRom() {
-        header  = new Address[HEADER_SIZE];
-        trainer = new Address[TRAINER_SIZE];
-        prgRam  = new Address[PRG_RAM_SIZE];
-        chrRom  = new Address[CHR_ROM_SIZE];
-        prgRom  = new Address[PRG_ROM_128_SIZE + PRG_ROM_256_SIZE];
+        header  = new Address[0];
+        trainer = new Address[0];
+        chrRom  = new Address[0];
+        prgRom  = new Address[0];
         isNRom128 = false;
 
+        prgRam  = new Address[PRG_RAM_SIZE];
         for (int i = 0; i < PRG_RAM_SIZE; i++) {
-            prgRam[i] = new Address(0);
+            prgRam[i] = new Address(INITIAL_PRG_RAM_STATE);
         }
     }
 
@@ -39,7 +42,7 @@ public class NRom implements Mapper {
     // REQUIRES: the file associated with cartridgeName is a valid iNES NROM-mapper cartridge. Throws IOException
     // otherwise.
     // EFFECTS: the header, trainer, prgRom, and chrRom are extracted from the iNES file.
-    public void loadCartridge(String cartridgeName) {
+    public void loadCartridge(String cartridgeName) throws IOException {
         // https://wiki.nesdev.com/w/index.php/INES
         // iNES file format:
         // SIZE            | DEVICE
@@ -47,46 +50,39 @@ public class NRom implements Mapper {
         // 0 or 512 bytes  | Trainer
         // 16384 * x bytes | PRG ROM data
         // 8192 * y bytes  | CHR ROM data
-        try {
-            FileInputStream file = new FileInputStream(CARTRIDGE_LOCATION + cartridgeName);
-            header = readFile(file, 0, 0, HEADER_SIZE);
-            if (Util.getNthBit(header[6].getValue(), 2) == 1) { // If the "trainer is present" flag is set
-                trainer = readFile(file, 0, 0, TRAINER_SIZE);
-            }
-            prgRom = readFile(file, 0, Integer.parseInt("8000", 16),header[4].getValue() * PRG_ROM_SIZE);
-            chrRom = readFile(file, 0, 0,header[5].getValue() * CHR_ROM_SIZE);
-            isNRom128 = header[4].getValue() * PRG_ROM_SIZE >= PRG_ROM_128_SIZE;
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
+        FileInputStream file = new FileInputStream(CARTRIDGE_LOCATION + cartridgeName);
+        loadHeader(readFile(file, 0, 0, HEADER_SIZE));
 
-        if (isNRom128) {
-            createMirrors();
-        }
-        fillPrgRom();
+        boolean trainerPresent = Util.getNthBit(header[6].getValue(), 2) == 1;
+        loadTrainer(readFile(file, 0, 0, trainerPresent ? TRAINER_SIZE : 0));
+
+        loadPrgRom(readFile(file, 0, Integer.parseInt("8000", 16),header[4].getValue() * PRG_ROM_SIZE));
+        loadChrRom(readFile(file, 0, 0,header[5].getValue() * CHR_ROM_SIZE));
     }
 
-    private void createMirrors() {
-        Address[] oldPrgRom = prgRom;
-        prgRom = new Address[PRG_ROM_128_SIZE + PRG_ROM_256_SIZE];
-        for (int i = 0; i < PRG_ROM_128_SIZE; i++) {
-            Address address = oldPrgRom[i];
-            Integer value = address.getValue();
-            prgRom[i]                    = new Address(value, Integer.parseInt("8000", 16) + i);
-            prgRom[PRG_ROM_128_SIZE + i] = prgRom[i];
-        }
+    // REQUIRES: data is exactly 16 bytes long.
+    // EFFECTS: sets the header to the specified data.
+    private void loadHeader(Address[] data) {
+        this.header = data;
     }
 
-    private void fillPrgRom() {
-        for (int i = 0; i < PRG_ROM_128_SIZE + PRG_ROM_256_SIZE; i++) {
-            if (prgRom[i] != null) {
-                continue;
-            }
+    // REQUIRES: data is exactly either 0 or 512 bytes long.
+    // EFFECTS: sets the trainer to the specified data.
+    private void loadTrainer(Address[] data) {
+        this.trainer = data;
+    }
 
-            Address address = new Address(0, Integer.parseInt("8000", 16) + i);
-            prgRom[i] = address;
-        }
+    // REQUIRES: data is exactly a multiple of 16384 bytes long.
+    // EFFECTS: sets the PRG ROM to the specified data, and sets isNRom128 if the specified ROM is an NROM128 file.
+    private void loadPrgRom(Address[] data) {
+        isNRom128 = data.length != PRG_ROM_128_SIZE;
+        this.prgRom = data;
+    }
+
+    // REQUIRES: data is exactly a multiple of 8192 bytes long.
+    // EFFECTS: sets the CHR ROM to the specified data.
+    private void loadChrRom(Address[] data) {
+        this.chrRom = data;
     }
 
     // REQUIRES: file has at least numBytes available, otherwise throws IOException.
@@ -111,11 +107,15 @@ public class NRom implements Mapper {
         // $8000 - $BFFF | $4000 | First 16 KB of ROM
         // $C000 - $FFFF | $4000 | Last 16 KB of ROM (for NROM-256). Else, this is a mirror of the first 16 KB.
         if (address < Integer.parseInt("6000", 16)) {          // Out of bounds
-            return new Address(0);
+            throw new ArrayIndexOutOfBoundsException();
         } else if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
             return prgRam[address - Integer.parseInt("6000", 16)];
         } else {                                                          // PRG ROM. mirrored for NROM-128
-            return prgRom[address - Integer.parseInt("8000", 16)];
+            if (isNRom128) {
+                return prgRom[(address - Integer.parseInt("8000", 16)) % (PRG_ROM_128_SIZE)];
+            } else {
+                return prgRom[address - Integer.parseInt("8000", 16)];
+            }
         }
     }
 
@@ -134,15 +134,11 @@ public class NRom implements Mapper {
         }
 
         if        (address < Integer.parseInt("6000", 16)) {    // Out of Bounds
-            throw new ArrayIndexOutOfBoundsException();
+            throw new ArrayIndexOutOfBoundsException("Address out of bounds! NROM only supports addresses >= 0x6000");
         } else if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
             prgRam[address - Integer.parseInt("6000", 16)].setValue(value);
         } else {                                                         // PRG ROM. mirrored for NROM-128.
-            if (isNRom128) {
-                prgRom[(address - Integer.parseInt("8000", 16)) % (PRG_ROM_128_SIZE)].setValue(value);
-            } else {
-                prgRom[address - Integer.parseInt("8000", 16)].setValue(value);
-            }
+            throw new ArrayIndexOutOfBoundsException("Cannot write to a Read-Only Address!");
         }
     }
 
@@ -150,12 +146,6 @@ public class NRom implements Mapper {
     // EFFECTS: returns the PRG RAM
     public Address getPrgRam(int index) {
         return prgRam[index];
-    }
-
-    // REQUIRES: index ranges from 0 to 16384 * x, inclusive.
-    // EFFECTS: returns the PRG ROM
-    public Address getPrgRom(int index) {
-        return prgRom[index];
     }
 
     // REQUIRES: value ranges from 0x00 to 0xFF, inclusive

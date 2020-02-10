@@ -3,6 +3,8 @@ package model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -15,7 +17,11 @@ public class CpuTest {
         cpu = new CPU();
 
         NRom nRom = new NRom();
-        nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        try {
+            nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        } catch (IOException e) {
+            fail();
+        }
         cpu.setMapper(nRom);
     }
 
@@ -190,68 +196,13 @@ public class CpuTest {
 
 
 
-    // ########## TESTS FOR WRITING MEMORY: MAPPER ##########
-
-    @Test
-    void testWriteMemoryMapper() {
-        int address = Integer.parseInt("6017", 16);
-        cpu.writeMemory(address, 137);
-        assertTrue(cpu.getMapper().readMemory(address).getValue() == 137);
-    }
-
-    @Test
-    void testWriteMemoryMapperUnderflow() {
-        int address = Integer.parseInt("6017", 16);
-        cpu.writeMemory(address, 137 - 256);
-        assertTrue(cpu.getMapper().readMemory(Integer.parseInt("6017", 16)).getValue() == 137);
-    }
-
-    @Test
-    void testWriteMemoryMapperOverflow() {
-        int address = Integer.parseInt("6017", 16);
-        cpu.writeMemory(address, 137 + 256);
-        assertTrue(cpu.getMapper().readMemory(address).getValue() == 137);
-    }
-
-    @Test
-    void testWriteMemoryMapperLowerBound() {
-        int address = Integer.parseInt("6000", 16);
-        cpu.writeMemory(address, 137);
-        assertTrue(cpu.getMapper().readMemory(address).getValue() == 137);
-    }
-
-    @Test
-    void testWriteMemoryMapperUpperBound() {
-        int address = Integer.parseInt("FFFF", 16);
-        cpu.writeMemory(address, 137);
-        assertTrue(cpu.getMapper().readMemory(address).getValue() == 137);
-    }
-
-    @Test
-    void testGetStatus() {
-        int testCpuStatus = Integer.parseInt("11110001", 2);
-        cpu.setFlagC(Util.getNthBit(testCpuStatus, 0));
-        cpu.setFlagZ(Util.getNthBit(testCpuStatus, 1));
-        cpu.setFlagI(Util.getNthBit(testCpuStatus, 2));
-        cpu.setFlagD(Util.getNthBit(testCpuStatus, 3));
-        // bit 4 in the flags byte is empty
-        // bit 5 in the flags byte is empty
-        cpu.setFlagV(Util.getNthBit(testCpuStatus, 6));
-        cpu.setFlagN(Util.getNthBit(testCpuStatus, 7));
-
-        assertTrue(cpu.getStatus() == testCpuStatus);
-    }
-
-
-
-
     // ########## TESTS FOR MISCELLANEOUS CPU METHODS ##########
 
     @Test
     void testCycle() {
         for (int i = 0; i < Instruction.getInstructions().length; i++) {
             Instruction instruction = Instruction.getInstructions()[i];
-            cpu.setRegisterPC(Integer.parseInt("C000", 16));
+            cpu.setRegisterPC(Integer.parseInt("6000", 16));
 
             // Simulate an instruction at the Program Counter
             cpu.writeMemory(cpu.getRegisterPC().getValue(), i);
@@ -314,5 +265,20 @@ public class CpuTest {
 
         assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 1);
         assertTrue(cpu.pullStack().getValue()    == 0);
+    }
+
+    @Test
+    void testGetStatus() {
+        int testCpuStatus = Integer.parseInt("11110001", 2);
+        cpu.setFlagC(Util.getNthBit(testCpuStatus, 0));
+        cpu.setFlagZ(Util.getNthBit(testCpuStatus, 1));
+        cpu.setFlagI(Util.getNthBit(testCpuStatus, 2));
+        cpu.setFlagD(Util.getNthBit(testCpuStatus, 3));
+        // bit 4 in the flags byte is empty
+        // bit 5 in the flags byte is empty
+        cpu.setFlagV(Util.getNthBit(testCpuStatus, 6));
+        cpu.setFlagN(Util.getNthBit(testCpuStatus, 7));
+
+        assertTrue(cpu.getStatus() == testCpuStatus);
     }
 }

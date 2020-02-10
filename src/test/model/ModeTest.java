@@ -4,7 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestTemplate;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class ModeTest {
@@ -94,7 +97,7 @@ public class ModeTest {
         Address[] arguments;
 
         argumentOne  = Integer.parseInt("C5", 16);
-        argumentTwo  = Integer.parseInt("F5", 16);
+        argumentTwo  = Integer.parseInt("65", 16);
         fullArgument = cpu.readMemory(argumentOne + argumentTwo * 256);
         arguments    = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
         assertTrue(Mode.runMode("ABSOLUTE", arguments, cpu) == fullArgument);
@@ -103,44 +106,46 @@ public class ModeTest {
     @SuppressWarnings("PointlessArithmeticExpression")
     @Test
     void testIndirectTwoArguments() {
-        Address expectedResult;
-        Address[] arguments;
-
         NRom nrom = new NRom();
-        nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        try {
+            nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        } catch (IOException e) {
+            fail();
+        }
         cpu.setMapper(nrom);
 
         int argumentOne  = Integer.parseInt("C5", 16);
-        int argumentTwo  = Integer.parseInt("F5", 16);
+        int argumentTwo  = Integer.parseInt("60", 16);
         int fullArgument = argumentOne + argumentTwo * 256;
 
         cpu.writeMemory(fullArgument + 0, Integer.parseInt("A9", 16));
-        cpu.writeMemory(fullArgument + 1, Integer.parseInt("C8", 16));
-        expectedResult = cpu.readMemory(Integer.parseInt("C8A9", 16));
+        cpu.writeMemory(fullArgument + 1, Integer.parseInt("60", 16));
+        Address expectedResult = cpu.readMemory(Integer.parseInt("60A9", 16));
 
-        arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
+        Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
         assertTrue(Mode.runMode("INDIRECT", arguments, cpu) == expectedResult);
     }
 
     @Test
     void testIndirectTwoArgumentsBuggyFF() {
-        Address expectedResult;
-        Address[] arguments;
-
         NRom nrom = new NRom();
-        nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        try {
+            nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        } catch (IOException e) {
+            fail();
+        }
         cpu.setMapper(nrom);
 
         int argumentOne     = Integer.parseInt("FF", 16);
-        int argumentTwo     = Integer.parseInt("F5", 16);
+        int argumentTwo     = Integer.parseInt("65", 16);
         int fullArgumentOne = argumentOne + argumentTwo * 256;
         int fullArgumentTwo = fullArgumentOne - Integer.parseInt("FF", 16);
 
         cpu.writeMemory(fullArgumentOne, Integer.parseInt("A9", 16));
-        cpu.writeMemory(fullArgumentTwo, Integer.parseInt("C8", 16));
-        expectedResult = cpu.readMemory(Integer.parseInt("C8A9", 16));
+        cpu.writeMemory(fullArgumentTwo, Integer.parseInt("60", 16));
+        Address expectedResult = cpu.readMemory(Integer.parseInt("60A9", 16));
 
-        arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
+        Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
         assertTrue(Mode.runMode("INDIRECT", arguments, cpu) == expectedResult);
     }
 
@@ -233,7 +238,7 @@ public class ModeTest {
         int registerY;
 
         argumentOne  = Integer.parseInt("A4", 16);
-        argumentTwo  = Integer.parseInt("B7", 16);
+        argumentTwo  = Integer.parseInt("67", 16);
         registerY    = Integer.parseInt("30", 16);
 
         fullArgument = argumentOne + argumentTwo * 256;
@@ -251,7 +256,7 @@ public class ModeTest {
         int registerY;
 
         argumentOne  = Integer.parseInt("A4", 16);
-        argumentTwo  = Integer.parseInt("B7", 16);
+        argumentTwo  = Integer.parseInt("67", 16);
         registerY    = Integer.parseInt("30", 16);
 
         fullArgument = argumentOne + argumentTwo * 256;
