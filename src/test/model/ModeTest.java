@@ -60,6 +60,15 @@ public class ModeTest {
     }
 
     @Test
+    void testZeroPageNoArguments() {
+        Address[] arguments;
+
+        cpu.writeMemory(0,   240);
+        arguments = new Address[] {};
+        assertTrue(Mode.runMode("ZERO_PAGE", arguments, cpu).getValue() == 0);
+    }
+
+    @Test
     void testZeroPageOneArgument() {
         Address[] arguments;
 

@@ -63,9 +63,8 @@ public class NRom implements Mapper {
 
         if (isNRom128) {
             createMirrors();
-        } else {
-            fillPrgRom();
         }
+        fillPrgRom();
     }
 
     private void createMirrors() {
@@ -147,28 +146,10 @@ public class NRom implements Mapper {
         }
     }
 
-    // REQUIRES: index ranges from 0 to 16, inclusive
-    // EFFECTS: returns the header
-    public Address getHeader(int index) {
-        return header[index];
-    }
-
-    // REQUIRES: index ranges from 0 to 512, inclusive
-    // EFFECTS: returns the trainer
-    public Address getTrainer(int index) {
-        return trainer[index];
-    }
-
     // REQUIRES: index ranges from 0 to PRG_RAM_SIZE, inclusive
     // EFFECTS: returns the PRG RAM
     public Address getPrgRam(int index) {
         return prgRam[index];
-    }
-
-    // REQUIRES: index ranges from 0 to 8192 * y, inclusive
-    // EFFECTS: returns the CHR ROM
-    public Address getChrRom(int index) {
-        return chrRom[index];
     }
 
     // REQUIRES: index ranges from 0 to 16384 * x, inclusive.
@@ -178,35 +159,11 @@ public class NRom implements Mapper {
     }
 
     // REQUIRES: value ranges from 0x00 to 0xFF, inclusive
-    //           index ranges from 0 to 16, inclusive.
-    // MODIFIES: header
-    // EFFECTS: sets the header at the specified index to the specified value
-    public void setHeader(int index, int value) {
-        this.header[index] = new Address(value);
-    }
-
-    // REQUIRES: value ranges from 0x00 to 0xFF, inclusive
-    //           index ranges from 0 to 512, inclusive.
-    // MODIFIES: trainer
-    // EFFECTS: sets the HEADER at the specified index to the specified value
-    public void setTrainer(int index, int value) {
-        this.trainer[index] = new Address(value);
-    }
-
-    // REQUIRES: value ranges from 0x00 to 0xFF, inclusive
     //           index ranges from 0 to PRG_RAM_SIZE, inclusive.
     // MODIFIES: PRG RAM
     // EFFECTS: sets the PRG RAM at the specified index to the specified value
     public void setPrgRam(int index, int value) {
         this.prgRam[index] = new Address(value);
-    }
-
-    // REQUIRES: value ranges from 0x00 to 0xFF, inclusive
-    //           index ranges from 0 to 8192 * y, inclusive.
-    // MODIFIES: CHR ROM
-    // EFFECTS: sets the CHR ROM at the specified index to the specified value
-    public void setChrRom(int index, int value) {
-        this.chrRom[index] = new Address(value);
     }
 
     // REQUIRES: value ranges from 0x00 to 0xFF, inclusive

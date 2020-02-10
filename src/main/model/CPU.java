@@ -176,10 +176,6 @@ public class CPU {
         writeMemory(CPU.OFFSET_REGISTER_S + registerS.getValue(), value);
 
         setRegisterS(getRegisterS().getValue() - 1);
-        int x = 2;
-        if (registerS.getValue() < 0) {
-            setRegisterS(255);
-        }
     }
 
     // MODIFIES: registerS, stack
