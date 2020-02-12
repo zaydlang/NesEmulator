@@ -29,11 +29,11 @@ class OpcodeTest {
     }
 
     @Test
-    void testAdcVFlagResultHasMismatchedSign() {
+    void testAdcVOldRegisterAAndResultHasMismatchedSign() {
         cpu.setRegisterA(Integer.parseInt("11111111", 2));
-        Opcode.runOpcode("ADC", new Address(Integer.parseInt("10000000", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("01111111", 2));
-        assertTrue(cpu.getFlagV() == 1);
+        Opcode.runOpcode("ADC", new Address(Integer.parseInt("01000000", 2)), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("00111111", 2));
+        assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagC() == 1);
         assertTrue(cpu.getFlagN() == 0);
