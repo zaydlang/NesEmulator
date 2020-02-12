@@ -1,4 +1,4 @@
-package model;
+package util;
 
 // Class Util:
 //     A collection of various utility methods.

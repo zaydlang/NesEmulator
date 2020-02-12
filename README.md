@@ -22,3 +22,4 @@ Features that I hope to get to:
 - As a user, I want to be able the Addressing Modes to read memory properly.
 - As a user, I want the opcodes to be able to edit the registers and memory properly.
 - As a user, I want to be able to see the effects of each instruction on the CPU (what registers have been modified, how many cycles the CPU has gone through, etc.)
+- As a user, I want to be able to set breakpoints at a specific program counter.
