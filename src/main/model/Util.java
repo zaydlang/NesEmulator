@@ -1,5 +1,8 @@
 package model;
 
+// Class Util:
+//     A collection of various utility methods.
+
 public final class Util {
     // REQUIRES: value <= 2^n
     // EFFECTS: returns the nth bit of the binary representation of value.
@@ -7,7 +10,8 @@ public final class Util {
         return (value >> n) & 1;
     }
 
-    // TODO add test
+    // EFFECTS: returns the sign of the given integer interpreted as a signed binary value.
+    //          0 if zero, 1 if positive, -1 if negative.
     public static int getSign(int value) {
         if (value == 0) {
             return 0;

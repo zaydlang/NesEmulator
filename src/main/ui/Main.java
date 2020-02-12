@@ -1,12 +1,12 @@
 package ui;
 
-import model.CPU;
 import model.NES;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
+// Class Main:
+//     Tentative class: Cycles the CPU and handles User Input.
 public class Main {
     public static final String CARTRIDGE_NAME = "test/nestest.nes";
 
@@ -17,9 +17,9 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String userInput = "";
 
-        while (!userInput.equals("quit")) {
-            System.out.println(nes.cycle());
-            //userInput = scanner.nextLine().toLowerCase();
+        while (!userInput.equals("quit") && nes.isEnabled()) {
+            System.out.print(nes.cycle());
+            userInput = scanner.nextLine().toLowerCase();
         }
 
         nes.close();

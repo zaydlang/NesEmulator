@@ -315,15 +315,13 @@ class OpcodeTest {
 
     @Test
     void testBrk() {
-        NRom nrom = new NRom();
         try {
-            nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+            cpu.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         } catch (IOException e) {
             fail();
         }
 
         cpu.setStatus(190);
-        cpu.setMapper(nrom);
         cpu.setRegisterPC(23 * 256 + 47);
         Opcode.runOpcode("BRK", new Address(0), cpu);
 

@@ -2,6 +2,11 @@ package model;
 
 import java.util.HashMap;
 
+// Class Mode:
+//     Mode models the 13 Addressing Modes allowed by the 6502 CPU. The Addressing Modes provide the arguments for the
+//     Opcodes. Each Addressing Mode is modeled as an interface that takes in some arguments and a cpu and calculates
+//     what arguments to pass in to the opcode.
+
 @SuppressWarnings("CodeBlock2Expr")
 public class Mode extends HashMap<String, Mode.ModeAction> {
     private static Mode modes;
@@ -21,7 +26,6 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: An instruction with an implicit addressing mode won't use its argument anyway,
     //          so it doesn't matter what's returned here. Nevertheless, returns 0.
     public static ModeAction getImplicit = (Address[] arguments, CPU cpu) -> {
-        //cpu.incrementCycles(3);
         return new Address(0);
     };
 
@@ -33,28 +37,20 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
 
     // REQUIRES: arguments has a length of 0 or 1.
     // EFFECTS: returns the first argument in the list of arguments.
-    //          if arguments.length == 0, then returns 0
     public static ModeAction getImmediate = (Address[] arguments, CPU cpu) -> {
-        //cpu.incrementCycles(2);
-        return (arguments.length == 0) ? new Address(0) : new Address(arguments[0].getValue());
+        return arguments.length == 0 ? new Address(0) : new Address(arguments[0].getValue());
     };
 
-    // REQUIRES: arguments has a length of 0 or 1.
-    // EFFECTS: returns the value in memory at arguments[0].
-    //          if arguments.length == 0, then returns 0
+    // REQUIRES: arguments has a length of 1.
+    // EFFECTS: returns the value in memory at arguments[0]. Since arguments has a length of 1, this is by default
+    // the zero-page and no extra correction is needed.
     public static ModeAction getZeroPage = (Address[] arguments, CPU cpu) -> {
-        if (arguments.length == 0) {
-            return new Address(0);
-        } else {
-            //cpu.incrementCycles(4);
-            return cpu.readMemory(arguments[0].getValue());
-        }
+        return cpu.readMemory(arguments[0].getValue());
     };
 
     // REQUIRES: arguments has a length of 2.
     // EFFECTS: returns the little endian number represented by the two arguments given.
     public static ModeAction getAbsolute = (Address[] arguments, CPU cpu) -> {
-        //cpu.incrementCycles(3);
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256;
         return cpu.readMemory(pointer);
     };
@@ -62,7 +58,6 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // REQUIRES: arguments has a length of 1.
     // EFFECTS: returns the argument (interpreted as a signed bit) added to the program counter (registerPC)
     public static ModeAction getRelative = (Address[] arguments, CPU cpu) -> {
-        //cpu.incrementCycles(5);
         int signedArgument = arguments[0].getValue() < 128 ? arguments[0].getValue() : arguments[0].getValue() - 256;
         return new Address(signedArgument + cpu.getRegisterPC().getValue(), 0, 65536);
     };
@@ -89,12 +84,8 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: adds the little endian number represented by the two arguments given added to registerX and returns
     //          the associated address on the zero page
     public static ModeAction getZeroPageIndexedX = (Address[] arguments, CPU cpu) -> {
-        //cpu.incrementCycles(3);
         int rawAddress = (arguments[0].getValue() + cpu.getRegisterX().getValue());
         int zeroPageAddress = rawAddress % Integer.parseInt("100", 16);
-        if (rawAddress != zeroPageAddress) {
-            //cpu.incrementCycles(1);
-        }
 
         return cpu.readMemory(zeroPageAddress);
     };
@@ -103,17 +94,13 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: adds the little endian number represented by the two arguments given added to registerY and returns
     //          the associated address on the zero page
     public static ModeAction getZeroPageIndexedY = (Address[] arguments, CPU cpu) -> {
-        //cpu.incrementCycles(4);
         int rawAddress = (arguments[0].getValue() + cpu.getRegisterY().getValue());
         int zeroPageAddress = rawAddress % Integer.parseInt("100", 16);
-        if (rawAddress != zeroPageAddress) {
-            //cpu.incrementCycles(1);
-        }
 
         return cpu.readMemory(zeroPageAddress);
     };
 
-    // REQUIRES: arguments has a length of 0 or 2.
+    // REQUIRES: arguments has a length of 2.
     // EFFECTS: returns the little endian number represented by the two arguments given added to registerX.
     public static ModeAction getAbsoluteIndexedX = (Address[] arguments, CPU cpu) -> {
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256 + cpu.getRegisterX().getValue();
@@ -124,7 +111,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         return cpu.readMemory(pointer % Integer.parseInt("10000", 16));
     };
 
-    // REQUIRES: arguments has a length of 0 or 2.
+    // REQUIRES: arguments has a length of 2.
     // EFFECTS: returns the little endian number represented by the two arguments given added to registerY.
     public static ModeAction getAbsoluteIndexedY = (Address[] arguments, CPU cpu) -> {
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256 + cpu.getRegisterY().getValue();
@@ -136,8 +123,9 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     };
 
     // REQUIRES: arguments has a length of 1.
+    // EFFECTS: first fetches the 2-byte value in memory at address (argument + registerX) on the zero page. Then,
+    // fetches and returns the value in memory at that 2-byte address.
     public static ModeAction getIndexedIndirect = (Address[] arguments, CPU cpu) -> {
-        //cpu.incrementCycles(6);
         int pointerOne = (arguments[0].getValue() + cpu.getRegisterX().getValue()) % Integer.parseInt("0100", 16);
         int pointerTwo = (pointerOne + 1) % Integer.parseInt("0100", 16);
         int fullPointer = cpu.readMemory(pointerOne).getValue() + cpu.readMemory(pointerTwo).getValue() * 256;
@@ -145,6 +133,8 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     };
 
     // REQUIRES: arguments has a length of 1.
+    // EFFECTS: fetches the 2-byte value in memory at the argument on the zero page. Then, fetches and returns the value
+    // in memory at (that 2-byte address + registerY).
     public static ModeAction getIndirectIndexed = (Address[] arguments, CPU cpu) -> {
         int addressOne = arguments[0].getValue() % Integer.parseInt("0100", 16);
         int addressTwo = (addressOne + 1) % Integer.parseInt("0100", 16);

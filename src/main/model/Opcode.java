@@ -2,6 +2,8 @@ package model;
 
 import java.util.HashMap;
 
+// Class Opcode:
+//     Opcode models
 @SuppressWarnings("CodeBlock2Expr")
 public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static Opcode opcodes;
@@ -16,6 +18,12 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         opcodes.get(opcode).run(argument, cpu);
     }
 
+    // MODIFIES: cpu.registerA, cpu.flagV, cpu.flagZ, cpu.flagC, cpu.flagN
+    // EFFECTS: adds the argument to cpu.registerA, and sets the flags according to these rules:
+    //          flagV: if the sign is incorrect.
+    //          flagZ: if the result is zero.
+    //          flagC: if there was overflow.
+    //          flagN: if the result is negative.
     private static OpcodeAction runADC = (Address argument, CPU cpu) -> {
         int oldRegisterA = cpu.getRegisterA().getValue();
         int newValueRaw  = cpu.getRegisterA().getValue() + argument.getValue() + cpu.getFlagC();
@@ -41,6 +49,11 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN = (cpu.getRegisterA().getValue() > 127) ? 1 : 0;
     };
 
+    // MODIFIES: the argument, cpu.flagC, cpu.flagZ, cpu.flagN
+    // EFFECTS: performs an arithmetic shift leftwards on the argument. Sets the flags according to these rules:
+    //          flagC set if to the lost bit in the argument (bit 7)
+    //          flagZ set if the result is zero
+    //          flagN set if the result is negative.
     private static OpcodeAction runASL = (Address argument, CPU cpu) -> {
         int oldValue = argument.getValue();
         argument.setValue(argument.getValue() * 2);
@@ -309,7 +322,6 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // EFFECTS: pushes the current value of registerPC (the program counter) to the stack, minus one.
     //          then, sets registerPC to the argument specified, minus 3.
     private static OpcodeAction runJSR = (Address argument, CPU cpu) -> {
-        //cpu.incrementCycles(6);
         int byteOne = ((cpu.getRegisterPC().getValue() - 1) & Integer.parseInt("1111111100000000", 2)) >> 8;
         int byteTwo = ((cpu.getRegisterPC().getValue() - 1) & Integer.parseInt("0000000011111111", 2));
         cpu.pushStack(byteOne);
@@ -350,6 +362,11 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagN = (Util.getNthBit(cpu.getRegisterY().getValue(), 7));
     };
 
+    // MODIFIES: the argument, cpu.flagC, cpu.flagZ, cpu.flagN
+    // EFFECTS: performs an arithmetic shift rightwards on the argument. Sets the flags according to these rules:
+    //          flagC set if to the lost bit in the argument (bit 0)
+    //          flagZ set if the result is zero
+    //          flagN set if the result is negative.
     private static OpcodeAction runLSR = (Address argument, CPU cpu) -> {
         int oldValue = argument.getValue();
         argument.setValue(argument.getValue() / 2);
@@ -404,6 +421,11 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.setStatus(cpu.pullStack().getValue());
     };
 
+    // MODIFIES: the argument, cpu.flagC, cpu.flagZ, cpu.flagN
+    // EFFECTS: performs a roll leftwards on the argument with the carry bit. Sets the flags according to these rules:
+    //          flagC set if to the lost bit in the argument (bit 7)
+    //          flagZ set if the result is zero
+    //          flagN set if the result is negative.
     private static OpcodeAction runROL = (Address argument, CPU cpu) -> {
         int oldValue = argument.getValue();
         argument.setValue(argument.getValue() << 1 | cpu.getFlagC());
@@ -414,6 +436,11 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.setFlagN((Util.getNthBit(argument.getValue(), 7)));
     };
 
+    // MODIFIES: the argument, cpu.flagC, cpu.flagZ, cpu.flagN
+    // EFFECTS: performs a roll rightwards on the argument with the carry bit. Sets the flags according to these rules:
+    //          flagC set if to the lost bit in the argument (bit 0)
+    //          flagZ set if the result is zero
+    //          flagN set if the result is negative.
     private static OpcodeAction runROR = (Address argument, CPU cpu) -> {
         int oldValue = argument.getValue();
         argument.setValue(argument.getValue() >> 1 | cpu.getFlagC() << 7);
@@ -443,6 +470,12 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.setRegisterPC(fullByte + 1);
     };
 
+    // MODIFIES: cpu.registerA, cpu.flagV, cpu.flagZ, cpu.flagC, cpu.flagN
+    // EFFECTS: subtracts the argument from cpu.registerA, and sets the flags according to these rules:
+    //          flagV: if the sign is incorrect.
+    //          flagZ: if the result is zero.
+    //          flagC: if there was overflow.
+    //          flagN: if the result is negative.
     private static OpcodeAction runSBC = (Address argument, CPU cpu) -> {
         int oldRegisterA = cpu.getRegisterA().getValue();
         int newValueRaw  = cpu.getRegisterA().getValue() - argument.getValue() - (1 - cpu.getFlagC());
@@ -475,20 +508,16 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagI = 1;
     };
 
-    /*
-    private static OpcodeAction runSHX = (Address argument, CPU cpu) -> {
-    };
-
-    private static OpcodeAction runSHY = (Address argument, CPU cpu) -> {
-    };*/
-
     // MODIFIES: cpu's memory
     // EFFECTS: writes cpu.registerA in memory using the argument as the address.
     private static OpcodeAction runSTA = (Address argument, CPU cpu) -> {
         cpu.writeMemory(argument.getPointer(), cpu.getRegisterA().getValue());
     };
 
+    // MODIFIES: cpu.enabled
+    // EFFECTS: disables the cpu.
     private static OpcodeAction runSTP = (Address argument, CPU cpu) -> {
+        cpu.setEnabled(false);
     };
 
     // MODIFIES: cpu's memory
