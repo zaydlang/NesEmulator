@@ -2,7 +2,10 @@ package model;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
+
+// Class NROM:
+//     NROM models an NROM Mapper. Can read through an NROM NES file, both NROM-128 and NROM-256.
+//     See for more details: https://wiki.nesdev.com/w/index.php/NROM
 
 public class NRom implements Mapper {
     public static final int HEADER_SIZE           = 16;    // bytes
@@ -25,6 +28,8 @@ public class NRom implements Mapper {
 
     private boolean isNRom128;
 
+    // EFFECTS: initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
+    // fills the prgRam with the initial state.
     public NRom() {
         header  = new Address[0];
         trainer = new Address[0];

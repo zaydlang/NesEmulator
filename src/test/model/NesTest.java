@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class NesTest {
     NES nes;
 
@@ -25,6 +25,7 @@ public class NesTest {
     void testConstructor() {
         try {
             nes.getLogFile().write(""); // Check that the file is open.
+            assertTrue(nes.isEnabled());
         } catch (Exception e) {
             fail();
         } finally {
@@ -46,7 +47,7 @@ public class NesTest {
         try {
             nes.loadCartridge("test/TestLoadRomTrainerNotPresentSmall.nes");
             String output = nes.cycle();
-            assertTrue(output.equals("NOP :          A: 00 X: 00 Y: 00 PC: C001 S: FD "));
+            assertEquals("NOP :          A: 00 X: 00 Y: 00 PC: C000 S: FD Cycle: 0 ", output);
         } catch (IOException e) {
             fail();
         } finally {

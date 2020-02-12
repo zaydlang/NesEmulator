@@ -80,4 +80,16 @@ public class AddressTest {
 
         assertEquals(24, (int) address.getValue());
     }
+
+    @Test
+    void testToString() {
+        address = new Address(30);
+        assertEquals(address.toString(), "1E");
+    }
+
+    @Test
+    void testToStringPadding() {
+        address = new Address(3, 0, 256);
+        assertEquals(address.toString(), "03");
+    }
 }

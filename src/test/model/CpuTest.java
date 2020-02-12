@@ -221,6 +221,18 @@ public class CpuTest {
     }
 
     @Test
+    void testIncrementCycles() {
+        cpu.incrementCycles(CPU.MAXIMUM_CYCLES - CPU.MINIMUM_CYCLES - 3);
+        assertTrue(cpu.getCycles() == CPU.MAXIMUM_CYCLES - CPU.MINIMUM_CYCLES - 3);
+    }
+
+    @Test
+    void testIncrementCyclesOverflow() {
+        cpu.incrementCycles(CPU.MAXIMUM_CYCLES - CPU.MINIMUM_CYCLES + 2);
+        assertTrue(cpu.getCycles() == CPU.MINIMUM_CYCLES + 1);
+    }
+
+    @Test
     void testSetStatus() {
         int testCpuStatus = Integer.parseInt("11010001", 2);
         cpu.setStatus(testCpuStatus);

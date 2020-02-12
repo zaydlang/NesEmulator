@@ -1,11 +1,17 @@
 package model;
 
+// Class Instruction:
+//     Models an Instruction that the CPU can execute. Each instruction contains an Addressing Mode and an Opcode,
+//     and they're executed in that order. The number of arguments and number of cycles can be determined from the
+//     Addressing Mode and Opcode, but they're specified for simplicity.
+
 public class Instruction {
     private String opcode;
     private String mode;
     private int numArguments;
     private int numCycles;
 
+    // EFFECTS: sets the opcode, mode, numArguments, and numCycles to their specified values.
     private Instruction(String opcode, String mode, int numArguments, int numCycles) {
         this.opcode       = opcode;
         this.mode         = mode;
@@ -33,6 +39,7 @@ public class Instruction {
         return numCycles;
     }
 
+    // EFFECTS: returns the list of instructions
     public static Instruction[] getInstructions() {
         return instructions;
     }

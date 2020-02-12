@@ -16,7 +16,12 @@ public class ModeTest {
     @BeforeEach
     void runBefore() {
         cpu = new CPU();
-        cpu.setMapper(new NRom());
+
+        try {
+            cpu.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+        } catch (IOException e) {
+            fail();
+        }
     }
 
     @Test
@@ -63,15 +68,6 @@ public class ModeTest {
     }
 
     @Test
-    void testZeroPageNoArguments() {
-        Address[] arguments;
-
-        cpu.writeMemory(0,   240);
-        arguments = new Address[] {};
-        assertTrue(Mode.runMode("ZERO_PAGE", arguments, cpu).getValue() == 0);
-    }
-
-    @Test
     void testZeroPageOneArgument() {
         Address[] arguments;
 
@@ -106,14 +102,6 @@ public class ModeTest {
     @SuppressWarnings("PointlessArithmeticExpression")
     @Test
     void testIndirectTwoArguments() {
-        NRom nrom = new NRom();
-        try {
-            nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
-        } catch (IOException e) {
-            fail();
-        }
-        cpu.setMapper(nrom);
-
         int argumentOne  = Integer.parseInt("C5", 16);
         int argumentTwo  = Integer.parseInt("60", 16);
         int fullArgument = argumentOne + argumentTwo * 256;
@@ -134,7 +122,6 @@ public class ModeTest {
         } catch (IOException e) {
             fail();
         }
-        cpu.setMapper(nrom);
 
         int argumentOne     = Integer.parseInt("FF", 16);
         int argumentTwo     = Integer.parseInt("65", 16);
@@ -186,7 +173,7 @@ public class ModeTest {
     void testRelativeNegativeSignOneArgument() {
         int argument      = 174;
         int oldRegisterPC = 300;
-        int expectedResult = (oldRegisterPC - (256 - argument)) % 256;
+        int expectedResult = (oldRegisterPC - (256 - argument));
 
         cpu.setRegisterPC(oldRegisterPC);
         Address[] arguments = new Address[] {new Address(argument)};
@@ -197,7 +184,7 @@ public class ModeTest {
     void testRelativeNegativeSignLowerBoundOneArgument() {
         int argument      = 128;
         int oldRegisterPC = 300;
-        int expectedResult = (oldRegisterPC - (256 - argument)) % 256;
+        int expectedResult = (oldRegisterPC - (256 - argument));
 
         cpu.setRegisterPC(oldRegisterPC);
         Address[] arguments = new Address[] {new Address(argument)};
@@ -208,7 +195,7 @@ public class ModeTest {
     void testRelativeNegativeSignUpperBoundOneArgument() {
         int argument      = 255;
         int oldRegisterPC = 300;
-        int expectedResult = (oldRegisterPC - (256 - argument)) % 256;
+        int expectedResult = (oldRegisterPC - (256 - argument));
 
         cpu.setRegisterPC(oldRegisterPC);
         Address[] arguments = new Address[] {new Address(argument)};
@@ -235,17 +222,17 @@ public class ModeTest {
         int argumentOne;
         int argumentTwo;
         int fullArgument;
-        int registerY;
+        int registerX;
 
         argumentOne  = Integer.parseInt("A4", 16);
         argumentTwo  = Integer.parseInt("67", 16);
-        registerY    = Integer.parseInt("30", 16);
+        registerX    = Integer.parseInt("30", 16);
 
         fullArgument = argumentOne + argumentTwo * 256;
-        Address expectedResult = cpu.readMemory(registerY + fullArgument);
+        Address expectedResult = cpu.readMemory(registerX + fullArgument);
         Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
-        cpu.setRegisterY(registerY);
-        assertTrue(Mode.runMode("ABSOLUTE_INDEXED_Y", arguments, cpu) == expectedResult);
+        cpu.setRegisterX(registerX);
+        assertTrue(Mode.runMode("ABSOLUTE_INDEXED_X", arguments, cpu) == expectedResult);
     }
 
     @Test
@@ -307,7 +294,7 @@ public class ModeTest {
     }
 
     @Test
-    void testIndirectIndexedNonZeroRegisterX() {
+    void testIndexedIndirectNonZeroRegisterX() {
         int argumentOne = Integer.parseInt("C2", 16);
         int argumentTwo = Integer.parseInt("D3", 16);
         Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
@@ -318,11 +305,11 @@ public class ModeTest {
         int fullPointer = cpu.readMemory(pointerOne).getValue() + cpu.readMemory(pointerTwo).getValue() * 256;
         Address expectedResult = cpu.readMemory(fullPointer);
 
-        assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("INDEXED_INDIRECT", arguments, cpu) == expectedResult);
     }
 
     @Test
-    void testIndirectIndexedZeroRegisterX() {
+    void testIndexedIndirectZeroRegisterX() {
         int argumentOne = Integer.parseInt("C2", 16);
         int argumentTwo = Integer.parseInt("D3", 16);
         Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
@@ -333,36 +320,36 @@ public class ModeTest {
         int fullPointer = cpu.readMemory(pointerOne).getValue() + cpu.readMemory(pointerTwo).getValue() * 256;
         Address expectedResult = cpu.readMemory(fullPointer);
 
+        assertTrue(Mode.runMode("INDEXED_INDIRECT", arguments, cpu) == expectedResult);
+    }
+
+    @Test
+    void testIndirectIndexedNonZeroRegisterY() {
+        int argumentOne = Integer.parseInt("C2", 16);
+        int argumentTwo = Integer.parseInt("D3", 16);
+        Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
+        cpu.setRegisterY(Integer.parseInt("02", 16));
+
+        int pointerOne = cpu.readMemory(argumentOne % Integer.parseInt("0100", 16)).getValue();
+        int pointerTwo = cpu.readMemory((argumentOne + 1) % Integer.parseInt("0100", 16)).getValue();
+        int fullPointer = (pointerOne + pointerTwo * 256 + cpu.getRegisterY().getValue());
+        Address expectedResult = cpu.readMemory(fullPointer % Integer.parseInt("10000", 16));
+
         assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu) == expectedResult);
     }
 
     @Test
-    void testIndexedIndirectNonZeroRegisterY() {
+    void testIndirectIndexedZeroRegisterY() {
         int argumentOne = Integer.parseInt("C2", 16);
         int argumentTwo = Integer.parseInt("D3", 16);
         Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
-        cpu.setRegisterX(Integer.parseInt("02", 16));
+        cpu.setRegisterY(Integer.parseInt("00", 16));
 
         int pointerOne = cpu.readMemory(argumentOne % Integer.parseInt("0100", 16)).getValue();
         int pointerTwo = cpu.readMemory((argumentOne + 1) % Integer.parseInt("0100", 16)).getValue();
         int fullPointer = (pointerOne + pointerTwo * 256 + cpu.getRegisterY().getValue());
         Address expectedResult = cpu.readMemory(fullPointer % Integer.parseInt("10000", 16));
 
-        assertTrue(Mode.runMode("INDEXED_INDIRECT", arguments, cpu) == expectedResult);
-    }
-
-    @Test
-    void testIndexedIndirectZeroRegisterY() {
-        int argumentOne = Integer.parseInt("C2", 16);
-        int argumentTwo = Integer.parseInt("D3", 16);
-        Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
-        cpu.setRegisterX(Integer.parseInt("00", 16));
-
-        int pointerOne = cpu.readMemory(argumentOne % Integer.parseInt("0100", 16)).getValue();
-        int pointerTwo = cpu.readMemory((argumentOne + 1) % Integer.parseInt("0100", 16)).getValue();
-        int fullPointer = (pointerOne + pointerTwo * 256 + cpu.getRegisterY().getValue());
-        Address expectedResult = cpu.readMemory(fullPointer % Integer.parseInt("10000", 16));
-
-        assertTrue(Mode.runMode("INDEXED_INDIRECT", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu) == expectedResult);
     }
 }
