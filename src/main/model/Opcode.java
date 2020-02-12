@@ -55,6 +55,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagC is 0.
     private static OpcodeAction runBCC = (Address argument, CPU cpu) -> {
         if (cpu.flagC == 0) {
+            cpu.incrementCycles(3);
             cpu.setRegisterPC(argument.getValue());
         }
     };
@@ -64,6 +65,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagC is 1.
     private static OpcodeAction runBCS = (Address argument, CPU cpu) -> {
         if (cpu.flagC == 1) {
+            cpu.incrementCycles(3);
             cpu.setRegisterPC(argument.getValue());
         }
     };
@@ -73,6 +75,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagZ is 1.
     private static OpcodeAction runBEQ = (Address argument, CPU cpu) -> {
         if (cpu.flagZ == 1) {
+            cpu.incrementCycles(3);
             cpu.setRegisterPC(argument.getValue());
         }
     };
@@ -94,6 +97,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagN is 1.
     private static OpcodeAction runBMI = (Address argument, CPU cpu) -> {
         if (cpu.flagN == 1) {
+            cpu.incrementCycles(3);
             cpu.setRegisterPC(argument.getValue());
         }
     };
@@ -103,6 +107,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagZ is 0.
     private static OpcodeAction runBNE = (Address argument, CPU cpu) -> {
         if (cpu.flagZ == 0) {
+            cpu.incrementCycles(3);
             cpu.setRegisterPC(argument.getValue());
         }
     };
@@ -112,6 +117,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagN is 0.
     private static OpcodeAction runBPL = (Address argument, CPU cpu) -> {
         if (cpu.flagN == 0) {
+            cpu.incrementCycles(3);
             cpu.setRegisterPC(argument.getValue());
         }
     };
@@ -138,6 +144,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagV is 0.
     private static OpcodeAction runBVC = (Address argument, CPU cpu) -> {
         if (cpu.flagV == 0) {
+            cpu.incrementCycles(3);
             cpu.setRegisterPC(argument.getValue());
         }
     };
@@ -147,6 +154,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagV is 1.
     private static OpcodeAction runBVS = (Address argument, CPU cpu) -> {
         if (cpu.flagV == 1) {
+            cpu.incrementCycles(3);
             cpu.setRegisterPC(argument.getValue());
         }
     };
@@ -301,6 +309,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // EFFECTS: pushes the current value of registerPC (the program counter) to the stack, minus one.
     //          then, sets registerPC to the argument specified, minus 3.
     private static OpcodeAction runJSR = (Address argument, CPU cpu) -> {
+        //cpu.incrementCycles(6);
         int byteOne = ((cpu.getRegisterPC().getValue() - 1) & Integer.parseInt("1111111100000000", 2)) >> 8;
         int byteTwo = ((cpu.getRegisterPC().getValue() - 1) & Integer.parseInt("0000000011111111", 2));
         cpu.pushStack(byteOne);
@@ -466,7 +475,6 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
         cpu.flagI = 1;
     };
 
-    // TODO: SHX and SHY after PPU implemented
     /*
     private static OpcodeAction runSHX = (Address argument, CPU cpu) -> {
     };

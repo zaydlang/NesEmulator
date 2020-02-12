@@ -21,6 +21,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: An instruction with an implicit addressing mode won't use its argument anyway,
     //          so it doesn't matter what's returned here. Nevertheless, returns 0.
     public static ModeAction getImplicit = (Address[] arguments, CPU cpu) -> {
+        //cpu.incrementCycles(3);
         return new Address(0);
     };
 
@@ -34,6 +35,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: returns the first argument in the list of arguments.
     //          if arguments.length == 0, then returns 0
     public static ModeAction getImmediate = (Address[] arguments, CPU cpu) -> {
+        //cpu.incrementCycles(2);
         return (arguments.length == 0) ? new Address(0) : new Address(arguments[0].getValue());
     };
 
@@ -44,6 +46,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         if (arguments.length == 0) {
             return new Address(0);
         } else {
+            //cpu.incrementCycles(4);
             return cpu.readMemory(arguments[0].getValue());
         }
     };
@@ -51,6 +54,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // REQUIRES: arguments has a length of 2.
     // EFFECTS: returns the little endian number represented by the two arguments given.
     public static ModeAction getAbsolute = (Address[] arguments, CPU cpu) -> {
+        //cpu.incrementCycles(3);
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256;
         return cpu.readMemory(pointer);
     };
@@ -58,8 +62,9 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // REQUIRES: arguments has a length of 1.
     // EFFECTS: returns the argument (interpreted as a signed bit) added to the program counter (registerPC)
     public static ModeAction getRelative = (Address[] arguments, CPU cpu) -> {
+        //cpu.incrementCycles(5);
         int signedArgument = arguments[0].getValue() < 128 ? arguments[0].getValue() : arguments[0].getValue() - 256;
-        return new Address(signedArgument + cpu.getRegisterPC().getValue());
+        return new Address(signedArgument + cpu.getRegisterPC().getValue(), 0, 65536);
     };
 
     // REQUIRES: arguments has a length of 2.
@@ -84,22 +89,38 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: adds the little endian number represented by the two arguments given added to registerX and returns
     //          the associated address on the zero page
     public static ModeAction getZeroPageIndexedX = (Address[] arguments, CPU cpu) -> {
-        int address = (arguments[0].getValue() + cpu.getRegisterX().getValue()) % Integer.parseInt("100", 16);
-        return cpu.readMemory(address);
+        //cpu.incrementCycles(3);
+        int rawAddress = (arguments[0].getValue() + cpu.getRegisterX().getValue());
+        int zeroPageAddress = rawAddress % Integer.parseInt("100", 16);
+        if (rawAddress != zeroPageAddress) {
+            //cpu.incrementCycles(1);
+        }
+
+        return cpu.readMemory(zeroPageAddress);
     };
 
     // REQUIRES: arguments has a length of 1.
     // EFFECTS: adds the little endian number represented by the two arguments given added to registerY and returns
     //          the associated address on the zero page
     public static ModeAction getZeroPageIndexedY = (Address[] arguments, CPU cpu) -> {
-        int address = (arguments[0].getValue() + cpu.getRegisterY().getValue()) % Integer.parseInt("100", 16);
-        return cpu.readMemory(address);
+        //cpu.incrementCycles(4);
+        int rawAddress = (arguments[0].getValue() + cpu.getRegisterY().getValue());
+        int zeroPageAddress = rawAddress % Integer.parseInt("100", 16);
+        if (rawAddress != zeroPageAddress) {
+            //cpu.incrementCycles(1);
+        }
+
+        return cpu.readMemory(zeroPageAddress);
     };
 
     // REQUIRES: arguments has a length of 0 or 2.
     // EFFECTS: returns the little endian number represented by the two arguments given added to registerX.
     public static ModeAction getAbsoluteIndexedX = (Address[] arguments, CPU cpu) -> {
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256 + cpu.getRegisterX().getValue();
+        if (cpu.getRegisterX().getValue() != 0) {
+            cpu.incrementCycles(3);
+        }
+
         return cpu.readMemory(pointer % Integer.parseInt("10000", 16));
     };
 
@@ -107,11 +128,16 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: returns the little endian number represented by the two arguments given added to registerY.
     public static ModeAction getAbsoluteIndexedY = (Address[] arguments, CPU cpu) -> {
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256 + cpu.getRegisterY().getValue();
+        if (cpu.getRegisterY().getValue() != 0) {
+            cpu.incrementCycles(3);
+        }
+
         return cpu.readMemory(pointer % Integer.parseInt("10000", 16));
     };
 
     // REQUIRES: arguments has a length of 1.
     public static ModeAction getIndexedIndirect = (Address[] arguments, CPU cpu) -> {
+        //cpu.incrementCycles(6);
         int pointerOne = (arguments[0].getValue() + cpu.getRegisterX().getValue()) % Integer.parseInt("0100", 16);
         int pointerTwo = (pointerOne + 1) % Integer.parseInt("0100", 16);
         int fullPointer = cpu.readMemory(pointerOne).getValue() + cpu.readMemory(pointerTwo).getValue() * 256;
@@ -122,9 +148,14 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     public static ModeAction getIndirectIndexed = (Address[] arguments, CPU cpu) -> {
         int addressOne = arguments[0].getValue() % Integer.parseInt("0100", 16);
         int addressTwo = (addressOne + 1) % Integer.parseInt("0100", 16);
+
         int pointerOne = cpu.readMemory(addressOne).getValue();
         int pointerTwo = cpu.readMemory(addressTwo).getValue();
         int fullPointer = (pointerOne + pointerTwo * 256 + cpu.getRegisterY().getValue());
+        if (cpu.getRegisterY().getValue() != 0) {
+            cpu.incrementCycles(3);
+        }
+
         return cpu.readMemory(fullPointer % Integer.parseInt("10000", 16));
     };
 

@@ -54,7 +54,7 @@ public class NRomTest {
         loadCartridge("test/TestLoadRomTrainerPresentSmall.nes");
         assertTrue(nRom.header.length  == 16);
         assertTrue(nRom.trainer.length == 512);
-        assertTrue(nRom.prgRom.length  == 16384);
+        assertTrue(nRom.prgRom.length  == 32768);
         assertTrue(nRom.chrRom.length  == 8192);
     }
 
@@ -63,7 +63,7 @@ public class NRomTest {
         loadCartridge("test/TestLoadRomTrainerNotPresentSmall.nes");
         assertTrue(nRom.header.length  == 16);
         assertTrue(nRom.trainer.length == 0);
-        assertTrue(nRom.prgRom.length  == 16384);
+        assertTrue(nRom.prgRom.length  == 32768);
         assertTrue(nRom.chrRom.length  == 8192);
     }
 

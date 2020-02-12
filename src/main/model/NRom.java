@@ -10,7 +10,7 @@ public class NRom implements Mapper {
     public static final int PRG_ROM_SIZE          = 16384; // bytes
     public static final int CHR_ROM_SIZE          = 8192;  // bytes
     public static final int PRG_ROM_128_SIZE      = Integer.parseInt("4000", 16);
-    public static final int PRG_ROM_256_SIZE      = Integer.parseInt("4000", 16);
+    public static final int PRG_ROM_256_SIZE      = Integer.parseInt("8000", 16);
 
     public static final int INITIAL_PRG_RAM_STATE = Integer.parseInt("00",   16);
     public static final int PRG_RAM_SIZE          = Integer.parseInt("2000", 16);
@@ -75,8 +75,20 @@ public class NRom implements Mapper {
     // REQUIRES: data is exactly a multiple of 16384 bytes long.
     // EFFECTS: sets the PRG ROM to the specified data, and sets isNRom128 if the specified ROM is an NROM128 file.
     private void loadPrgRom(Address[] data) {
-        isNRom128 = data.length != PRG_ROM_128_SIZE;
-        this.prgRom = data;
+        isNRom128 = data.length == PRG_ROM_128_SIZE;
+
+        if (isNRom128) {
+            prgRom = new Address[PRG_ROM_256_SIZE];
+            for (int i = 0; i < PRG_ROM_128_SIZE; i++) {
+                Address addressOne = new Address(data[i].getValue(), data[i].getPointer());
+                Address addressTwo = new Address(data[i].getValue(), data[i].getPointer() + PRG_ROM_128_SIZE);
+
+                prgRom[i]                    = addressOne;
+                prgRom[i + PRG_ROM_128_SIZE] = addressTwo;
+            }
+        } else {
+            this.prgRom = data;
+        }
     }
 
     // REQUIRES: data is exactly a multiple of 8192 bytes long.
@@ -106,16 +118,12 @@ public class NRom implements Mapper {
         // $6000 - $7FFF | $2000 | PRG RAM, mirrored as necessary to fill entire 8 KiB window
         // $8000 - $BFFF | $4000 | First 16 KB of ROM
         // $C000 - $FFFF | $4000 | Last 16 KB of ROM (for NROM-256). Else, this is a mirror of the first 16 KB.
-        if (address < Integer.parseInt("6000", 16)) {          // Out of bounds
+        if (address < Integer.parseInt("6000", 16)) {            // Out of bounds
             throw new ArrayIndexOutOfBoundsException();
-        } else if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
+        } else if (address <= Integer.parseInt("7FFF", 16)) {    // PRG RAM
             return prgRam[address - Integer.parseInt("6000", 16)];
-        } else {                                                          // PRG ROM. mirrored for NROM-128
-            if (isNRom128) {
-                return prgRom[(address - Integer.parseInt("8000", 16)) % (PRG_ROM_128_SIZE)];
-            } else {
-                return prgRom[address - Integer.parseInt("8000", 16)];
-            }
+        } else {                                                           // PRG ROM
+            return prgRom[address - Integer.parseInt("8000", 16)];
         }
     }
 

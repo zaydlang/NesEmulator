@@ -1,5 +1,6 @@
 package model;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 public class CPU {
@@ -17,12 +18,14 @@ public class CPU {
     public static final int MINIMUM_REGISTER_Y        = Integer.parseInt("0000", 16);
     public static final int MINIMUM_REGISTER_PC       = Integer.parseInt("0000", 16);
     public static final int MINIMUM_REGISTER_S        = Integer.parseInt("0000", 16);
+    public static final int MINIMUM_CYCLES            = 0;
     
     public static final int MAXIMUM_REGISTER_A        = Integer.parseInt("00FF", 16);
     public static final int MAXIMUM_REGISTER_X        = Integer.parseInt("00FF", 16);
     public static final int MAXIMUM_REGISTER_Y        = Integer.parseInt("00FF", 16);
     public static final int MAXIMUM_REGISTER_PC       = Integer.parseInt("FFFF", 16);
     public static final int MAXIMUM_REGISTER_S        = Integer.parseInt("00FF", 16);
+    public static final int MAXIMUM_CYCLES            = 340;
 
     public static final int OFFSET_REGISTER_A         = Integer.parseInt("0000", 16);
     public static final int OFFSET_REGISTER_X         = Integer.parseInt("0000", 16);
@@ -85,7 +88,8 @@ public class CPU {
 
     // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
     // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
-    public void cycle() {
+    // TODO: i *really* dont like the fact that this returns String
+    public String cycle() {
         Address valueAtProgramCounter = readMemory(registerPC.getValue());
         Instruction instruction = Instruction.getInstructions()[valueAtProgramCounter.getValue()];
         Address[] modeArguments = new Address[instruction.getNumArguments()];
@@ -93,12 +97,43 @@ public class CPU {
         for (int i = 0; i < instruction.getNumArguments(); i++) {
             modeArguments[i] = readMemory(registerPC.getValue() + i + 1);
         }
+        String preStatus = getInstructionStatus(instruction, modeArguments);
+        //incrementCycles(instruction.getNumArguments() + 1);
 
         registerPC.setValue(registerPC.getValue() + instruction.getNumArguments() + 1);
-        cycles += instruction.getNumCycles();
 
         Address opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
         Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
+        incrementCycles(instruction.getNumCycles());
+
+        return preStatus;
+    }
+
+    public void loadCartridge(String cartridgeName) throws IOException {
+        mapper = new NRom(); // TODO: when more mappers are added, you have to get smarter about this.
+        mapper.loadCartridge(cartridgeName);
+    }
+
+    public String getInstructionStatus(Instruction instruction, Address[] arguments) {
+        String status = "";                           // Examples:
+        status += instruction.getOpcode() + " : ";    // JMP
+
+        for (int i = 0; i < 3; i++) {                 // JMP C0 00
+            if (i >= arguments.length) {
+                status += "   ";
+            } else {
+                status += arguments[i];
+                status += " ";
+            }
+        }
+
+        status += "A: "  + getRegisterA()  + " ";      // JMP C0 00 A: 3D
+        status += "X: "  + getRegisterX()  + " ";      // JMP C0 00 A: 3D X: C5
+        status += "Y: "  + getRegisterY()  + " ";      // JMP C0 00 A: 3D X: C5 Y: 25
+        status += "PC: " + getRegisterPC() + " ";      // JMP C0 00 A: 3D X: C5 Y: 25 PC: C000
+        status += "S: "  + getRegisterS()  + " ";      // JMP C0 00 A: 3D X: C5 Y: 25 PC: C000 S: 4E
+
+        return status;
     }
 
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
@@ -384,6 +419,15 @@ public class CPU {
     // EFFECTS: sets flagN to the given value
     public void setFlagN(int flagN) {
         this.flagN = flagN;
+    }
+
+    public void incrementCycles(int numCycles) {
+        cycles += numCycles;
+
+        cycles = (cycles - MINIMUM_CYCLES) % (MAXIMUM_CYCLES - MINIMUM_CYCLES + 1) + MINIMUM_CYCLES;
+        if (cycles < MINIMUM_CYCLES) {
+            cycles += MAXIMUM_CYCLES - MINIMUM_CYCLES + 1;
+        }
     }
 
     // MODIFIES: mapper
