@@ -59,4 +59,18 @@ public class Address {
 
         this.value = rawValue;
     }
+
+    // TODO: ADD TESTS
+    @Override
+    public String toString() {
+        String rawValue = Integer.toHexString(getValue()).toUpperCase();
+        int length = (int) Math.floor(Math.log(highestValue - lowestValue + 1
+        ) / Math.log(16));
+
+        while (rawValue.length() < length) {
+            rawValue = "0" + rawValue;
+        }
+
+        return rawValue;
+    }
 }

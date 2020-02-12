@@ -16,13 +16,11 @@ public class CpuTest {
     void runBefore() {
         cpu = new CPU();
 
-        NRom nRom = new NRom();
         try {
-            nRom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+            cpu.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         } catch (IOException e) {
             fail();
         }
-        cpu.setMapper(nRom);
     }
 
     @Test
