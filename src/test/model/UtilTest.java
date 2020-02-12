@@ -3,15 +3,17 @@ package model;
 import org.junit.jupiter.api.Test;
 import model.Util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UtilTest {
     // makes the code coverage autobot not complain about me not instantiating a Util class.
     @Test
     void testConstructor() {
-        Util util = new Util();
-        assertTrue(true);
+        try {
+            Util util = new Util();
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @SuppressWarnings("SimplifiableJUnitAssertion")
