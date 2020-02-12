@@ -1,6 +1,7 @@
-package model;
+package util;
 
 import org.junit.jupiter.api.Test;
+import util.Util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
