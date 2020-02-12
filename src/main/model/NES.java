@@ -54,7 +54,12 @@ public class NES {
 
     // EFFECTS: returns whether or not all components of the NES are enabled
     public boolean isEnabled() {
-        return cpu.getEnabled();
+        return cpu.isEnabled();
+    }
+
+    // EFFECTS: enables all components of the NES
+    public void enable() {
+        cpu.setEnabled(true);
     }
 
     // EFFECTS: returns the logFile.
@@ -65,5 +70,9 @@ public class NES {
     // EFFECTS: returns the filePath.
     public String getFilePath() {
         return filePath;
+    }
+
+    public void addBreakpoint(Address breakpoint) {
+        cpu.addBreakpoint(breakpoint);
     }
 }

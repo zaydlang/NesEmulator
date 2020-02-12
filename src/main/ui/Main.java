@@ -1,5 +1,6 @@
 package ui;
 
+import model.Address;
 import model.NES;
 
 import java.io.IOException;
@@ -16,12 +17,21 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         String userInput = "";
+        nes.addBreakpoint(new Address(Integer.parseInt("C000", 16), 0, 65536));
 
-        while (!userInput.equals("quit") && nes.isEnabled()) {
-            System.out.print(nes.cycle());
-            userInput = scanner.nextLine().toLowerCase();
+        while (!userInput.equals("quit")) {
+            System.out.println(nes.cycle() + " > ");
+            if (!nes.isEnabled()) {
+                userInput = scanner.nextLine().toLowerCase();
+                nes.enable();
+            }
+
+            try {
+                Address breakpoint = new Address(Integer.parseInt(userInput, 16), 0, 65536);
+                nes.addBreakpoint(breakpoint);
+            } catch (NumberFormatException e) {
+                continue;
+            }
         }
-
-        nes.close();
     }
 }

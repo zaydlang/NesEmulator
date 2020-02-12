@@ -29,7 +29,7 @@ class OpcodeTest {
     }
 
     @Test
-    void testAdcVFlag() {
+    void testAdcVFlagResultHasMismatchedSign() {
         cpu.setRegisterA(Integer.parseInt("11111111", 2));
         Opcode.runOpcode("ADC", new Address(Integer.parseInt("10000000", 2)), cpu);
         assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("01111111", 2));
@@ -981,6 +981,38 @@ class OpcodeTest {
         Opcode.runOpcode("PLA", new Address(0), cpu);
         assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("10111001", 2)));
     }
+
+    @Test
+    void testPlaFlagNoFlags() {
+        cpu.pushStack(Integer.parseInt("00111001", 2));
+
+        Opcode.runOpcode("PLA", new Address(0), cpu);
+        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00111001", 2)));
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+    @Test
+    void testPlaFlagFlagZ() {
+        cpu.pushStack(Integer.parseInt("0000000", 2));
+
+        Opcode.runOpcode("PLA", new Address(0), cpu);
+        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00000000", 2)));
+        assertTrue(cpu.getFlagZ() == 1);
+        assertTrue(cpu.getFlagN() == 0);
+    }
+
+
+    @Test
+    void testPlaFlagFlagN() {
+        cpu.pushStack(Integer.parseInt("10111001", 2));
+
+        Opcode.runOpcode("PLA", new Address(0), cpu);
+        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("10111001", 2)));
+        assertTrue(cpu.getFlagZ() == 0);
+        assertTrue(cpu.getFlagN() == 1);
+    }
+
 
     @Test
     void testPlaMultiple() {
