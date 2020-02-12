@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class CpuTest {
@@ -290,5 +289,26 @@ public class CpuTest {
         cpu.setFlagN(Util.getNthBit(testCpuStatus, 7));
 
         assertTrue(cpu.getStatus() == testCpuStatus);
+    }
+
+    @Test
+    void testIsBreakpointTrue() {
+        Address breakpoint = new Address(Integer.parseInt("C5F5", 16), 0, 65536);
+        cpu.addBreakpoint(breakpoint);
+        assertTrue(cpu.isBreakpoint(breakpoint));
+    }
+
+    @Test
+    void testIsBreakpointFalse() {
+        Address breakpoint = new Address(Integer.parseInt("C5F5", 16), 0, 65536);
+        cpu.addBreakpoint(breakpoint);
+        assertFalse(cpu.isBreakpoint(new Address(Integer.parseInt("C001", 16), 0, 65536)));
+    }
+
+    @Test
+    void testCycleIntoABreakpoint() {
+        cpu.addBreakpoint(new Address(Integer.parseInt("C000", 16), 0, 65536));
+        cpu.cycle();
+        assertFalse(cpu.isEnabled());
     }
 }

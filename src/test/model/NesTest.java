@@ -67,4 +67,29 @@ public class NesTest {
             new File(nes.getFilePath()).delete();
         }
     }
+
+    @Test
+    void testEnableAll() {
+        try {
+            nes.addBreakpoint(new Address(Integer.parseInt("C000", 16), 0, 65536));
+            nes.loadCartridge("test/TestLoadRomTrainerNotPresentSmall.nes");
+            nes.cycle();
+            nes.enable();
+            assertTrue(nes.isEnabled());
+        } catch (IOException e) {
+            fail();
+        }
+    }
+
+    @Test
+    void testIsEnabledCPUDisabled() {
+        try {
+            nes.addBreakpoint(new Address(Integer.parseInt("C000", 16), 0, 65536));
+            nes.loadCartridge("test/TestLoadRomTrainerNotPresentSmall.nes");
+            nes.cycle();
+            assertFalse(nes.isEnabled());
+        } catch (IOException e) {
+            fail();
+        }
+    }
 }

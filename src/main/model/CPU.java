@@ -1,6 +1,7 @@
 package model;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 // Class CPU:
 //     Models the 6502 CPU in the NES. Performs all the legal opcodes that are provided with the NES, and completes
@@ -86,6 +87,7 @@ public class CPU {
 
     private boolean enabled;
     private int cycles;
+    private ArrayList<Address> breakpoints;
 
     // Memory
     // TODO: is it right to make ram have default visibility?
@@ -107,12 +109,14 @@ public class CPU {
     // MODIFIES: registerA, registerX, registerY, registerPC, registerS, cycles, ram
     // EFFECTS: resets all values in the cpu (registers, cycles, ram, stack) to their default states. Enables the CPU.
     private void reset() {
-        registerA  = new Address(CPU.INITIAL_REGISTER_A,   CPU.MINIMUM_REGISTER_A,  CPU.MAXIMUM_REGISTER_A);
-        registerX  = new Address(CPU.INITIAL_REGISTER_X,   CPU.MINIMUM_REGISTER_X,  CPU.MAXIMUM_REGISTER_X);
-        registerY  = new Address(CPU.INITIAL_REGISTER_Y,   CPU.MINIMUM_REGISTER_Y,  CPU.MAXIMUM_REGISTER_Y);
-        registerPC = new Address(CPU.INITIAL_REGISTER_PC,  CPU.MINIMUM_REGISTER_PC, CPU.MAXIMUM_REGISTER_PC);
-        registerS  = new Address(CPU.INITIAL_REGISTER_S,   CPU.MINIMUM_REGISTER_S,  CPU.MAXIMUM_REGISTER_S);
-        cycles     = CPU.INITIAL_CYCLES;
+        registerA   = new Address(CPU.INITIAL_REGISTER_A,   CPU.MINIMUM_REGISTER_A,  CPU.MAXIMUM_REGISTER_A);
+        registerX   = new Address(CPU.INITIAL_REGISTER_X,   CPU.MINIMUM_REGISTER_X,  CPU.MAXIMUM_REGISTER_X);
+        registerY   = new Address(CPU.INITIAL_REGISTER_Y,   CPU.MINIMUM_REGISTER_Y,  CPU.MAXIMUM_REGISTER_Y);
+        registerPC  = new Address(CPU.INITIAL_REGISTER_PC,  CPU.MINIMUM_REGISTER_PC, CPU.MAXIMUM_REGISTER_PC);
+        registerS   = new Address(CPU.INITIAL_REGISTER_S,   CPU.MINIMUM_REGISTER_S,  CPU.MAXIMUM_REGISTER_S);
+
+        cycles      = CPU.INITIAL_CYCLES;
+        breakpoints = new ArrayList<>();
 
         // Note: ram state and stack pointer considered unreliable after reset.
         for (int i = 0; i < ram.length; i++) {
@@ -125,6 +129,10 @@ public class CPU {
     // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
     // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
     public String cycle() {
+        if (isBreakpoint(registerPC)) {
+            setEnabled(false);
+        }
+
         Address valueAtProgramCounter = readMemory(registerPC.getValue());
         Instruction instruction = Instruction.getInstructions()[valueAtProgramCounter.getValue()];
         Address[] modeArguments = new Address[instruction.getNumArguments()];
@@ -283,6 +291,17 @@ public class CPU {
              + (int) (getFlagN() * Math.pow(2, 7));
     }
 
+    // EFFECTS: returns whether or not the address is a breakpoint
+    public boolean isBreakpoint(Address breakpoint) {
+        for (Address address : breakpoints) {
+            if (address.getValue().equals(breakpoint.getValue())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // REQUIRES: status can be represented as an 8bit binary integer
     // MODIFIES: sets the flags in this way:
     // flagC is the 0th bit of status
@@ -365,7 +384,7 @@ public class CPU {
     }
 
     // EFFECTS: returns whether or not the CPU is enabled.
-    public boolean getEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
@@ -479,5 +498,12 @@ public class CPU {
     public void incrementCycles(int numCycles) {
         cycles += numCycles;
         cycles = (cycles - MINIMUM_CYCLES) % (MAXIMUM_CYCLES - MINIMUM_CYCLES + 1) + MINIMUM_CYCLES;
+    }
+
+    // REQUIRES: breakpoint is an Address bounded between 0x0000 and 0xFFFF inclusive.
+    // MODIFIES: breakpoints
+    // EFFECTS: adds the breakpoint.
+    public void addBreakpoint(Address breakpoint) {
+        breakpoints.add(breakpoint);
     }
 }
