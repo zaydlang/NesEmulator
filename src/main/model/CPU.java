@@ -1,5 +1,8 @@
 package model;
 
+import mapper.Mapper;
+import mapper.NRom;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -86,7 +89,7 @@ public class CPU {
     private Address registerS;  // The stack pointer
 
     private boolean enabled;
-    private int cycles;
+    private int cycle;
     private ArrayList<Address> breakpoints;
 
     // Memory
@@ -115,7 +118,7 @@ public class CPU {
         registerPC  = new Address(CPU.INITIAL_REGISTER_PC,  CPU.MINIMUM_REGISTER_PC, CPU.MAXIMUM_REGISTER_PC);
         registerS   = new Address(CPU.INITIAL_REGISTER_S,   CPU.MINIMUM_REGISTER_S,  CPU.MAXIMUM_REGISTER_S);
 
-        cycles      = CPU.INITIAL_CYCLES;
+        cycle      = CPU.INITIAL_CYCLES;
         breakpoints = new ArrayList<>();
 
         // Note: ram state and stack pointer considered unreliable after reset.
@@ -189,7 +192,7 @@ public class CPU {
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     //          see the table below for a detailed description of what is stored at which address.
-    protected Address readMemory(int address) {
+    protected Address readMemory(int pointer) {
         // https://wiki.nesdev.com/w/index.php/CPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
         // $0000 - $07FF | $0800 | 2KB internal RAM
@@ -202,8 +205,8 @@ public class CPU {
         // $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
         // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
 
-        if        (address <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            return ram[address % Integer.parseInt("0800",16)];/*
+        if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
+            return ram[pointer % Integer.parseInt("0800",16)];/*
         } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
             return new Address(0); // TODO add when the ppu is implemented. remember to add mirrors.
         } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
@@ -213,7 +216,7 @@ public class CPU {
             return new Address(0); // TODO add when the apu is implemented.
             */
         } else {
-            return mapper.readMemory(address);
+            return mapper.readMemory(pointer);
         }
     }
 
@@ -390,7 +393,7 @@ public class CPU {
 
     // EFFECTS: returns the number of cycles
     public int getCycles() {
-        return cycles;
+        return cycle;
     }
 
     // MODIFIES: registerA
@@ -496,8 +499,8 @@ public class CPU {
     // MODIFIES: cycles
     // EFFECTS: increments the cycles by the given amount and wraps it around MINIMUM_CYCLES and MAXIMUM_CYCLES
     public void incrementCycles(int numCycles) {
-        cycles += numCycles;
-        cycles = (cycles - MINIMUM_CYCLES) % (MAXIMUM_CYCLES - MINIMUM_CYCLES + 1) + MINIMUM_CYCLES;
+        cycle += numCycles;
+        cycle = (cycle - MINIMUM_CYCLES) % (MAXIMUM_CYCLES - MINIMUM_CYCLES + 1) + MINIMUM_CYCLES;
     }
 
     // REQUIRES: breakpoint is an Address bounded between 0x0000 and 0xFFFF inclusive.

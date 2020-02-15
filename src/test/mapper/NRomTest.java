@@ -1,12 +1,12 @@
-package model;
+package mapper;
 
+import mapper.NRom;
+import model.Address;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
