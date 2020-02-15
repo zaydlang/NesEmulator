@@ -1,4 +1,7 @@
-package model;
+package mapper;
+
+import model.Address;
+import model.Util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
