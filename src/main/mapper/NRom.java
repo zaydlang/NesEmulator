@@ -22,12 +22,12 @@ public class NRom implements Mapper {
     public static final int PRG_RAM_SIZE          = Integer.parseInt("2000", 16);
 
     // TODO: is it right to have these at default visibility?
-    Address[] header;
-    Address[] trainer;
-    Address[] chrRom;
-    Address[] prgRom;
+    public Address[] header;
+    public Address[] trainer;
+    public Address[] chrRom;
+    public Address[] prgRom;
 
-    Address[] prgRam;
+    public Address[] prgRam;
 
     private boolean isNRom128;
 
@@ -127,7 +127,7 @@ public class NRom implements Mapper {
         // $8000 - $BFFF | $4000 | First 16 KB of ROM
         // $C000 - $FFFF | $4000 | Last 16 KB of ROM (for NROM-256). Else, this is a mirror of the first 16 KB.
         if (address < Integer.parseInt("6000", 16)) {            // Out of bounds
-            throw new ArrayIndexOutOfBoundsException();
+            return new Address(0, address);
         } else if (address <= Integer.parseInt("7FFF", 16)) {    // PRG RAM
             return prgRam[address - Integer.parseInt("6000", 16)];
         } else {                                                           // PRG ROM
@@ -178,5 +178,10 @@ public class NRom implements Mapper {
     // EFFECTS: sets the PRG ROM at the specified index to the specified value
     public void setPrgRom(int index, int value) {
         this.prgRom[index] = new Address(value);
+    }
+
+    @Override
+    public Address readChrRom(int address) {
+        return chrRom[address];
     }
 }

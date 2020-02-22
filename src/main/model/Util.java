@@ -24,4 +24,21 @@ public final class Util {
             return (value <= 127) ? 1 : -1;
         }
     }
+
+    public static int getNthBits(int value, int n, int len) {
+        return (value >> n) & (int) (Math.pow(2, len) - 1);
+    }
+
+    public static int maskNthBits(int fullMask, int value, int maskOffset, int valueOffset, int len) {
+        for (int i = 0; i < len; i++) {
+            int maskBit = getNthBit(fullMask, maskOffset + i);
+            if (maskBit == 0) {
+                value &= ~(1 << valueOffset + i);
+            } else {
+                value |= 1 << (valueOffset + i);
+            }
+        }
+
+        return value;
+    }
 }

@@ -13,4 +13,6 @@ public interface Mapper {
     void writeMemory(int address, int value);
 
     void loadCartridge(String cartridgeName) throws IOException;
+
+    Address readChrRom(int address);
 }

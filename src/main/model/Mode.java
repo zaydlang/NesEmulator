@@ -45,14 +45,14 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: returns the value in memory at arguments[0]. Since arguments has a length of 1, this is by default
     // the zero-page and no extra correction is needed.
     public static ModeAction getZeroPage = (Address[] arguments, CPU cpu) -> {
-        return cpu.readMemory(arguments[0].getValue());
+        return new PendingAddress(arguments[0].getValue(), () -> cpu.readMemory(arguments[0].getValue()));
     };
 
     // REQUIRES: arguments has a length of 2.
     // EFFECTS: returns the little endian number represented by the two arguments given.
     public static ModeAction getAbsolute = (Address[] arguments, CPU cpu) -> {
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256;
-        return cpu.readMemory(pointer);
+        return new PendingAddress(pointer, () -> cpu.readMemory(pointer));
     };
 
     // REQUIRES: arguments has a length of 1.
@@ -77,7 +77,8 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
 
         int addressOne = cpu.readMemory(pointerOne).getValue();
         int addressTwo = cpu.readMemory(pointerTwo).getValue();
-        return cpu.readMemory(addressOne + addressTwo * 256);
+        int pointer    = addressOne + addressTwo * 256;
+        return new PendingAddress(pointer, () -> cpu.readMemory(pointer));
     };
 
     // REQUIRES: arguments has a length of 1.
@@ -87,7 +88,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         int rawAddress = (arguments[0].getValue() + cpu.getRegisterX().getValue());
         int zeroPageAddress = rawAddress % Integer.parseInt("100", 16);
 
-        return cpu.readMemory(zeroPageAddress);
+        return new PendingAddress(zeroPageAddress, () -> cpu.readMemory(zeroPageAddress));
     };
 
     // REQUIRES: arguments has a length of 1.
@@ -97,7 +98,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         int rawAddress = (arguments[0].getValue() + cpu.getRegisterY().getValue());
         int zeroPageAddress = rawAddress % Integer.parseInt("100", 16);
 
-        return cpu.readMemory(zeroPageAddress);
+        return new PendingAddress(zeroPageAddress, () -> cpu.readMemory(zeroPageAddress));
     };
 
     // REQUIRES: arguments has a length of 2.
@@ -108,7 +109,8 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
             cpu.incrementCycles(3);
         }
 
-        return cpu.readMemory(pointer % Integer.parseInt("10000", 16));
+        int mirroredPointer = pointer % Integer.parseInt("10000", 16);
+        return new PendingAddress(mirroredPointer, () -> cpu.readMemory(mirroredPointer));
     };
 
     // REQUIRES: arguments has a length of 2.
@@ -119,7 +121,8 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
             cpu.incrementCycles(3);
         }
 
-        return cpu.readMemory(pointer % Integer.parseInt("10000", 16));
+        int mirroredPointer = pointer % Integer.parseInt("10000", 16);
+        return new PendingAddress(mirroredPointer, () -> cpu.readMemory(mirroredPointer));
     };
 
     // REQUIRES: arguments has a length of 1.
@@ -129,7 +132,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         int pointerOne = (arguments[0].getValue() + cpu.getRegisterX().getValue()) % Integer.parseInt("0100", 16);
         int pointerTwo = (pointerOne + 1) % Integer.parseInt("0100", 16);
         int fullPointer = cpu.readMemory(pointerOne).getValue() + cpu.readMemory(pointerTwo).getValue() * 256;
-        return cpu.readMemory(fullPointer);
+        return new PendingAddress(fullPointer, () -> cpu.readMemory(fullPointer));
     };
 
     // REQUIRES: arguments has a length of 1.
@@ -146,7 +149,8 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
             cpu.incrementCycles(3);
         }
 
-        return cpu.readMemory(fullPointer % Integer.parseInt("10000", 16));
+        int mirroredPointer = fullPointer % Integer.parseInt("10000", 16);
+        return new PendingAddress(mirroredPointer, () -> cpu.readMemory(mirroredPointer));
     };
 
     static {

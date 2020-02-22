@@ -1,9 +1,13 @@
 package model;
 
+import ui.Pixels;
+
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 
 // Class NES:
 //     NES is just a class (for now) that controls the CPU. When the PPU is implemented, the NES will have a lot more
@@ -17,13 +21,17 @@ public class NES {
     private FileWriter logFile;
     private String filePath;     // This variable shouldn't have to exist; it's redundant... but such is life.
 
+    private int trueCycles;
+
     // EFFECTS: initializes the CPU, and starts a logfile based on the current timestamp.
     public NES() throws IOException {
-        this.cpu = new CPU();
+        this.cpu    = new CPU();
 
         // https://stackoverflow.com/questions/23068676/how-to-get-current-timestamp-in-string-format-in-java-yyyy-mm-dd-hh-mm-ss
         filePath = LOG_DESTINATION_HEADER + new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date()) + ".log";
         logFile  = new FileWriter(filePath);
+
+        trueCycles = 0;
     }
 
     // REQUIRES: cartridgeName is a valid file name for a valid NES NROM cartridge. If file not found, throws
@@ -33,13 +41,24 @@ public class NES {
         cpu.loadCartridge(cartridgeName);
     }
 
+    int x = 0;
     // REQUIRES: logFile is open.
     // MODIFIES: cpu, logfile
     // EFFECTS: cycles the cpu through one instruction, throws IOException if logfile has been closed.
     public String cycle() throws IOException {
-        String cpuStatus = cpu.cycle();
-        logFile.write(cpuStatus + "\n");
+        String cpuStatus = "";
+        if (cpu.getCycles() <= trueCycles) {
+            cpuStatus = cpu.cycle();
+            logFile.write(cpuStatus + "\n");
+        }
 
+        if (cpu.ppu.getCycles() <= trueCycles) {
+            cpu.ppu.renderPatternTables();
+            cpu.ppu.renderPatternTables();
+            cpu.ppu.renderPatternTables();
+        }
+
+        trueCycles += 1;
         return cpuStatus;
     }
 
@@ -72,5 +91,9 @@ public class NES {
 
     public void addBreakpoint(Address breakpoint) {
         cpu.addBreakpoint(breakpoint);
+    }
+
+    public Pixels getPixels() {
+        return cpu.getPixels();
     }
 }

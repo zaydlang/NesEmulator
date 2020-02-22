@@ -2,6 +2,8 @@ package model;
 
 import mapper.Mapper;
 import mapper.NRom;
+import ppu.PPU;
+import ui.Pixels;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,6 +94,9 @@ public class CPU {
     private int cycle;
     private ArrayList<Address> breakpoints;
 
+    PPU ppu;
+    private boolean nmi;
+
     // Memory
     // TODO: is it right to make ram have default visibility?
     Address[] ram;
@@ -100,7 +105,6 @@ public class CPU {
     // EFFECTS: initializes the RAM and STACK and calls reset() to reset all values in the cpu to their default states.
     public CPU() {
         init();
-        reset();
     }
 
     // MODIFIES: ram
@@ -126,6 +130,10 @@ public class CPU {
             ram[i] = new Address(CPU.INITIAL_RAM_STATE, i,0, 255);
         }
 
+        int byteOne = readMemory(Integer.parseInt("FFFC", 16)).getValue();
+        int byteTwo = readMemory(Integer.parseInt("FFFD", 16)).getValue();
+        setRegisterPC(byteOne + byteTwo * 256);
+        setRegisterPC(Integer.parseInt("C000", 16));
         enabled = true;
     }
 
@@ -144,6 +152,8 @@ public class CPU {
             modeArguments[i] = readMemory(registerPC.getValue() + i + 1);
         }
         String preStatus = getInstructionStatus(instruction, modeArguments);
+        //System.out.println(preStatus);
+        handleNMI();
 
         registerPC.setValue(registerPC.getValue() + instruction.getNumArguments() + 1);
 
@@ -154,6 +164,21 @@ public class CPU {
         return preStatus;
     }
 
+    private void handleNMI() {
+        if (ppu.getNmi()) {
+            int byteOne = ((getRegisterPC().getValue() - 1) & Integer.parseInt("1111111100000000", 2)) >> 8;
+            int byteTwo = ((getRegisterPC().getValue() - 1) & Integer.parseInt("0000000011111111", 2));
+            pushStack(byteOne);
+            pushStack(byteTwo);
+
+            byteOne = readMemory(Integer.parseInt("FFFA", 16)).getValue();
+            byteTwo = readMemory(Integer.parseInt("FFFB", 16)).getValue();
+            setRegisterPC(byteTwo * 256 + byteOne);
+
+            ppu.setNmi(false);
+        }
+    }
+
     // REQUIRES: cartridgeName is a valid file name for a valid NES NROM cartridge. If file not found, throws
     // IOException.
     // MODIFIES: mapper
@@ -161,6 +186,8 @@ public class CPU {
     public void loadCartridge(String cartridgeName) throws IOException {
         mapper = new NRom(); // TODO: when more mappers are added, you have to get smarter about this.
         mapper.loadCartridge(cartridgeName);
+        ppu = new PPU(mapper);
+        reset();
     }
 
     // REQUIRES: arguments.length == instructions.getNumArguments()
@@ -189,6 +216,34 @@ public class CPU {
         return status.toString();
     }
 
+    protected Address peekMemory(int pointer) {
+        // https://wiki.nesdev.com/w/index.php/CPU_memory_map
+        // ADDRESS RANGE | SIZE  | DEVICE
+        // $0000 - $07FF | $0800 | 2KB internal RAM
+        // $0800 - $0FFF | $0800 |
+        // $1000 - $17FF | $0800 | Mirrors of $0000-$07FF
+        // $1800 - $1FFF | $0800 |
+        // $2000 - $2007 | $0008 | NES PPU registers
+        // $2008 - $3FFF | $1FF8 | Mirrors of $2000-$2007 (repeats every 8 bytes)
+        // $4000 - $4017 | $0018 | NES APU and I/O registers
+        // $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
+        // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
+
+        if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
+            return ram[pointer % Integer.parseInt("0800",16)];
+        } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
+            pointer = (pointer - Integer.parseInt("2000", 16)) % 8 + Integer.parseInt("2000", 16);
+            return ppu.peekRegister(pointer); // TODO add when the ppu is implemented. remember to add mirrors.
+        } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
+            return new Address(0); // TODO add when the apu is implemented.
+        } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
+            // normally disabled.
+            return new Address(0); // TODO add when the apu is implemented.
+        } else {
+            return mapper.readMemory(pointer);
+        }
+    }
+
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     //          see the table below for a detailed description of what is stored at which address.
@@ -206,15 +261,15 @@ public class CPU {
         // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
 
         if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            return ram[pointer % Integer.parseInt("0800",16)];/*
-        } else if (address <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
-            return new Address(0); // TODO add when the ppu is implemented. remember to add mirrors.
-        } else if (address <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
+            return ram[pointer % Integer.parseInt("0800",16)];
+        } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
+            pointer = (pointer - Integer.parseInt("2000", 16)) % 8 + Integer.parseInt("2000", 16);
+            return ppu.readRegister(pointer); // TODO add when the ppu is implemented. remember to add mirrors.
+        } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
             return new Address(0); // TODO add when the apu is implemented.
-        } else if (address <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
+        } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
                                                                               // normally disabled.
             return new Address(0); // TODO add when the apu is implemented.
-            */
         } else {
             return mapper.readMemory(pointer);
         }
@@ -224,9 +279,6 @@ public class CPU {
     // MODIFIES: ram
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
     protected void writeMemory(int pointer, int rawValue) {
-        if (pointer == 0 && rawValue == 255) {
-            int x = 2;
-        }
         // https://wiki.nesdev.com/w/index.php/CPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
         // $0000 - $07FF | $0800 | 2KB internal RAM
@@ -244,15 +296,14 @@ public class CPU {
         }
 
         if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            ram[pointer % Integer.parseInt("0800",16)].setValue(value);/*
+            ram[pointer % Integer.parseInt("0800",16)].setValue(value);
         } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
-            // TODO add when the ppu is implemented. remember to add mirrors.
+            ppu.writeRegister((pointer - Integer.parseInt("2000", 16) % Integer.parseInt("0008", 16)), value);
         } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
             // TODO add when the apu is implemented.
         } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
                                                                              // normally disabled.
             // TODO add when the apu is implemented.
-            */
         } else {
             mapper.writeMemory(pointer, rawValue);
         }
@@ -508,5 +559,9 @@ public class CPU {
     // EFFECTS: adds the breakpoint.
     public void addBreakpoint(Address breakpoint) {
         breakpoints.add(breakpoint);
+    }
+
+    public Pixels getPixels() {
+        return ppu.getPixels();
     }
 }

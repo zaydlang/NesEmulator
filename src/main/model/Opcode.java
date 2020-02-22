@@ -55,6 +55,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagZ set if the result is zero
     //          flagN set if the result is negative.
     private static OpcodeAction runASL = (Address argument, CPU cpu) -> {
+        argument = argument.getReference();
         int oldValue = argument.getValue();
         argument.setValue(argument.getValue() * 2);
 
@@ -240,6 +241,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagZ set if the new value in memory is zero     after the operation.
     //          flagN set if the new value in memory is negative after the operation.
     private static OpcodeAction runDEC = (Address argument, CPU cpu) -> {
+        argument = argument.getReference();
         argument.setValue(argument.getValue() - 1);
 
         cpu.flagZ = (argument.getValue() == 0) ? 1 : 0;
@@ -284,6 +286,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagZ set if the new value in memory is zero     after the operation.
     //          flagN set if the new value in memory is negative after the operation.
     private static OpcodeAction runINC = (Address argument, CPU cpu) -> {
+        argument = argument.getReference();
         argument.setValue(argument.getValue() + 1);
 
         cpu.flagZ = (argument.getValue() == 0) ? 1 : 0;
@@ -368,6 +371,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagZ set if the result is zero
     //          flagN set if the result is negative.
     private static OpcodeAction runLSR = (Address argument, CPU cpu) -> {
+        argument = argument.getReference();
         int oldValue = argument.getValue();
         argument.setValue(argument.getValue() / 2);
 
@@ -378,7 +382,6 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
 
     // EFFECTS: doesn't modify the cpu in any way.
     private static OpcodeAction runNOP = (Address argument, CPU cpu) -> {
-        int x = 2;
     };
 
     // MODIFIES: cpu.getRegisterA, cpu.flagZ, cpu.flagN
@@ -427,6 +430,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagZ set if the result is zero
     //          flagN set if the result is negative.
     private static OpcodeAction runROL = (Address argument, CPU cpu) -> {
+        argument = argument.getReference();
         int oldValue = argument.getValue();
         argument.setValue(argument.getValue() << 1 | cpu.getFlagC());
 
@@ -442,6 +446,7 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     //          flagZ set if the result is zero
     //          flagN set if the result is negative.
     private static OpcodeAction runROR = (Address argument, CPU cpu) -> {
+        argument = argument.getReference();
         int oldValue = argument.getValue();
         argument.setValue(argument.getValue() >> 1 | cpu.getFlagC() << 7);
 

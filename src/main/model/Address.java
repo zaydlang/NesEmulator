@@ -89,4 +89,8 @@ public class Address {
 
         this.value = rawValue;
     }
+
+    public Address getReference() {
+        return this;
+    }
 }
