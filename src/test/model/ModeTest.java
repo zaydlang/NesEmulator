@@ -1,8 +1,8 @@
 package model;
 
-import mapper.NRom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
 
 import java.io.IOException;
 
