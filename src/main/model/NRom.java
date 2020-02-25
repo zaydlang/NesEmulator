@@ -29,7 +29,7 @@ public class NRom implements Mapper {
     private boolean isNRom128;
 
     private String cartridgeName;
-
+  
     // EFFECTS: initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
     // fills the prgRam with the initial state.
     public NRom() {
