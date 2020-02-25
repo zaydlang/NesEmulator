@@ -514,7 +514,7 @@ public class CPU {
     public void setCycles(int cycles) {
         this.cycles = cycles;
     }
-
+  
     // REQUIRES: breakpoint is an Address bounded between 0x0000 and 0xFFFF inclusive.
     // MODIFIES: breakpoints
     // EFFECTS: adds the breakpoint.

@@ -56,7 +56,7 @@ public class NES {
     public CPU getCPU() {
         return cpu;
     }
-
+  
     // EFFECTS: returns whether or not all components of the NES are enabled
     public boolean isEnabled() {
         return cpu.isEnabled();
