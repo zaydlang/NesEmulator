@@ -92,4 +92,21 @@ public class AddressTest {
         address = new Address(3, 0, 256);
         assertEquals(address.toString(), "03");
     }
+
+    @Test
+    void testSerialize() {
+        Address address;
+
+        address = new Address(10, 20);
+        assertEquals(address.serialize(" "), "10 20 ");
+
+        address = new Address(0, 20);
+        assertEquals(address.serialize(" "), "0 20 ");
+
+        address = new Address(10, 0);
+        assertEquals(address.serialize(" "), "10 0 ");
+
+        address = new Address(0, 0);
+        assertEquals(address.serialize(" "), "0 0 ");
+    }
 }

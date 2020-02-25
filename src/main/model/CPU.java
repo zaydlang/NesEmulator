@@ -189,7 +189,7 @@ public class CPU {
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     //          see the table below for a detailed description of what is stored at which address.
-    protected Address readMemory(int address) {
+    public Address readMemory(int address) {
         // https://wiki.nesdev.com/w/index.php/CPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
         // $0000 - $07FF | $0800 | 2KB internal RAM
@@ -220,7 +220,7 @@ public class CPU {
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // MODIFIES: ram
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
-    protected void writeMemory(int pointer, int rawValue) {
+    public void writeMemory(int pointer, int rawValue) {
         if (pointer == 0 && rawValue == 255) {
             int x = 2;
         }
@@ -393,6 +393,16 @@ public class CPU {
         return cycles;
     }
 
+    // EFFECTS: returns the mapper
+    public Mapper getMapper() {
+        return mapper;
+    }
+
+    // EFFECTS: gets the breakpoints
+    public ArrayList<Address> getBreakpoints() {
+        return breakpoints;
+    }
+
     // MODIFIES: registerA
     // EFFECTS: sets registerA to a new value wrapped around (0...MAXIMUM_REGISTER_A_VALUE)
     // example: setRegisterA(256) sets registerS to 0.
@@ -498,6 +508,11 @@ public class CPU {
     public void incrementCycles(int numCycles) {
         cycles += numCycles;
         cycles = (cycles - MINIMUM_CYCLES) % (MAXIMUM_CYCLES - MINIMUM_CYCLES + 1) + MINIMUM_CYCLES;
+    }
+
+    // EFFECTS: cycles
+    public void setCycles(int cycles) {
+        this.cycles = cycles;
     }
 
     // REQUIRES: breakpoint is an Address bounded between 0x0000 and 0xFFFF inclusive.
