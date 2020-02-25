@@ -17,20 +17,18 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         String userInput = "";
-        nes.addBreakpoint(new Address(Integer.parseInt("C000", 16), 0, 65536));
 
         while (!userInput.equals("quit")) {
-            System.out.println(nes.cycle() + " > ");
-            if (!nes.isEnabled()) {
-                userInput = scanner.nextLine().toLowerCase();
-                nes.enable();
-            }
+            System.out.print(nes.cycle() + " > ");
+
+            userInput = scanner.nextLine().toLowerCase();
 
             try {
-                Address breakpoint = new Address(Integer.parseInt(userInput, 16), 0, 65536);
-                nes.addBreakpoint(breakpoint);
-            } catch (NumberFormatException e) {
-                continue;
+                String command = userInput.split(" ", 2)[0];
+                String argument = userInput.split(" ", 2)[1];
+                Actions.runCommand(nes, command, argument);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Do nothing
             }
         }
     }

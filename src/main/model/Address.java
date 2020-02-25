@@ -4,6 +4,8 @@ package model;
 //     Address is a wrapper class for Integer. It's also a wrapper class in a more literal, punny sense, in that it
 //     wraps the integer between a given lowest value and highest value.
 
+import java.nio.ByteBuffer;
+
 public class Address {
     private static int DEFAULT_LOWEST_VALUE  = 0;
     private static int DEFAULT_HIGHEST_VALUE = 255;
@@ -59,8 +61,7 @@ public class Address {
     @Override
     public String toString() {
         StringBuilder rawValue = new StringBuilder(Integer.toHexString(getValue()).toUpperCase());
-        int length = (int) Math.floor(Math.log(highestValue - lowestValue + 1
-        ) / Math.log(16));
+        int length = (int) Math.floor(Math.log(highestValue - lowestValue + 1) / Math.log(16));
 
         while (rawValue.length() < length) {
             rawValue.insert(0, "0");
@@ -88,5 +89,9 @@ public class Address {
         }
 
         this.value = rawValue;
+    }
+
+    public String serialize(String delimiter) {
+        return value + delimiter + pointer + delimiter;
     }
 }
