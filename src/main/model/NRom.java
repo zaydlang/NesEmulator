@@ -28,6 +28,8 @@ public class NRom implements Mapper {
 
     private boolean isNRom128;
 
+    private String cartridgeName;
+  
     // EFFECTS: initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
     // fills the prgRam with the initial state.
     public NRom() {
@@ -41,6 +43,8 @@ public class NRom implements Mapper {
         for (int i = 0; i < PRG_RAM_SIZE; i++) {
             prgRam[i] = new Address(INITIAL_PRG_RAM_STATE);
         }
+
+        cartridgeName = "";
     }
 
     // MODIFIES: header, trainer, prgRom, chrRom
@@ -63,6 +67,8 @@ public class NRom implements Mapper {
 
         loadPrgRom(readFile(file, 0, Integer.parseInt("8000", 16),header[4].getValue() * PRG_ROM_SIZE));
         loadChrRom(readFile(file, 0, 0,header[5].getValue() * CHR_ROM_SIZE));
+
+        this.cartridgeName = cartridgeName;
     }
 
     // REQUIRES: data is exactly 16 bytes long.
@@ -175,5 +181,10 @@ public class NRom implements Mapper {
     // EFFECTS: sets the PRG ROM at the specified index to the specified value
     public void setPrgRom(int index, int value) {
         this.prgRom[index] = new Address(value);
+    }
+
+    // EFFECTS: returns the cartridge name
+    public String getCartridgeName() {
+        return cartridgeName;
     }
 }

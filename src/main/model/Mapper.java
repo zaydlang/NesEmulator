@@ -11,4 +11,6 @@ public interface Mapper {
     void writeMemory(int address, int value);
 
     void loadCartridge(String cartridgeName) throws IOException;
+  
+    String getCartridgeName();
 }

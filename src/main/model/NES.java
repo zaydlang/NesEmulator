@@ -1,5 +1,8 @@
 package model;
 
+import persistence.NesReader;
+import persistence.NesWriter;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -50,6 +53,10 @@ public class NES {
         logFile.close();
     }
 
+    public CPU getCPU() {
+        return cpu;
+    }
+  
     // EFFECTS: returns whether or not all components of the NES are enabled
     public boolean isEnabled() {
         return cpu.isEnabled();
@@ -72,5 +79,17 @@ public class NES {
 
     public void addBreakpoint(Address breakpoint) {
         cpu.addBreakpoint(breakpoint);
+    }
+
+    public Mapper getMapper() {
+        return cpu.getMapper();
+    }
+
+    public void save(String fileName) throws IOException {
+        NesWriter.writeToFile(this, fileName);
+    }
+
+    public void load(String fileName) throws IOException {
+        NesReader.readFromFile(this, fileName);
     }
 }
