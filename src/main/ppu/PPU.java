@@ -59,6 +59,11 @@ public class PPU {
     private ShiftRegister shiftRegisterLarge0;
     private ShiftRegister shiftRegisterLarge1;
 
+    private Address latchNametable;
+    private Address latchAttributeTable;
+    private Address latchPatternTableLow;
+    private Address latchPatternTableHigh;
+
     private Address ppuCtrl;
     private Address ppuMask;
     private Address ppuStatus;
@@ -69,22 +74,19 @@ public class PPU {
     private Address ppuData;
     private Address oamDma;
 
-    private Address[] latches;
-
     private boolean nmi;
     private Address ppuDataBuffer;
 
     // Memory
     private PatternTable[] patternTables;
-    private Nametable[] nameTables;
+    private Address[] nametable;
     private PaletteRamIndexes paletteRamIndexes;
     private Address[] oam;
     private Mapper mapper;
 
-    // State Machine
-    private ArrayList<PpuState> states;
-    private Address cycle;
-    private Address scanline;
+    // Cycling
+    private int cycle;
+    private int scanline;
 
     private Pixels pixels;
 
@@ -93,7 +95,7 @@ public class PPU {
         // TODO: just figure out how to initialize everything honestly
         //patternTable0       = new Address[PATTERN_TABLE_SIZE];
         //patternTable1       = new Address[PATTERN_TABLE_SIZE];
-        nameTables          = new Nametable[NUM_NAMETABLES];
+        nametable           = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
         patternTables       = new PatternTable[NUM_PATTERNTABLES];
         paletteRamIndexes   = new PaletteRamIndexes();
         oam                 = new Address[OAM_SIZE];
@@ -107,24 +109,15 @@ public class PPU {
         shiftRegisterSmall1 = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
         shiftRegisterLarge0 = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
         shiftRegisterLarge1 = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
-        latches             = new Address[NUM_LATCHES];
         nmi                 = true;
 
-        cycle               = new Address(0, 0, NUM_CYCLES);
-        scanline            = new Address(0, 0, NUM_SCANLINES);
+        cycle               = 0;
+        scanline            = 0;
 
         setupInternalRegisters();
 
         this.mapper = mapper;
         applyMapper();
-
-        for (int i = 0; i < nameTables.length; i++) {
-            nameTables[i] = new Nametable();
-        }
-
-        for (int i = 0; i < latches.length; i++) {
-            latches[i] = new Address(0, 0, 65536);
-        }
 
         pixels = new Pixels();
 
@@ -142,20 +135,86 @@ public class PPU {
         ppuData   = new Address(0, PPUDATA_ADDRESS);
     }
 
-    private void applyMapper() {
-        for (int i = 0; i < patternTables.length; i++) {
-            patternTables[i] = new PatternTable();
-            for (int j = 0; j < Integer.parseInt("1000", 16); j++) {
-                int address = Integer.parseInt("1000", 16) * i + j;
-                int value = mapper.readChrRom(address).getValue();
-                patternTables[i].writeMemory(j, value);
-            }
+
+
+
+
+
+    // Cycling
+    public void cycle() {
+        if        (scanline <= 239) { // Visible Scanlines
+            runVisibleScanline();
+        } else if (scanline <= 240) { // Post-Render Scanlines
+            runPostRenderScanline();
+        } else if (scanline <= 260) { // Vertical Blanking Scanline
+            runVerticalBlankingScanline();
+        } else {                      // Pre-Render Scanlines
+            runPreRenderScanline();
         }
-        int x = 2;
+
+        cycle++;
+        if (cycle == NUM_CYCLES) {
+            cycle = 0;
+            scanline++;
+        }
+        if (scanline == NUM_SCANLINES) {
+            scanline = 0;
+        }
     }
 
+    private void runVisibleScanline() {
+        if        (cycle <= 0) {   // Idle cycle
+            return;
+        } else if (cycle <= 256) { // Memory fetches for current scanline
+            runVisibleScanlineRenderingCycles();
+        } else if (cycle <= 320) { // Garbage memory fetches
+            return;
+        } else if (cycle <= 336) { // Memory fetches for next scanline
+            runVisibleScanlineFutureCycles();
+        } else if (cycle <= 340) { // Garbage memory fetches
+            return;
+        }
+    }
+
+    private void runVisibleScanlineRenderingCycles() {
+        switch ((cycle - 1) % 8) {
+            case 0:
+                renderShiftRegisters();
+            case 1:
+                fetchNametableByte();
+                break;
+            case 3:
+                fetchAttributeTableByte();
+            case 5:
+                fetchPatternTableLowByte();
+            case 7:
+                fetchPatternTableHighByte();
+        }
+    }
+
+    private void fetchNametableByte() {
+        int address = registerV.getValue() & Integer.parseInt("011111111111111", 2);
+        latchNametable = nametable[address];
+    }
+
+    private void fetchAttributeTableByte() {
+        int address = registerV.getValue()
+    }
+
+    private void renderShiftRegisters() {
+    }
+
+
+
+
+
+
+
+
+
+
+    // Memory Reading / Writing
     public void writeRegister(int pointer, int value) {
-        int x = 2;
         if        (pointer == PPUCTRL_ADDRESS) {
             setPpuCtrl(value);
         } else if (pointer == PPUMASK_ADDRESS) {
@@ -335,13 +394,7 @@ public class PPU {
         } else if (pointer <= Integer.parseInt("1FFF", 16)) {
             return patternTables[1].readMemory(pointer - Integer.parseInt("1000", 16));
         } else if (pointer <= Integer.parseInt("23FF", 16)) {
-            return nameTables[0].readMemory(pointer - Integer.parseInt("2000", 16));
-        } else if (pointer <= Integer.parseInt("27FF", 16)) {
-            return nameTables[1].readMemory(pointer - Integer.parseInt("2400", 16));
-        } else if (pointer <= Integer.parseInt("2BFF", 16)) {
-            return nameTables[2].readMemory(pointer - Integer.parseInt("2800", 16));
-        } else if (pointer <= Integer.parseInt("2FFF", 16)) {
-            return nameTables[3].readMemory(pointer - Integer.parseInt("2C00", 16));
+            return nametable[pointer - Integer.parseInt("2000", 16)];
         } else if (pointer <= Integer.parseInt("3EFF", 16)) {
             return readMemory(pointer - Integer.parseInt("2000", 16));
         } else {
@@ -367,13 +420,7 @@ public class PPU {
         } else if (pointer <= Integer.parseInt("1FFF", 16)) {
             patternTables[1].writeMemory(pointer - Integer.parseInt("1000", 16), value);
         } else if (pointer <= Integer.parseInt("23FF", 16)) {
-            nameTables[0].writeMemory(pointer - Integer.parseInt("2000", 16), value);
-        } else if (pointer <= Integer.parseInt("27FF", 16)) {
-            nameTables[1].writeMemory(pointer - Integer.parseInt("2400", 16), value);
-        } else if (pointer <= Integer.parseInt("2BFF", 16)) {
-            nameTables[2].writeMemory(pointer - Integer.parseInt("2800", 16), value);
-        } else if (pointer <= Integer.parseInt("2FFF", 16)) {
-            nameTables[3].writeMemory(pointer - Integer.parseInt("2C00", 16), value);
+            nametable[pointer - Integer.parseInt("2000", 16)].setValue(value);
         } else if (pointer <= Integer.parseInt("3EFF", 16)) {
             return;
         } else {
@@ -382,8 +429,16 @@ public class PPU {
             System.out.print(Integer.toHexString(Integer.parseInt("3F00", 16) + mirroredAddress) + " : ");
             System.out.println(value);
             paletteRamIndexes.writeMemory(mirroredAddress, value);
-            if (value != 0) {
-                int u = 2;
+        }
+    }
+
+    private void applyMapper() {
+        for (int i = 0; i < patternTables.length; i++) {
+            patternTables[i] = new PatternTable();
+            for (int j = 0; j < Integer.parseInt("1000", 16); j++) {
+                int address = Integer.parseInt("1000", 16) * i + j;
+                int value = mapper.readChrRom(address).getValue();
+                patternTables[i].writeMemory(j, value);
             }
         }
     }
@@ -393,178 +448,12 @@ public class PPU {
 
 
 
-    // State Machine
-    private interface PpuState {
-        void run(PPU ppu);
-    }
-
-    // EFFECTS: idles the PPU; the ppu does nothing.
-    private static PpuState stateIdle = (PPU ppu) -> {
-    };
-
-    // EFFECTS: reads a nametable byte
-    private static PpuState readNametableByte = (PPU ppu) -> {
-        int coarseXScroll        = ppu.registerV.getValue() & Integer.parseInt("000000000011111", 2) >> 0;
-        int coarseYScroll        = ppu.registerV.getValue() & Integer.parseInt("000001111100000", 2) >> 5;
-        int baseNametableAddress = ppu.registerV.getValue() & Integer.parseInt("000110000000000", 2) >> 7;
-
-        Nametable nametable  = ppu.getNametable(baseNametableAddress);
-        ppu.setLatch(0, nametable.readTile(coarseXScroll, coarseYScroll));
-        ppu.registerV.setValue(ppu.registerV.getValue() + 1);
-    };
-
-    private static PpuState readAttributeTableByte = (PPU ppu) -> {
-        int coarseXScroll        = ppu.registerV.getValue() & Integer.parseInt("000000000011111", 2) >> 0;
-        int coarseYScroll        = ppu.registerV.getValue() & Integer.parseInt("000001111100000", 2) >> 5;
-        int baseNametableAddress = ppu.registerV.getValue() & Integer.parseInt("000110000000000", 2) >> 7;
-
-        Nametable nametable = ppu.getNametable(baseNametableAddress);
-        int palette = nametable.getAttributeTable().getPalette(coarseXScroll, coarseYScroll).getValue();
-        ppu.setLatch(1, new Address(palette));
-    };
-
-    private static PpuState readPatternTableByteLow = (PPU ppu) -> {
-        int coarseXScroll         = ppu.registerV.getValue() & Integer.parseInt("000000000011111", 2) >> 0;
-        int coarseYScroll         = ppu.registerV.getValue() & Integer.parseInt("000001111100000", 2) >> 5;
-        int fineYScroll           = ppu.registerV.getValue() & Integer.parseInt("111000000000000", 2) >> 12;
-
-        PatternTable patternTable = ppu.patternTables[ppu.readRegister(Integer.parseInt("2000", 16)).getValue()];
-        Address[] tile = patternTable.getTileLow(coarseXScroll, coarseYScroll);
-        Address tileStrip = tile[fineYScroll];
-        ppu.setLatch(2, tileStrip);
-    };
-
-    private static PpuState readPatternTableByteHigh = (PPU ppu) -> {
-        int coarseXScroll         = ppu.registerV.getValue() & Integer.parseInt("000000000011111", 2) >> 0;
-        int coarseYScroll         = ppu.registerV.getValue() & Integer.parseInt("000001111100000", 2) >> 5;
-        int fineYScroll           = ppu.registerV.getValue() & Integer.parseInt("111000000000000", 2) >> 12;
-
-        PatternTable patternTable = ppu.patternTables[ppu.readRegister(Integer.parseInt("2000", 16)).getValue()];
-        Address[] tile = patternTable.getTileHigh(coarseXScroll, coarseYScroll);
-        Address tileStrip = tile[fineYScroll];
-        ppu.setLatch(3, tileStrip);
-    };
-
-    private static PpuState feedShiftRegisters = (PPU ppu) -> {
-        ppu.shiftRegisterLarge0.setNthBits(8, 16, ppu.latches[0]);
-        ppu.shiftRegisterLarge1.setNthBits(8, 16, ppu.latches[1]);
-        ppu.shiftRegisterLarge0.shiftRight(8);
-        ppu.shiftRegisterLarge1.shiftRight(8); // TODO: might be problem
-        ppu.shiftRegisterSmall0.setBits(ppu.latches[2]);
-        ppu.shiftRegisterSmall1.setBits(ppu.latches[3]);
-    }
-
-    private static final PpuState[] ppuActions = new PpuState[] {
-            stateIdle,                      // 0
-
-            stateIdle,                      // 1
-            readNametableByte,              // 2
-            stateIdle,                      // 3
-            readAttributeTableByte,         // 4     Note: These entries from 9-16 loop all the way
-            stateIdle,                      // 5     through entry 256.
-            readPatternTableByteLow,        // 6
-            stateIdle,                      // 7
-            readPatternTableByteHigh,       // 8
-
-            stateIdle,                      // 257
-            stateIdle,                      // 258
-            stateIdle,                      // 259
-            stateIdle,                      // 260   Note: These entries from 265-272 loop all the way
-            stateIdle,                      // 261   through entry 320.
-            readPatternTableByteLow,        // 262
-            stateIdle,                      // 263
-            readPatternTableByteHigh,       // 264
-
-            stateIdle,                      // 321
-            readNametableByte,              // 322
-            stateIdle,                      // 323
-            readAttributeTableByte,         // 324   Note: These entries from 9-16 loop all the way
-            stateIdle,                      // 325   through entry 336.
-            readPatternTableByteLow,        // 326
-            stateIdle,                      // 327
-            readPatternTableByteHigh,       // 328
-
-            stateIdle,                      // 337
-            stateIdle,                      // 338
-            stateIdle,                      // 339
-            stateIdle                       // 340
-    };
-
-    public void cycle() {
-        if        (scanline.getValue() <= 239) { // Visible Scanlines
-            runVisibleScanline();
-        } else if (scanline.getValue() <= 240) { // Post-Render Scanlines
-            runPostRenderScanline();
-        } else if (scanline.getValue() <= 260) { // Vertical Blanking Scanline
-            runVerticalBlankingScanline();
-        } else {                                 // Pre-Render Scanlines
-            runPreRenderScanline();
-        }
-
-        cycle.setValue(cycle.getValue() + 1);
-
-        if (cycle.getValue() >= NUM_CYCLES) {
-            cycle.setValue(0);
-            scanline.setValue(scanline.getValue() + 1);
-        }
-
-        renderShiftRegisters();
-    }
-
-    private void runVisibleScanline() {
-        if        (1   <= cycle.getValue() && cycle.getValue() <= 256) {
-            ppuActions[(cycle.getValue() -   1) % 8 +   1].run(this);
-        } else if (257 <= cycle.getValue() && cycle.getValue() <= 320) {
-            ppuActions[(cycle.getValue() - 257) % 8 + 257].run(this);
-        } else if (321 <= cycle.getValue() && cycle.getValue() <= 336) {
-            ppuActions[(cycle.getValue() - 321) % 8 + 321].run(this);
-        } else {
-            ppuActions[(cycle.getValue())].run(this);
-        }
-    }
-
-    private void runPostRenderScanline() {
-        // Do nothing
-    }
-
-    private void runVerticalBlankingScanline() {
-        if (cycle.getValue() == 1) {
-            ppuStatus.setValue(ppuStatus.getValue() | Integer.parseInt("10000000", 2));
-        }
-    }
-
-    private void runPreRenderScanline() {
-        feedShiftRegisters.run(this);
-    }
-
-    private void renderShiftRegisters() {
-        int fineXScroll    = registerX.getValue();
-        int patternLow     = (shiftRegisterLarge0.getBit(fineXScroll) ? 1 : 0);
-        int patternHigh    = (shiftRegisterLarge1.getBit(fineXScroll) ? 1 : 0);
-        int fullPattern    = patternLow + patternHigh * 2;
-        int nametableValue = shiftRegisterSmall0.getBit(fineXScroll) ? 1 : 0;
-        int attributeValue = shiftRegisterSmall1.getBit(fineXScroll) ? 1 : 0;
-
-        shiftRegisterSmall0.shiftRight(1);
-        shiftRegisterSmall1.shiftRight(1);
-        shiftRegisterLarge0.shiftRight(1);
-        shiftRegisterLarge1.shiftRight(1);
-    }
-
 
 
 
 
 
     // Getters and Setters
-    private Nametable getNametable(int nametableAddress) {
-        return nameTables[nametableAddress];
-    }
-
-    private void setLatch(int latch, Address value) {
-        latches[latch] = value;
-    }
-
     public Address getRegisterV() {
         return registerV;
     }
@@ -604,16 +493,16 @@ public class PPU {
 
 
    public void renderPatternTables() {
-        cycle.setValue(cycle.getValue() + 1);
-        if (cycle.getValue() == 340) {
-            cycle.setValue(0);
-            scanline.setValue(scanline.getValue() + 1);
+        cycle++;
+        if (cycle == NUM_CYCLES) {
+            cycle = 0;
+            scanline++;
         }
-        if (scanline.getValue() == 260) {
-            scanline.setValue(0);
+        if (scanline == NUM_SCANLINES) {
+            scanline = 0;
         }
 
-        if (cycle.getValue() == 1) {
+        if (cycle == 1) {
             nmi = true;
         }
 
@@ -626,12 +515,13 @@ public class PPU {
                         int formattedLow  = Util.getNthBit(low[k].getValue(),  l);
                         int formattedHigh = Util.getNthBit(high[k].getValue(), l);
                         int palette = formattedLow + formattedHigh * 2;
-                        Color color = ColorPalette.getColor(palette);
+                        Color color = ColorPalette.getColor(paletteRamIndexes.readMemory(palette).getValue());
                         pixels.setPixel(i * 8 + k, j * 8 + l, color);
                     }
                 }
             }
         }
+
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 Address[] low  = patternTables[1].getTileLow(i, j);
@@ -663,6 +553,6 @@ public class PPU {
     }
 
     public int getCycles() {
-        return cycle.getValue();
+        return cycle;
     }
 }
