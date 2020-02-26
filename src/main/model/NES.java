@@ -13,8 +13,10 @@ import java.util.Date;
 //     to do besides just logging files.
 
 public class NES {
+    // Constants
     private static String LOG_DESTINATION_HEADER = "./data/log/";
 
+    // Fields
     private CPU cpu;
 
     private FileWriter logFile;
@@ -53,10 +55,24 @@ public class NES {
         logFile.close();
     }
 
-    public CPU getCPU() {
-        return cpu;
+    // EFFECTS: saves the NES' state to a given file
+    public void save(String fileName) throws IOException {
+        NesWriter.writeToFile(this, fileName);
     }
-  
+
+    // MODIFIES: this
+    // EFFECTS: loads the NES' state from a given file
+    public void load(String fileName) throws IOException {
+        NesReader.readFromFile(this, fileName);
+    }
+
+    // REQUIRES: 0x0000 <= breakpoint <= 0xFFFF
+    // EFFECTS: adds a breakpoint to the cpu.
+    public void addBreakpoint(Address breakpoint) {
+        cpu.addBreakpoint(breakpoint);
+    }
+
+    // MODIFIES: cpu
     // EFFECTS: returns whether or not all components of the NES are enabled
     public boolean isEnabled() {
         return cpu.isEnabled();
@@ -77,19 +93,11 @@ public class NES {
         return filePath;
     }
 
-    public void addBreakpoint(Address breakpoint) {
-        cpu.addBreakpoint(breakpoint);
-    }
-
     public Mapper getMapper() {
         return cpu.getMapper();
     }
 
-    public void save(String fileName) throws IOException {
-        NesWriter.writeToFile(this, fileName);
-    }
-
-    public void load(String fileName) throws IOException {
-        NesReader.readFromFile(this, fileName);
+    public CPU getCPU() {
+        return cpu;
     }
 }

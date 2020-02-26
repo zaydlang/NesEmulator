@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 // Class Main:
 //     Tentative class: Cycles the CPU and handles User Input.
+
 public class Main {
     public static final String CARTRIDGE_NAME = "test/nestest.nes";
 
