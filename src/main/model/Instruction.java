@@ -19,27 +19,22 @@ public class Instruction {
         this.numCycles    = numCycles;
     }
 
-    // EFFECTS: returns the opcode
     public String getOpcode() {
         return opcode;
     }
 
-    // EFFECTS: returns the mode
     public String getMode() {
         return mode;
     }
 
-    // EFFECTS: returns the number of bytes
     public int getNumArguments() {
         return numArguments;
     }
 
-    // EFFECTS: returns the number of cycles
     public int getNumCycles() {
         return numCycles;
     }
 
-    // EFFECTS: returns the list of instructions
     public static Instruction[] getInstructions() {
         return instructions;
     }
@@ -201,9 +196,9 @@ public class Instruction {
             new Instruction("STA", "ABSOLUTE_INDEXED_Y",  2, 15),
             new Instruction("TXS", "IMPLICIT",            0, 6),
             new Instruction("NOP", "IMPLICIT",            0, 0), // unused instruction
-            new Instruction("SHY", "ABSOLUTE_INDEXED_X",  2, 0), // TODO: CHANGE TO 0 ARG WHEN IMPLEMENTED
+            new Instruction("SHY", "ABSOLUTE_INDEXED_X",  2, 0),
             new Instruction("STA", "ABSOLUTE_INDEXED_X",  2, 15),
-            new Instruction("SHX", "ABSOLUTE_INDEXED_Y",  2, 0), // TODO: CHANGE TO 0 ARG WHEN IMPLEMENTED
+            new Instruction("SHX", "ABSOLUTE_INDEXED_Y",  2, 0),
             new Instruction("NOP", "IMPLICIT",            0, 0), // unused instruction
             new Instruction("LDY", "IMMEDIATE",           1, 6),
             new Instruction("LDA", "INDEXED_INDIRECT",    1, 18),
