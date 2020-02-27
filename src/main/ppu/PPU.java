@@ -122,6 +122,10 @@ public class PPU {
         pixels = new Pixels();
 
         ppuDataBuffer = new Address(0);
+
+        for (int i = 0; i < NUM_NAMETABLES * NAMETABLE_SIZE; i++) {
+            nametable[i] = new Address(0, i + Integer.parseInt("2000", 16));
+        }
     }
 
     private void setupInternalRegisters() {
@@ -147,9 +151,9 @@ public class PPU {
         } else if (scanline <= 240) { // Post-Render Scanlines
             runPostRenderScanline();
         } else if (scanline <= 260) { // Vertical Blanking Scanline
-            runVerticalBlankingScanline();
+            //runVerticalBlankingScanline();
         } else {                      // Pre-Render Scanlines
-            runPreRenderScanline();
+            //runPreRenderScanline();
         }
 
         cycle++;
@@ -186,9 +190,9 @@ public class PPU {
             case 3:
                 fetchAttributeTableByte();
             case 5:
-                fetchPatternTableLowByte();
+                //fetchPatternTableLowByte();
             case 7:
-                fetchPatternTableHighByte();
+                //fetchPatternTableHighByte();
         }
     }
 
@@ -198,10 +202,16 @@ public class PPU {
     }
 
     private void fetchAttributeTableByte() {
-        int address = registerV.getValue()
+        int address = registerV.getValue();
     }
 
     private void renderShiftRegisters() {
+    }
+
+    private void runPostRenderScanline() {
+    }
+
+    private void runVisibleScanlineFutureCycles() {
     }
 
 
@@ -261,8 +271,8 @@ public class PPU {
             registerX.setValue(Util.maskNthBits(value, registerX.getValue(), 0, 0, 3));
         } else {                         // Second Write
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 12, 3));
-            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 8,  2));
-            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 6, 5,  3));
+            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 8, 2));
+            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 6, 5, 3));
         }
 
         registerW.setValue(registerW.getValue() ^ 1);
@@ -393,7 +403,7 @@ public class PPU {
             return patternTables[0].readMemory(pointer);
         } else if (pointer <= Integer.parseInt("1FFF", 16)) {
             return patternTables[1].readMemory(pointer - Integer.parseInt("1000", 16));
-        } else if (pointer <= Integer.parseInt("23FF", 16)) {
+        } else if (pointer <= Integer.parseInt("2FFF", 16)) {
             return nametable[pointer - Integer.parseInt("2000", 16)];
         } else if (pointer <= Integer.parseInt("3EFF", 16)) {
             return readMemory(pointer - Integer.parseInt("2000", 16));
@@ -419,7 +429,7 @@ public class PPU {
             patternTables[0].writeMemory(pointer, value);
         } else if (pointer <= Integer.parseInt("1FFF", 16)) {
             patternTables[1].writeMemory(pointer - Integer.parseInt("1000", 16), value);
-        } else if (pointer <= Integer.parseInt("23FF", 16)) {
+        } else if (pointer <= Integer.parseInt("2FFF", 16)) {
             nametable[pointer - Integer.parseInt("2000", 16)].setValue(value);
         } else if (pointer <= Integer.parseInt("3EFF", 16)) {
             return;
