@@ -15,67 +15,58 @@ public class Pixels extends JPanel {
             this.col = col;
         }
     }
-    
-    // Constants
-    private static final int NUM_ROWS        = 30;
-    private static final int NUM_COLS        = 32;
-    private static final int PIXELS_PER_ROW  = 8;
-    private static final int PIXELS_PER_COL  = 8;
-    private static final int PIXEL_WIDTH     = 4;
-    private static final int PIXEL_HEIGHT    = 4;
 
+    // Constants
     private static final Color DEFAULT_COLOR = new Color(0,0,0);
 
-    // Calculated Constants
-    public static final int DISPLAY_WIDTH    = NUM_COLS * PIXELS_PER_COL * PIXEL_WIDTH;
-    public static final int DISPLAY_HEIGHT   = NUM_ROWS * PIXELS_PER_ROW * PIXEL_HEIGHT;
-
     // Fields
+    private int pixelWidth;
+    private int pixelHeight;
+    private int pixelsPerRow;
+    private int pixelsPerCol;
     private Color[][] pixels;
-    private ArrayList<Point> updatedPixels;
 
-    public Pixels() {
-        setPreferredSize(new Dimension(DISPLAY_WIDTH, DISPLAY_HEIGHT));
+    public Pixels(int pixelWidth, int pixelHeight, int pixelsPerRow, int pixelsPerCol) {
+        this.pixelWidth   = pixelWidth;
+        this.pixelHeight  = pixelHeight;
+        this.pixelsPerRow = pixelsPerRow;
+        this.pixelsPerCol = pixelsPerCol;
 
-        pixels = new Color[NUM_ROWS * PIXELS_PER_ROW][NUM_COLS * PIXELS_PER_COL];
-        for (Color[] row : pixels) {
-            for (Color color : row) {
-                color = new Color(DEFAULT_COLOR.getRGB()); // Creates a copy of DEFAULT_COLOR
+        setPreferredSize(new Dimension(getDisplayWidth(), getDisplayHeight()));
+
+        pixels = new Color[pixelsPerRow][pixelsPerCol];
+        for (int i = 0; i < pixelsPerRow; i++) {
+            for (int j = 0; j < pixelsPerCol; j++) {
+                pixels[i][j] = new Color(DEFAULT_COLOR.getRGB()); // Creates a copy of DEFAULT_COLOR
             }
         }
-
-        updatedPixels = new ArrayList<Point>();
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        for (int col = 0; col < NUM_COLS * PIXELS_PER_COL; col++) {
-            for (int row = 0; row < NUM_ROWS * PIXELS_PER_ROW; row++) {
-                Color state = pixels[row][col];
-                int x = col * PIXEL_HEIGHT;
-                int y = row * PIXEL_WIDTH;
+        for (int col = 0; col < pixelsPerRow; col++) {
+            for (int row = 0; row < pixelsPerCol; row++) {
+                Color state = pixels[col][row];
+                int x = col * pixelHeight;
+                int y = row * pixelWidth;
 
                 g.setColor(state);
-                g.fillRect(x, y, PIXEL_WIDTH, PIXEL_HEIGHT);
+                g.fillRect(x, y, pixelWidth, pixelHeight);
             }
         }
-        /*
-        while (updatedPixels.size() != 0) {
-            Point p = updatedPixels.remove(0);
-            int row = p.row;
-            int col = p.col;
 
-            Color state = pixels[row][col];
-            int x = col * PIXEL_HEIGHT;
-            int y = row * PIXEL_WIDTH;
-
-            g.setColor(state);
-            g.fillRect(x, y, PIXEL_WIDTH, PIXEL_HEIGHT);
-        }*/
+        g.fillRect(0, 0, pixelWidth, pixelHeight);
     }
 
-    public void setPixel(int row, int col, Color color) {
-        pixels[row][col] = color;
-        //updatedPixels.add(new Point(row, col));
+    public void setPixel(int x, int y, Color color) {
+        pixels[x][y] = color;
+    }
+
+    public int getDisplayWidth() {
+        return pixelWidth  * pixelsPerRow;
+    }
+
+    public int getDisplayHeight() {
+        return pixelHeight * pixelsPerCol;
     }
 }

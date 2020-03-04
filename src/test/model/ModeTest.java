@@ -3,6 +3,7 @@ package model;
 import mapper.NRom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ppu.Mirroring;
 
 import java.io.IOException;
 
@@ -116,7 +117,7 @@ public class ModeTest {
 
     @Test
     void testIndirectTwoArgumentsBuggyFF() {
-        NRom nrom = new NRom();
+        NRom nrom = new NRom(Mirroring.VERTICAL);
         try {
             nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         } catch (IOException e) {

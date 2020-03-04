@@ -41,4 +41,13 @@ public final class Util {
 
         return value;
     }
+
+    public static int reverse(Integer value, int numBits) {
+        int newValue = 0;
+        for (int i = 0; i < numBits; i++) {
+            newValue += Util.getNthBit(value, i) * Math.pow(2, numBits - i - 1);
+        }
+
+        return newValue;
+    }
 }

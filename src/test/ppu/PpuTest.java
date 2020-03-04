@@ -16,7 +16,7 @@ public class PpuTest {
 
     @BeforeEach
     void runBefore() {
-        nrom = new NRom();
+        nrom = new NRom(Mirroring.VERTICAL);
         try {
             nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
         } catch (Exception e) {

@@ -28,6 +28,10 @@ public class PaletteRamIndexes {
     }
 
     public Address readMemory(int pointer) {
+        if (pointer % 4 == 0) {
+            return indexes[0];
+        }
+
         return indexes[pointer];
     }
 }

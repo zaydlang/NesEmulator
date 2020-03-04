@@ -2,6 +2,7 @@ package mapper;
 
 import model.Address;
 import model.Util;
+import ppu.Mirroring;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.io.IOException;
 //     NROM models an NROM Mapper. Can read through an NROM NES file, both NROM-128 and NROM-256.
 //     See for more details: https://wiki.nesdev.com/w/index.php/NROM
 
-public class NRom implements Mapper {
+public class NRom extends Mapper {
     public static final int HEADER_SIZE           = 16;    // bytes
     public static final int TRAINER_SIZE          = 512;   // bytes
     public static final int PRG_ROM_SIZE          = 16384; // bytes
@@ -33,7 +34,9 @@ public class NRom implements Mapper {
 
     // EFFECTS: initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
     // fills the prgRam with the initial state.
-    public NRom() {
+    public NRom(Mirroring mirroring) {
+        super(mirroring);
+
         header  = new Address[0];
         trainer = new Address[0];
         chrRom  = new Address[0];

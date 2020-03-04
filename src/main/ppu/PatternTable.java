@@ -20,8 +20,8 @@ public class PatternTable {
         }
     }
 
-    public Address[] getTileLow(int row, int col) {
-        int tile    = row + col * 16;
+    public Address[] getTileLow(int pointer) {
+        int tile    = pointer;
         int offset  = (MEMORY_SIZE / NUM_TILES) * tile;
 
         Address[] tileLow = new Address[8];
@@ -31,8 +31,8 @@ public class PatternTable {
         return tileLow;
     }
 
-    public Address[] getTileHigh(int row, int col) {
-        int tile    = row + col * 16;
+    public Address[] getTileHigh(int pointer) {
+        int tile    = pointer;
         int offset  = (MEMORY_SIZE / NUM_TILES) * tile;
 
         Address[] tileHigh = new Address[8];

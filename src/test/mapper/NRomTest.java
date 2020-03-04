@@ -4,6 +4,7 @@ import mapper.NRom;
 import model.Address;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ppu.Mirroring;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class NRomTest {
 
     @BeforeEach
     void runBefore() {
-        nRom = new NRom();
+        nRom = new NRom(Mirroring.VERTICAL);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package model;
 
+import ppu.PPU;
 import ui.Pixels;
 
 import java.io.File;
@@ -22,6 +23,7 @@ public class NES {
     private String filePath;     // This variable shouldn't have to exist; it's redundant... but such is life.
 
     private int trueCycles;
+    private boolean enabled;
 
     // EFFECTS: initializes the CPU, and starts a logfile based on the current timestamp.
     public NES() throws IOException {
@@ -32,6 +34,7 @@ public class NES {
         logFile  = new FileWriter(filePath);
 
         trueCycles = 0;
+        enabled    = false;
     }
 
     // REQUIRES: cartridgeName is a valid file name for a valid NES NROM cartridge. If file not found, throws
@@ -39,28 +42,42 @@ public class NES {
     // EFFECTS: loads a cartridge into the cpu
     public void loadCartridge(String cartridgeName) throws IOException {
         cpu.loadCartridge(cartridgeName);
+        enabled = true;
     }
 
-    int x = 0;
     // REQUIRES: logFile is open.
     // MODIFIES: cpu, logfile
     // EFFECTS: cycles the cpu through one instruction, throws IOException if logfile has been closed.
     public String cycle() throws IOException {
+        if (!enabled) {
+            return "";
+        }
+
         String cpuStatus = "";
         if (cpu.getCycles() <= trueCycles) {
-            cpuStatus = cpu.cycle();
+            try {
+                cpuStatus = cpu.cycle();
+            } catch (Exception e) {
+                e.printStackTrace();
+                int x = 2;
+            }
             logFile.write(cpuStatus + "\n");
         }
 
         if (cpu.ppu.getCycles() <= trueCycles) {
-            cpu.ppu.renderPatternTables();
-            cpu.ppu.renderPatternTables();
-            cpu.ppu.renderPatternTables();
+            cpu.ppu.cycle();
+            cpu.ppu.cycle();
+            cpu.ppu.cycle();
         }
 
         trueCycles += 1;
         return cpuStatus;
     }
+
+    /*
+    public void renderPatternTables() {
+        cpu.ppu.renderPatternTables();
+    }*/
 
     // REQUIRES: logFile is open.
     // MODIFIES: flushes and closes the logfile. throws IOException if logfile has already been closed.
@@ -93,7 +110,23 @@ public class NES {
         cpu.addBreakpoint(breakpoint);
     }
 
+    public void setPixels(Pixels pixels) {
+        cpu.ppu.setPixels(pixels);
+    }
+
     public Pixels getPixels() {
-        return cpu.getPixels();
+        return cpu.ppu.getPixels();
+    }
+
+    public void renderPatternTables(Pixels pixels, int basePalette) {
+        cpu.ppu.renderPatternTables(pixels, basePalette);
+    }
+
+    public void renderNameTables(Pixels pixels, int basePalette) {
+        cpu.ppu.renderNameTables(pixels, basePalette);
+    }
+
+    public PPU getPPU() {
+        return cpu.ppu;
     }
 }

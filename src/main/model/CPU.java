@@ -2,6 +2,7 @@ package model;
 
 import mapper.Mapper;
 import mapper.NRom;
+import ppu.Mirroring;
 import ppu.PPU;
 import ui.Pixels;
 
@@ -133,7 +134,7 @@ public class CPU {
         int byteOne = readMemory(Integer.parseInt("FFFC", 16)).getValue();
         int byteTwo = readMemory(Integer.parseInt("FFFD", 16)).getValue();
         setRegisterPC(byteOne + byteTwo * 256);
-        setRegisterPC(Integer.parseInt("C000", 16));
+        //setRegisterPC(Integer.parseInt("C000", 16));
         enabled = true;
     }
 
@@ -146,13 +147,14 @@ public class CPU {
 
         Address valueAtProgramCounter = readMemory(registerPC.getValue());
         Instruction instruction = Instruction.getInstructions()[valueAtProgramCounter.getValue()];
+
         Address[] modeArguments = new Address[instruction.getNumArguments()];
 
         for (int i = 0; i < instruction.getNumArguments(); i++) {
             modeArguments[i] = readMemory(registerPC.getValue() + i + 1);
         }
         String preStatus = getInstructionStatus(instruction, modeArguments);
-        //System.out.println(preStatus);
+        System.out.println(preStatus);
         handleNMI();
 
         registerPC.setValue(registerPC.getValue() + instruction.getNumArguments() + 1);
@@ -184,7 +186,7 @@ public class CPU {
     // MODIFIES: mapper
     // EFFECTS: loads the cartridge with its mapper (currently only NROM)
     public void loadCartridge(String cartridgeName) throws IOException {
-        mapper = new NRom(); // TODO: when more mappers are added, you have to get smarter about this.
+        mapper = new NRom(Mirroring.HORIZONTAL); // TODO: when more mappers are added, you have to get smarter about this.
         mapper.loadCartridge(cartridgeName);
         ppu = new PPU(mapper);
         reset();
