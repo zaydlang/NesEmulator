@@ -8,6 +8,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/*
 @SuppressWarnings("SimplifiableJUnitAssertion")
 class OpcodeTest {
     CPU cpu;
@@ -1508,4 +1509,4 @@ class OpcodeTest {
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 1));
     }
-}
+}*/

@@ -1,6 +1,6 @@
 package ui;
 
-import model.NES;
+import model.Bus;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -13,19 +13,20 @@ public class NameTableViewer extends Window implements KeyListener {
 
     private int currentPalette;
 
-    public NameTableViewer(NES nes) {
-        super(nes, 1, 1, 32 * 8 * 2, 32 * 8 * 2, FPS,"NameTables Viewer");
+    public NameTableViewer(Bus bus) {
+        super(bus, 1, 1, 32 * 8 * 2, 32 * 8 * 2, "NameTables Viewer");
 
         currentPalette = 0;
         addKeyListener(this);
 
         pack();
         setVisible(true);
+        postContructor(FPS);
     }
 
     @Override
     public void repaint() {
-        nes.renderNameTables(getPixels(), currentPalette);
+        bus.getPpu().renderNameTables(getPixels(), currentPalette);
     }
 
     @Override

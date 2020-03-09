@@ -1,12 +1,8 @@
 package model;
 
-import mapper.Mapper;
-import mapper.NRom;
-import ppu.Mirroring;
-import ppu.PPU;
-import ui.Pixels;
+import ui.CpuOutput;
+import ui.CpuViewer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 // Class CPU:
@@ -71,7 +67,7 @@ public class CPU {
     public static final int OFFSET_REGISTER_PC        = Integer.parseInt("C000", 16);
     public static final int OFFSET_REGISTER_S         = Integer.parseInt("0100", 16);
 
-    public static final int INITIAL_CYCLES            = Integer.parseInt("0000", 16);
+    public static final int INITIAL_CYCLES            = Integer.parseInt("0007", 16);
     public static final int INITIAL_RAM_STATE         = Integer.parseInt("0000", 16);
 
     // CPU Flags
@@ -93,37 +89,40 @@ public class CPU {
 
     private boolean enabled;
     private int cycle;
+    int cyclesRemaining;
     private ArrayList<Address> breakpoints;
-
-    PPU ppu;
-    private boolean nmi;
+    protected boolean nmi;
 
     // Memory
     // TODO: is it right to make ram have default visibility?
-    Address[] ram;
-    private Mapper mapper;
+    private Address[] ram;
+    private Bus bus;
+
+    private CpuOutput loggingOutput;
 
     // EFFECTS: initializes the RAM and STACK and calls reset() to reset all values in the cpu to their default states.
-    public CPU() {
-        init();
+    public CPU(Bus bus) {
+        init(bus);
     }
 
     // MODIFIES: ram
     // EFFECTS: initializes the RAM and STACK with their appropriate sizes.
-    private void init() {
+    private void init(Bus bus) {
         ram = new Address[CPU.RAM_SIZE];
+        this.bus = bus;
     }
 
     // MODIFIES: registerA, registerX, registerY, registerPC, registerS, cycles, ram
     // EFFECTS: resets all values in the cpu (registers, cycles, ram, stack) to their default states. Enables the CPU.
-    private void reset() {
+    void reset() {
         registerA   = new Address(CPU.INITIAL_REGISTER_A,   CPU.MINIMUM_REGISTER_A,  CPU.MAXIMUM_REGISTER_A);
         registerX   = new Address(CPU.INITIAL_REGISTER_X,   CPU.MINIMUM_REGISTER_X,  CPU.MAXIMUM_REGISTER_X);
         registerY   = new Address(CPU.INITIAL_REGISTER_Y,   CPU.MINIMUM_REGISTER_Y,  CPU.MAXIMUM_REGISTER_Y);
         registerPC  = new Address(CPU.INITIAL_REGISTER_PC,  CPU.MINIMUM_REGISTER_PC, CPU.MAXIMUM_REGISTER_PC);
         registerS   = new Address(CPU.INITIAL_REGISTER_S,   CPU.MINIMUM_REGISTER_S,  CPU.MAXIMUM_REGISTER_S);
 
-        cycle      = CPU.INITIAL_CYCLES;
+        cyclesRemaining = 0;
+        cycle = CPU.INITIAL_CYCLES;
         breakpoints = new ArrayList<>();
 
         // Note: ram state and stack pointer considered unreliable after reset.
@@ -134,19 +133,36 @@ public class CPU {
         int byteOne = readMemory(Integer.parseInt("FFFC", 16)).getValue();
         int byteTwo = readMemory(Integer.parseInt("FFFD", 16)).getValue();
         setRegisterPC(byteOne + byteTwo * 256);
-        //setRegisterPC(Integer.parseInt("C000", 16));
+        //setRegisterPC(Integer.parseInt("C000", 16));     // Uncomment for nestest
         enabled = true;
     }
 
     // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
     // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
-    public String cycle() {
+    public void cycle() {
+        if (cyclesRemaining <= 1) {
+            processInstruction();
+        } else {
+            cyclesRemaining--;
+        }
+
+        incrementCycles(1);
+    }
+
+    public void incrementCyclesRemaining(int increment) {
+        // System.out.println("Incremented +" + increment + " to " + cyclesRemaining + "!");
+        cyclesRemaining += increment;
+    }
+
+    private void processInstruction() {
+        handleNMI();
         if (isBreakpoint(registerPC)) {
             setEnabled(false);
         }
 
         Address valueAtProgramCounter = readMemory(registerPC.getValue());
         Instruction instruction = Instruction.getInstructions()[valueAtProgramCounter.getValue()];
+        cyclesRemaining = instruction.getNumCycles();
 
         Address[] modeArguments = new Address[instruction.getNumArguments()];
 
@@ -154,20 +170,31 @@ public class CPU {
             modeArguments[i] = readMemory(registerPC.getValue() + i + 1);
         }
         String preStatus = getInstructionStatus(instruction, modeArguments);
-        System.out.println(preStatus);
-        handleNMI();
 
         registerPC.setValue(registerPC.getValue() + instruction.getNumArguments() + 1);
 
+        //System.out.println(preStatus);
         Address opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
         Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
-        incrementCycles(instruction.getNumCycles());
+        //incrementCycles(instruction.getNumCycles());
 
-        return preStatus;
+        try {
+            loggingOutput.log(preStatus);
+        } catch (NullPointerException e) {
+            // Do nothing
+        }
+
+        //incrementCyclesRemaining(instruction.getNumCycles());
+    }
+
+    private void resetCyclesRemaining() {
+        Address valueAtProgramCounter = readMemory(registerPC.getValue());
+        Instruction instruction = Instruction.getInstructions()[valueAtProgramCounter.getValue()];
+        cyclesRemaining = instruction.getNumCycles();
     }
 
     private void handleNMI() {
-        if (ppu.getNmi()) {
+        if (nmi) {
             int byteOne = ((getRegisterPC().getValue() - 1) & Integer.parseInt("1111111100000000", 2)) >> 8;
             int byteTwo = ((getRegisterPC().getValue() - 1) & Integer.parseInt("0000000011111111", 2));
             pushStack(byteOne);
@@ -177,19 +204,9 @@ public class CPU {
             byteTwo = readMemory(Integer.parseInt("FFFB", 16)).getValue();
             setRegisterPC(byteTwo * 256 + byteOne);
 
-            ppu.setNmi(false);
+            nmi = false;
+            cyclesRemaining = 8;
         }
-    }
-
-    // REQUIRES: cartridgeName is a valid file name for a valid NES NROM cartridge. If file not found, throws
-    // IOException.
-    // MODIFIES: mapper
-    // EFFECTS: loads the cartridge with its mapper (currently only NROM)
-    public void loadCartridge(String cartridgeName) throws IOException {
-        mapper = new NRom(Mirroring.HORIZONTAL); // TODO: when more mappers are added, you have to get smarter about this.
-        mapper.loadCartridge(cartridgeName);
-        ppu = new PPU(mapper);
-        reset();
     }
 
     // REQUIRES: arguments.length == instructions.getNumArguments()
@@ -218,34 +235,6 @@ public class CPU {
         return status.toString();
     }
 
-    protected Address peekMemory(int pointer) {
-        // https://wiki.nesdev.com/w/index.php/CPU_memory_map
-        // ADDRESS RANGE | SIZE  | DEVICE
-        // $0000 - $07FF | $0800 | 2KB internal RAM
-        // $0800 - $0FFF | $0800 |
-        // $1000 - $17FF | $0800 | Mirrors of $0000-$07FF
-        // $1800 - $1FFF | $0800 |
-        // $2000 - $2007 | $0008 | NES PPU registers
-        // $2008 - $3FFF | $1FF8 | Mirrors of $2000-$2007 (repeats every 8 bytes)
-        // $4000 - $4017 | $0018 | NES APU and I/O registers
-        // $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
-        // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
-
-        if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            return ram[pointer % Integer.parseInt("0800",16)];
-        } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
-            pointer = (pointer - Integer.parseInt("2000", 16)) % 8 + Integer.parseInt("2000", 16);
-            return ppu.peekRegister(pointer); // TODO add when the ppu is implemented. remember to add mirrors.
-        } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
-            return new Address(0); // TODO add when the apu is implemented.
-        } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
-            // normally disabled.
-            return new Address(0); // TODO add when the apu is implemented.
-        } else {
-            return mapper.readMemory(pointer);
-        }
-    }
-
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     //          see the table below for a detailed description of what is stored at which address.
@@ -266,14 +255,14 @@ public class CPU {
             return ram[pointer % Integer.parseInt("0800",16)];
         } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
             pointer = (pointer - Integer.parseInt("2000", 16)) % 8 + Integer.parseInt("2000", 16);
-            return ppu.readRegister(pointer); // TODO add when the ppu is implemented. remember to add mirrors.
+            return bus.ppuRead(pointer); // TODO add when the ppu is implemented. remember to add mirrors.
         } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
-            return new Address(0); // TODO add when the apu is implemented.
+            return bus.controllerRead(pointer);
         } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
-                                                                              // normally disabled.
+            // normally disabled.
             return new Address(0); // TODO add when the apu is implemented.
         } else {
-            return mapper.readMemory(pointer);
+            return bus.mapperRead(pointer);
         }
     }
 
@@ -300,16 +289,23 @@ public class CPU {
         if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
             ram[pointer % Integer.parseInt("0800",16)].setValue(value);
         } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
-            ppu.writeRegister((pointer - Integer.parseInt("2000", 16) % Integer.parseInt("0008", 16)), value);
-        } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
-            // TODO add when the apu is implemented.
+            bus.ppuWrite((pointer - Integer.parseInt("2000", 16) % Integer.parseInt("0008", 16)), value);
+        } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers.
+            bus.controllerWrite(pointer, value);
         } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
-                                                                             // normally disabled.
+                                                                             // normally disabled
             // TODO add when the apu is implemented.
         } else {
-            mapper.writeMemory(pointer, rawValue);
+            bus.mapperWrite(pointer, rawValue);
         }
     }
+/*
+    private void writeIORegisters(int pointer, int value) {
+        System.out.println("Wrote " + Integer.toBinaryString(value) + " to 0x" + Integer.toHexString(pointer));
+        if (pointer == Integer.parseInt("4016", 16)) {
+            controller.setPolling(value == 1);
+        }
+    }*/
 
     // REQUIRES: 0 <= value < 2^8
     // MODIFIES: registerS, stack
@@ -553,7 +549,7 @@ public class CPU {
     // EFFECTS: increments the cycles by the given amount and wraps it around MINIMUM_CYCLES and MAXIMUM_CYCLES
     public void incrementCycles(int numCycles) {
         cycle += numCycles;
-        cycle = (cycle - MINIMUM_CYCLES) % (MAXIMUM_CYCLES - MINIMUM_CYCLES + 1) + MINIMUM_CYCLES;
+        //cycle = (cycle - MINIMUM_CYCLES) % (MAXIMUM_CYCLES - MINIMUM_CYCLES + 1) + MINIMUM_CYCLES;
     }
 
     // REQUIRES: breakpoint is an Address bounded between 0x0000 and 0xFFFF inclusive.
@@ -563,7 +559,7 @@ public class CPU {
         breakpoints.add(breakpoint);
     }
 
-    public Pixels getPixels() {
-        return ppu.getPixels();
+    public void setLoggingOutput(CpuViewer cpuViewer) {
+        this.loggingOutput = cpuViewer;
     }
 }

@@ -10,6 +10,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/*
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class ModeTest {
     CPU cpu;
@@ -354,3 +355,4 @@ public class ModeTest {
         assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu) == expectedResult);
     }
 }
+*/

@@ -2,11 +2,13 @@ package ppu;
 
 import mapper.Mapper;
 import model.Address;
+import model.Bus;
 import model.Util;
 import ui.Pixels;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 // Lots of information about how the PPU works comes from this video:
 // https://www.youtube.com/watch?v=-THeUXqR3zY
@@ -76,7 +78,6 @@ public class PPU {
 
     private Address[] latches;
 
-    private boolean nmi;
     private Address ppuDataBuffer;
 
     // Memory
@@ -84,17 +85,18 @@ public class PPU {
     private Address[] nametable;
     private PaletteRamIndexes paletteRamIndexes;
     private Address[] oam;
-    private Mapper mapper;
 
     // Cycling
     private int cycle;
     private int scanline;
     private int drawX;
     private int drawY;
+    private boolean isOddFrame;
 
     private Pixels pixels;
+    private Bus bus;
 
-    public PPU(Mapper mapper) {
+    public PPU(Bus bus, Mapper mapper) {
         // TODO: initialize states somehow
         // TODO: just figure out how to initialize everything honestly
         nametable             = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
@@ -112,7 +114,6 @@ public class PPU {
         shiftRegisterLarge0   = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
         shiftRegisterLarge1   = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
         latches               = new Address[NUM_LATCHES];
-        nmi                   = false;
 
         latchNametable        = new Address(0);
         latchAttributeTable   = new Address(0);
@@ -121,6 +122,8 @@ public class PPU {
 
         cycle                 = 0;
         scanline              = 0;
+        isOddFrame            = false;
+        this.bus              = bus;
 
         setupInternalRegisters();
 
@@ -133,9 +136,20 @@ public class PPU {
         }
 
         ppuDataBuffer = new Address(0);
+        applyMapper(mapper);
+    }
 
-        this.mapper = mapper;
-        applyMapper();
+    private void applyMapper(Mapper mapper) {
+        for (int i = 0; i < patternTables.length; i++) {
+            patternTables[i] = new PatternTable();
+            for (int j = 0; j < Integer.parseInt("1000", 16); j++) {
+                int address = Integer.parseInt("1000", 16) * i + j;
+                int value = mapper.readChrRom(address).getValue();
+                patternTables[i].writeMemory(j, value);
+            }
+        }
+
+        mapper.mirrorNametables(nametable);
     }
 
     private void setupInternalRegisters() {
@@ -147,19 +161,6 @@ public class PPU {
         ppuScroll = new Address(0, PPUSCROLL_ADDRESS);
         ppuAddr   = new Address(0, PPUADDR_ADDRESS, 0, (int) Math.pow(2, 14) - 1);
         ppuData   = new Address(0, PPUDATA_ADDRESS);
-    }
-
-    private void applyMapper() {
-        for (int i = 0; i < patternTables.length; i++) {
-            patternTables[i] = new PatternTable();
-            for (int j = 0; j < Integer.parseInt("1000", 16); j++) {
-                int address = Integer.parseInt("1000", 16) * i + j;
-                int value = mapper.readChrRom(address).getValue();
-                patternTables[i].writeMemory(j, value);
-            }
-        }
-
-        mapper.mirrorNametables(nametable);
     }
 
 
@@ -184,6 +185,7 @@ public class PPU {
             scanline++;
         }
         if (scanline == 261) {
+            isOddFrame = !isOddFrame;
             scanline = -1;
         }
     }
@@ -191,19 +193,18 @@ public class PPU {
     private void runVisibleScanline() {
         if        (cycle <= 0) {   // Idle Cycle
             drawX = 0;
-
-            if (scanline != 0) {
+        } else if (cycle <= 256) { // Memory fetches for current scanline
+            if (scanline != 0 && cycle == 256) {
                 incrementFineY();
                 drawY++;
             }
-        } else if (cycle <= 256) { // Memory fetches for current scanline
             runVisibleScanlineRenderingCycles();
         } else if (cycle <= 320) { // Mostly Garbage memory fetches
             runHorizontalBlankCycles();
         } else if (cycle <= 336) { // Memory fetches for next scanline
             runVisibleScanlineFutureCycles();
         } else if (cycle <= 340) { // Garbage memory fetches
-            return;
+            // Do nothing
         }
     }
 
@@ -230,11 +231,13 @@ public class PPU {
         incrementFineX();
     }
 
+    @SuppressWarnings("PointlessArithmeticExpression")
     private void fetchNametableByte() {
         int address = (registerV.getValue() & Integer.parseInt("000111111111111", 2)) >> 0;
         latchNametable = nametable[address];
     }
 
+    @SuppressWarnings("PointlessArithmeticExpression")
     private void fetchAttributeTableByte() {
         int coarseX          = (registerV.getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
         int coarseY          = (registerV.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
@@ -248,7 +251,7 @@ public class PPU {
         int address = latchNametable.getValue();
         int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
-        int patternTableSelect = ppuCtrl.getValue() & Integer.parseInt("00001000", 2) >> 3;
+        int patternTableSelect = 1;
         int patternTableLow = Util.reverse(patternTables[patternTableSelect].getTileLow(address)[fineY].getValue(), 8);
         latchPatternTableLow.setValue(patternTableLow);
     }
@@ -257,12 +260,13 @@ public class PPU {
         int address = latchNametable.getValue();
         int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
-        int patternTableSelect = ppuCtrl.getValue() & Integer.parseInt("00001000", 2) >> 3;
+        int patternTableSelect = 1;
         int patternTableHigh = Util.reverse(patternTables[patternTableSelect].getTileHigh(address)[fineY].getValue(), 8);
 
         latchPatternTableHigh.setValue(patternTableHigh);
     }
 
+    @SuppressWarnings("PointlessArithmeticExpression")
     private void loadShiftRegisters() {
         int coarseX0 = (registerV.getValue() & Integer.parseInt("000000000000001", 2)) >> 0;
         int coarseY0 = (registerV.getValue() & Integer.parseInt("000000000100000", 2)) >> 5;
@@ -319,6 +323,9 @@ public class PPU {
         int bitFour  = Util.getNthBit(shiftRegisterLarge1.getValue(), fineX);
         int fullByte = bitOne * 4 + bitTwo * 8 + bitThree * 1 + bitFour * 2;
 
+        if (fullByte != 3) {
+            int x = 2;
+        }
         Color color = getColor(fullByte);
         pixels.setPixel(drawX, drawY, color);
 
@@ -330,11 +337,7 @@ public class PPU {
     }
 
     private Color getColor(int address) {
-        if (address % 4 == 3) {
-            return ColorPalette.getColor(paletteRamIndexes.readMemory(3).getValue());
-        } else {
-            return ColorPalette.getColor(paletteRamIndexes.readMemory(address).getValue());
-        }
+        return ColorPalette.getColor(paletteRamIndexes.readMemory(address).getValue());
     }
 
     private void runHorizontalBlankCycles() {
@@ -345,16 +348,7 @@ public class PPU {
     }
 
     private void runVisibleScanlineFutureCycles() {
-        switch ((cycle - 1) % 8) {
-            case 0:
-                loadShiftRegisters();
-
-                //incrementCoarseX();
-               // if (cycle == 256) {
-                //    incrementCoarseY();
-                //}
-
-                break;
+        switch ((cycle - 321) % 8) {
             case 1:
                 fetchNametableByte();
                 break;
@@ -366,6 +360,12 @@ public class PPU {
                 break;
             case 7:
                 fetchPatternTableHighByte();
+                shiftRegisterSmall0.shiftLeft(8);
+                shiftRegisterSmall1.shiftLeft(8);
+                shiftRegisterLarge0.shiftLeft(8);
+                shiftRegisterLarge1.shiftLeft(8);
+                loadShiftRegisters();
+                incrementCoarseX();
                 break;
         }
     }
@@ -375,18 +375,31 @@ public class PPU {
     }
 
     private void runVerticalBlankingScanline() {
-        if (cycle == 1 && Util.getNthBit(ppuCtrl.getValue(), 7) == 1) {
-            nmi = true;
+        if (cycle == 1) {
+            ppuStatus.setValue(ppuStatus.getValue() | Integer.parseInt("10000000", 2));
+            if (scanline == 241 && Util.getNthBit(ppuCtrl.getValue(), 7) == 1) {
+                bus.setNmi(true);
+            }
         }
     }
 
 
     private void runPreRenderScanline() {
+        if (cycle == 0 && isOddFrame) {
+            cycle++;
+        }
+
         drawY = 0;
 
-        if (280 <= cycle && cycle <= 304) { // Restore the CoarseY
+        if (cycle == 1) {
+            ppuStatus.setValue(ppuStatus.getValue() & Integer.parseInt("01111111", 2));
+        }
+
+        if        (280 <= cycle && cycle <= 304) { // Restore the CoarseY
             int newCoarseY = (registerT.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
-            registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 5, 0, 5));
+            registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5, 5));
+        } else if (321 <= cycle && cycle <= 336) { // Fetches for next scanline
+            runVisibleScanlineFutureCycles();
         }
     }
 
@@ -505,7 +518,6 @@ public class PPU {
     }
 
     private Address getPpuStatus() {
-        ppuStatus.setValue(ppuStatus.getValue() | Integer.parseInt("10000000", 2));
         registerW.setValue(0);
 
         int value1 = ppuStatus.getValue() & Integer.parseInt("11100000", 2);
@@ -693,7 +705,7 @@ public class PPU {
         }
 
         if (cycle == 1) {
-            nmi = true;
+            bus.setNmi(true);
         }
     }
 
@@ -714,10 +726,6 @@ public class PPU {
                         int formattedHigh = Util.getNthBit(high[l].getValue(), 7 - k);
                         int palette = formattedLow + formattedHigh * 2 + basePalette * 4;
                         Color color = getColor(palette);
-                        if (palette != 4) {
-
-                            int u = 2;
-                        }
                         pixels.setPixel(i * 8 + k + offsetX, j * 8 + l + offsetY, color);
                     }
                 }
@@ -726,7 +734,7 @@ public class PPU {
     }
 
     public void renderNameTables(Pixels pixels, int basePalette) {
-        int patternTableSelect = ppuCtrl.getValue() & Integer.parseInt("00001000", 2) >> 3;
+        int patternTableSelect = 1;// ppuCtrl.getValue() & Integer.parseInt("00001000", 2) >> 3;
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
@@ -749,14 +757,6 @@ public class PPU {
                 }
             }
         }
-    }
-
-    public boolean getNmi() {
-        return nmi;
-    }
-
-    public void setNmi(boolean nmi) {
-        this.nmi = nmi;
     }
 
     public int getCycles() {

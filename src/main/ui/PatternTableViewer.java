@@ -1,6 +1,6 @@
 package ui;
 
-import model.NES;
+import model.Bus;
 import ppu.ColorPalette;
 import ppu.PPU;
 
@@ -20,25 +20,26 @@ public class PatternTableViewer extends Window implements KeyListener {
 
     private int currentPalette;
 
-    public PatternTableViewer(NES nes) {
-        super(nes, 2, 2, 16 * 8 * 2, 16 * 8 + 8 + CHOSEN_PALETTE_HEIGHT, FPS,"Pattern Table Viewer");
+    public PatternTableViewer(Bus bus) {
+        super(bus, 2, 2, 16 * 8 * 2, 16 * 8 + 8 + CHOSEN_PALETTE_HEIGHT, "Pattern Table Viewer");
 
         currentPalette = 0;
         addKeyListener(this);
 
         pack();
         setVisible(true);
+        postContructor(FPS);
     }
 
     @Override
     public void repaint() {
-        nes.renderPatternTables(getPixels(), currentPalette);
+        bus.getPpu().renderPatternTables(getPixels(), currentPalette);
         renderPalette();
     }
 
     private void renderPalette() {
-        PPU ppu = nes.getPPU();
         Pixels pixels = getPixels();
+        PPU ppu = bus.getPpu();
 
         // Draw Palette
         for (int i = 0; i < 4 * 8; i++) {

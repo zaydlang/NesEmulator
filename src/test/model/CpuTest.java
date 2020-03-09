@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/*
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class CpuTest {
     CPU cpu;
@@ -311,4 +312,4 @@ public class CpuTest {
         cpu.cycle();
         assertFalse(cpu.isEnabled());
     }
-}
+}*/

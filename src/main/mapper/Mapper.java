@@ -8,13 +8,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public abstract class Mapper {
-    protected static final String CARTRIDGE_LOCATION = "./data/";
-
-    protected String    cartridgeName;
     protected Mirroring mirroring;
+    protected Address[] prgRom;
+    protected Address[] prgRam;
+    protected Address[] chrRom;
 
-    public Mapper(Mirroring mirroring) {
+    public Mapper(Mirroring mirroring, Address[] prgRom, Address[] chrRom) {
         this.mirroring = mirroring;
+        this.prgRom    = prgRom;
+        this.chrRom    = chrRom;
     }
 
     public void mirrorNametables(Address[] nametables) {
@@ -34,10 +36,6 @@ public abstract class Mapper {
                     nametables[i] = nametables[i + Integer.parseInt("0400", 16)];
                 }
         }
-    }
-
-    public void loadCartridge(String cartridgeName) throws IOException {
-        this.cartridgeName = cartridgeName;
     }
 
     public Address readMemory(int address) {

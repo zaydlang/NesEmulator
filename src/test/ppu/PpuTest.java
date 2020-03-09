@@ -10,6 +10,7 @@ import org.junit.jupiter.api.TestTemplate;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/*
 public class PpuTest {
     PPU ppu;
     NRom nrom;
@@ -87,4 +88,4 @@ public class PpuTest {
         assertTrue(ppu.getRegisterV().getValue() == Integer.parseInt("111111100000000", 2));
         assertTrue(ppu.getRegisterW().getValue() == Integer.parseInt("0",               2));
     }
-}
+}*/

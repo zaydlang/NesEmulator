@@ -1,9 +1,12 @@
 package ui;
 
-import model.NES;
+import model.Bus;
+import ui.controller.Controller;
+import ui.controller.StandardController;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,39 +17,59 @@ import java.util.TimerTask;
 
 public class Display extends Window implements KeyListener {
     // Constants
-    private static final String  CARTRIDGE_FOLDER     = "rom/";
-    private static final String  CARTRIDGE            = "donkeykong";
+    private static final String  CARTRIDGE_FOLDER     = "data/rom/";
+    private static final String  CARTRIDGE            = "nestest";
     private static final String  CARTRIDGE_EXTENSION  = ".nes";
     public static final int      FPS                  = 60;
     public static final double   CYCLES_PER_FRAME     = (341 * 262 - 0.5) * 4;
 
     // Fields
-    private TimerTask cycleTask;
-    private TimerTask paintTask;
-    private Pixels pixels;
+    private TimerTask  cycleTask;
+    private Controller controller;
 
     // Menu Items
-    JMenuItem viewPatternTables = new JMenuItem(new AbstractAction("Pattern Tables") {
+    JMenuItem fileOpenRom       = new JMenuItem(new AbstractAction("Open") {
+        @Override
         public void actionPerformed(ActionEvent e) {
-            new PatternTableViewer(nes);
+            try {
+                bus.loadCartridge(new JFileChooser().getSelectedFile());
+            } catch (IOException ex) {
+                // Do nothing
+            }
+        }
+    });
+
+    JMenuItem viewPatternTables = new JMenuItem(new AbstractAction("Pattern Tables") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            new PatternTableViewer(bus);
         }
     });
 
     JMenuItem viewNameTables    = new JMenuItem(new AbstractAction("Nametables") {
+        @Override
         public void actionPerformed(ActionEvent e) {
-            new NameTableViewer(nes);
+            new NameTableViewer(bus);
         }
     });
 
-    public Display(NES nes) throws IOException {
-        super(nes, 2, 2, 32 * 8, 30 * 8, 60, "NES Emulator");
-        nes.loadCartridge(CARTRIDGE_FOLDER + CARTRIDGE + CARTRIDGE_EXTENSION);
-        nes.setPixels(getPixels());
+    JMenuItem viewCPUViewer     = new JMenuItem(new AbstractAction("CPU Viewer") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //new CpuViewer(bus);
+        }
+    });
+
+    public Display(Bus bus) throws IOException {
+        super(bus, 2, 2, 32 * 8, 30 * 8,  "NES Emulator");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addKeyListener(this);
+
+        postContructor(FPS);
         setupTasks();
         setupHeader();
+        setupBus();
 
         pack();
         setVisible(true);
@@ -58,7 +81,7 @@ public class Display extends Window implements KeyListener {
             public void run() {
                 for (int i = 0; i < CYCLES_PER_FRAME; i++) {
                     try {
-                        nes.cycle();
+                        bus.cycle();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -73,12 +96,12 @@ public class Display extends Window implements KeyListener {
         JMenuBar menuBar = new JMenuBar();
 
         JMenu file = new JMenu("File");
-        file.add(new JMenuItem("Open"));
+        file.add(fileOpenRom);
         file.add(new JMenuItem("Save State"));
         file.add(new JMenuItem("Reload State"));
 
         JMenu view = new JMenu("View");
-        view.add(new JMenuItem("CPU Instruction Viewer"));
+        view.add(viewCPUViewer);
         view.add(viewPatternTables);
         view.add(viewNameTables);
 
@@ -92,9 +115,17 @@ public class Display extends Window implements KeyListener {
         getContentPane().add(BorderLayout.NORTH, menuBar);
     }
 
+    private void setupBus() throws IOException {
+        controller = new StandardController();
+
+        bus.loadCartridge(new File(CARTRIDGE_FOLDER + CARTRIDGE + CARTRIDGE_EXTENSION));
+        bus.setController(controller);
+        bus.getPpu().setPixels(getPixels());
+    }
+
     public static void main(String[] args) throws IOException {
-        NES nes = new NES();
-        new Display(nes);
+        Bus bus = new Bus();
+        new Display(bus);
     }
 
     @Override
@@ -102,15 +133,18 @@ public class Display extends Window implements KeyListener {
 
     }
 
+    @Override
     public void keyTyped(KeyEvent e) {
 
     }
 
+    @Override
     public void keyPressed(KeyEvent e) {
-
+        controller.setState(e, true);
     }
 
+    @Override
     public void keyReleased(KeyEvent e) {
-
+        controller.setState(e, false);
     }
 }

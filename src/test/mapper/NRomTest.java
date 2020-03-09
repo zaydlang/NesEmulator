@@ -12,6 +12,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/*
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class NRomTest {
     NRom nRom;
@@ -218,3 +219,4 @@ public class NRomTest {
         }
     }
 }
+*/

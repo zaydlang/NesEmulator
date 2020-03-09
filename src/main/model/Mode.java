@@ -106,7 +106,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     public static ModeAction getAbsoluteIndexedX = (Address[] arguments, CPU cpu) -> {
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256 + cpu.getRegisterX().getValue();
         if (cpu.getRegisterX().getValue() != 0) {
-            cpu.incrementCycles(3);
+            cpu.incrementCyclesRemaining(1);
         }
 
         int mirroredPointer = pointer % Integer.parseInt("10000", 16);
@@ -118,7 +118,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     public static ModeAction getAbsoluteIndexedY = (Address[] arguments, CPU cpu) -> {
         int pointer = arguments[0].getValue() + arguments[1].getValue() * 256 + cpu.getRegisterY().getValue();
         if (cpu.getRegisterY().getValue() != 0) {
-            cpu.incrementCycles(3);
+            cpu.incrementCyclesRemaining(1);
         }
 
         int mirroredPointer = pointer % Integer.parseInt("10000", 16);
@@ -146,7 +146,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
         int pointerTwo = cpu.readMemory(addressTwo).getValue();
         int fullPointer = (pointerOne + pointerTwo * 256 + cpu.getRegisterY().getValue());
         if (cpu.getRegisterY().getValue() != 0) {
-            cpu.incrementCycles(3);
+            cpu.incrementCyclesRemaining(1);
         }
 
         int mirroredPointer = fullPointer % Integer.parseInt("10000", 16);

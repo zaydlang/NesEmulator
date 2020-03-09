@@ -1,7 +1,9 @@
 package model;
 
 import ppu.PPU;
+import ui.CpuViewer;
 import ui.Pixels;
+import ui.controller.Controller;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,7 +15,7 @@ import java.util.Scanner;
 // Class NES:
 //     NES is just a class (for now) that controls the CPU. When the PPU is implemented, the NES will have a lot more
 //     to do besides just logging files.
-
+/*
 public class NES {
     private static String LOG_DESTINATION_HEADER = "./data/log/";
 
@@ -22,62 +24,35 @@ public class NES {
     private FileWriter logFile;
     private String filePath;     // This variable shouldn't have to exist; it's redundant... but such is life.
 
-    private int trueCycles;
+    private int trueCpuCycles;
+    private int truePpuCycles;
     private boolean enabled;
 
     // EFFECTS: initializes the CPU, and starts a logfile based on the current timestamp.
     public NES() throws IOException {
-        this.cpu    = new CPU();
+        //this.cpu    = new CPU();
 
         // https://stackoverflow.com/questions/23068676/how-to-get-current-timestamp-in-string-format-in-java-yyyy-mm-dd-hh-mm-ss
         filePath = LOG_DESTINATION_HEADER + new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date()) + ".log";
         logFile  = new FileWriter(filePath);
 
-        trueCycles = 0;
-        enabled    = false;
+        trueCpuCycles = 0;
+        truePpuCycles = 0;
+        enabled       = false;
     }
 
     // REQUIRES: cartridgeName is a valid file name for a valid NES NROM cartridge. If file not found, throws
     // IOException.
     // EFFECTS: loads a cartridge into the cpu
     public void loadCartridge(String cartridgeName) throws IOException {
-        cpu.loadCartridge(cartridgeName);
+        //cpu.loadCartridge(cartridgeName);
         enabled = true;
     }
 
-    // REQUIRES: logFile is open.
-    // MODIFIES: cpu, logfile
-    // EFFECTS: cycles the cpu through one instruction, throws IOException if logfile has been closed.
-    public String cycle() throws IOException {
-        if (!enabled) {
-            return "";
-        }
 
-        String cpuStatus = "";
-        if (cpu.getCycles() <= trueCycles) {
-            try {
-                cpuStatus = cpu.cycle();
-            } catch (Exception e) {
-                e.printStackTrace();
-                int x = 2;
-            }
-            logFile.write(cpuStatus + "\n");
-        }
-
-        if (cpu.ppu.getCycles() <= trueCycles) {
-            cpu.ppu.cycle();
-            cpu.ppu.cycle();
-            cpu.ppu.cycle();
-        }
-
-        trueCycles += 1;
-        return cpuStatus;
-    }
-
-    /*
     public void renderPatternTables() {
         cpu.ppu.renderPatternTables();
-    }*/
+    }
 
     // REQUIRES: logFile is open.
     // MODIFIES: flushes and closes the logfile. throws IOException if logfile has already been closed.
@@ -129,4 +104,12 @@ public class NES {
     public PPU getPPU() {
         return cpu.ppu;
     }
-}
+
+    public void setController(Controller controller) {
+        cpu.setController(controller);
+    }
+
+    public void setOutput(CpuViewer cpuViewer) {
+        cpu.setLoggingOutput(cpuViewer);
+    }
+}*/
