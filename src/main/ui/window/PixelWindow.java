@@ -1,20 +1,21 @@
-package ui;
+package ui.window;
 
 import model.Bus;
+import ui.Pixels;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public abstract class Window extends JFrame {
+public abstract class PixelWindow extends JFrame {
     protected Bus bus;
     private Pixels pixels;
 
     protected TimerTask paintTask;
     private Timer timer;
 
-    public Window(Bus bus, int pixelWidth, int pixelHeight, int pixelsPerRow, int pixelsPerCol, String name) {
+    public PixelWindow(Bus bus, int pixelWidth, int pixelHeight, int pixelsPerRow, int pixelsPerCol, String name) {
         this.bus = bus;
         pixels = new Pixels(pixelWidth, pixelHeight, pixelsPerRow, pixelsPerCol);
         add(pixels);

@@ -1,7 +1,7 @@
 package model;
 
-import ui.CpuOutput;
-import ui.CpuViewer;
+import ui.window.CpuOutput;
+import ui.window.CpuViewer;
 
 import java.util.ArrayList;
 
@@ -94,8 +94,7 @@ public class CPU {
     protected boolean nmi;
 
     // Memory
-    // TODO: is it right to make ram have default visibility?
-    private Address[] ram;
+    protected Address[] ram;
     private Bus bus;
 
     private CpuOutput loggingOutput;
@@ -262,7 +261,7 @@ public class CPU {
             // normally disabled.
             return new Address(0); // TODO add when the apu is implemented.
         } else {
-            return bus.mapperRead(pointer);
+            return bus.mapperReadCpu(pointer);
         }
     }
 

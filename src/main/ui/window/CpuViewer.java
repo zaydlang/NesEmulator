@@ -1,20 +1,19 @@
-package ui;
+package ui.window;
 
 import model.Bus;
+import ui.MaxedQueue;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
+import java.awt.event.ActionEvent;
 import java.util.Queue;
 import java.io.File;
 import java.io.IOException;
-import java.util.stream.Stream;
 
-public class CpuViewer extends Window implements CpuOutput {
+public class CpuViewer extends PixelWindow implements CpuOutput {
     private static final String FONT_FILE    = "./data/resource/font/CONSOLA.ttf";
     private static final float  FONT_SIZE    = 12.0f;
-    private static final int    MAX_LOG_SIZE = 100;
+    private static final int    MAX_LOG_SIZE = 30;
     private static final int    FPS          = 60;
 
     private static Font font;
@@ -29,21 +28,35 @@ public class CpuViewer extends Window implements CpuOutput {
         }
     }
 
+    JButton cycleButton = new JButton(new AbstractAction("Cycle") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (!bus.getEnabled() && bus.getCartridgeLoaded()) {
+                bus.cycleComponents();
+            }
+        }
+    });
+
     private JTextArea    textArea;
     private JScrollPane  scrollPane;
 
-    private PreservationQueue<String> log;
+    private MaxedQueue<String> log;
 
     public CpuViewer(Bus bus) {
         super(bus, 1, 1, 400, 400, "CPU Viewer");
 
-        textArea = new JTextArea(0, 0);
+        textArea = new JTextArea(MAX_LOG_SIZE, 80);
         textArea.setFont(font);
+        textArea.setEditable(false);
         scrollPane = new JScrollPane(textArea);
-        add(scrollPane);
+        add(scrollPane,  BorderLayout.CENTER);
 
-        //nes.setOutput(this);
-        log = new PreservationQueue<>(MAX_LOG_SIZE);
+        cycleButton.setBorder(BorderFactory.createEmptyBorder());
+        cycleButton.setPreferredSize(new Dimension(0, 60));
+        add(cycleButton, BorderLayout.SOUTH);
+
+        bus.getCpu().setLoggingOutput(this);
+        log = new MaxedQueue<>(MAX_LOG_SIZE);
 
         pack();
         setVisible(true);
@@ -53,7 +66,6 @@ public class CpuViewer extends Window implements CpuOutput {
     @Override
     public void repaint() {
         StringBuilder text = new StringBuilder();
-        log.preserve();
         Queue<String> queue = log.getQueue();
 
         for (String cpuLog : queue) {

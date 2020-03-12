@@ -6,21 +6,22 @@ import org.junit.jupiter.api.Test;
 import ppu.Mirroring;
 
 import java.io.IOException;
+import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-/*
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class ModeTest {
+    Bus bus;
     CPU cpu;
 
     @BeforeEach
     void runBefore() {
-        cpu = new CPU();
-
         try {
-            cpu.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+            Bus bus = new Bus();
+            cpu = bus.getCpu();
+            bus.loadCartridge(new File("data/test/TestLoadRomTrainerPresent.nes"));
         } catch (IOException e) {
             fail();
         }
@@ -118,13 +119,6 @@ public class ModeTest {
 
     @Test
     void testIndirectTwoArgumentsBuggyFF() {
-        NRom nrom = new NRom(Mirroring.VERTICAL);
-        try {
-            nrom.loadCartridge("test/TestLoadRomTrainerPresent.nes");
-        } catch (IOException e) {
-            fail();
-        }
-
         int argumentOne     = Integer.parseInt("FF", 16);
         int argumentTwo     = Integer.parseInt("65", 16);
         int fullArgumentOne = argumentOne + argumentTwo * 256;
@@ -355,4 +349,3 @@ public class ModeTest {
         assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu) == expectedResult);
     }
 }
-*/

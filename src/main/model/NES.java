@@ -1,17 +1,5 @@
 package model;
 
-import ppu.PPU;
-import ui.CpuViewer;
-import ui.Pixels;
-import ui.controller.Controller;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Scanner;
-
 // Class NES:
 //     NES is just a class (for now) that controls the CPU. When the PPU is implemented, the NES will have a lot more
 //     to do besides just logging files.

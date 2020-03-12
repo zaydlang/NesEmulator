@@ -8,6 +8,7 @@ import ppu.PatternTable;
 import ui.Pixels;
 import ui.controller.Controller;
 
+import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,21 +41,24 @@ public class Bus {
 
     Scanner scanner1 = new Scanner(new File("data/test/nestest_ppu.log"));
     Scanner scanner2 = new Scanner(new File("data/test/nestest_cyc.log"));
+    private boolean enabled;
 
     public Bus() throws FileNotFoundException {
         cpu = new CPU(this);
+        ppu = new PPU(this);
 
         cartridgeLoaded     = false;
         controllerConnected = false;
+        enabled             = true;
         trueCpuCycles       = 0;
         truePpuCycles       = 0;
     }
 
     public void loadCartridge(File file) throws IOException {
         readCartridge(file);
-        ppu = new PPU(this, mapper);
 
         cpu.reset();
+        // ppu.reset(); TODO
         cartridgeLoaded = true;
     }
 
@@ -74,7 +78,8 @@ public class Bus {
 
         Address[] prgRom = readFile(fileInputStream, 0, Integer.parseInt("8000", 16),header[4].getValue() * PRG_ROM_SIZE);
         Address[] chrRom = readFile(fileInputStream, 0, 0, header[5].getValue() * CHR_ROM_SIZE);
-        mapper = new NRom(Mirroring.VERTICAL, prgRom, chrRom);
+        mapper = new NRom(prgRom, chrRom);
+        ppu.setNametableMirroring(Mirroring.VERTICAL);
     }
 
     // REQUIRES: file has at least numBytes available, otherwise throws IOException.
@@ -98,7 +103,7 @@ public class Bus {
     // MODIFIES: cpu, logfile
     // EFFECTS: cycles the cpu through one instruction, throws IOException if logfile has been closed.
     public void cycle() throws IOException {
-        if (!cartridgeLoaded) {
+        if (!cartridgeLoaded || !enabled) {
             return;
         }
 
@@ -119,6 +124,10 @@ public class Bus {
             }
         }*/
 
+        cycleComponents();
+    }
+
+    public void cycleComponents() {
         ppu.cycle();
         ppu.cycle();
         ppu.cycle();
@@ -138,8 +147,12 @@ public class Bus {
         return ppu.readRegister(pointer);
     }
 
-    public Address mapperRead(int pointer) {
-        return mapper.readMemory(pointer);
+    public Address mapperReadCpu(int pointer) {
+        return mapper.readMemoryCpu(pointer);
+    }
+
+    public Address mapperReadPpu(int pointer) {
+        return mapper.readMemoryPpu(pointer);
     }
 
     public Address controllerRead(int pointer) {
@@ -182,5 +195,25 @@ public class Bus {
     public void setController(Controller controller) {
         this.controller = controller;
         controllerConnected = true;
+    }
+
+    public CPU getCpu() {
+        return cpu;
+    }
+
+    public Controller getController() {
+        return controller;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean getEnabled() {
+        return enabled;
+    }
+
+    public boolean getCartridgeLoaded() {
+        return cartridgeLoaded;
     }
 }

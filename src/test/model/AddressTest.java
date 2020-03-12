@@ -92,4 +92,10 @@ public class AddressTest {
         address = new Address(3, 0, 256);
         assertEquals(address.toString(), "03");
     }
+
+    @Test
+    void testGetAddress() {
+        address = new Address(3, 0, 256);
+        assertEquals(address, address.getReference());
+    }
 }

@@ -1,15 +1,16 @@
-package ui;
+package ui.window;
 
 import model.Bus;
 import ppu.ColorPalette;
 import ppu.PPU;
+import ui.Pixels;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 
-public class PatternTableViewer extends Window implements KeyListener {
+public class PatternTableViewer extends PixelWindow implements KeyListener {
     private static final int   FPS                   = 10;
     private static final int   NUMBER_OF_PALETTES    = 8;
     private static final int   CHOSEN_PALETTE_HEIGHT = 2;

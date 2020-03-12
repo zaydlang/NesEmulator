@@ -1,11 +1,11 @@
-package ui;
+package ui.window;
 
 import model.Bus;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class NameTableViewer extends Window implements KeyListener {
+public class NameTableViewer extends PixelWindow implements KeyListener {
     private static final int FPS                = 10;
     private static final int NUMBER_OF_PALETTES = 8;
 

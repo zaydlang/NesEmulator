@@ -3,26 +3,27 @@ package ui.controller;
 import model.Address;
 
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 
 import static java.awt.event.KeyEvent.*;
 
 public class StandardController extends Controller {
-    private static final int[] keyMap = new int[] {
-            VK_Z,        // A
-            VK_X,        // B
-            VK_SPACE,    // Select
-            VK_ENTER,    // Start
-            VK_UP,       // Up
-            VK_DOWN,     // Down
-            VK_LEFT,     // Left
-            VK_RIGHT     // Right
+    private static Key[] initialKeyMap = new Key[] {
+            new Key(VK_Z,     "A"),
+            new Key(VK_X,     "B"),
+            new Key(VK_SPACE, "Start"),
+            new Key(VK_ENTER, "Select"),
+            new Key(VK_UP,    "Up"),
+            new Key(VK_DOWN,  "Down"),
+            new Key(VK_LEFT,  "Left"),
+            new Key(VK_RIGHT, "Right"),
     };
 
     private boolean isPolling;
     private int     pollingIndex;
 
     public StandardController() {
-        super(keyMap);
+        super(initialKeyMap);
 
         isPolling    = false;
         pollingIndex = 0;

@@ -81,8 +81,9 @@ public class PPU {
     private Address ppuDataBuffer;
 
     // Memory
-    private PatternTable[] patternTables;
+    // private PatternTable[] patternTables;
     private Address[] nametable;
+    private Mirroring nametableMirroring;
     private PaletteRamIndexes paletteRamIndexes;
     private Address[] oam;
 
@@ -96,11 +97,11 @@ public class PPU {
     private Pixels pixels;
     private Bus bus;
 
-    public PPU(Bus bus, Mapper mapper) {
+    public PPU(Bus bus) {
         // TODO: initialize states somehow
         // TODO: just figure out how to initialize everything honestly
         nametable             = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
-        patternTables         = new PatternTable[NUM_PATTERNTABLES];
+        // patternTables         = new PatternTable[NUM_PATTERNTABLES];
         paletteRamIndexes     = new PaletteRamIndexes();
         oam                   = new Address[OAM_SIZE];
 
@@ -136,9 +137,9 @@ public class PPU {
         }
 
         ppuDataBuffer = new Address(0);
-        applyMapper(mapper);
     }
 
+    /*
     private void applyMapper(Mapper mapper) {
         for (int i = 0; i < patternTables.length; i++) {
             patternTables[i] = new PatternTable();
@@ -150,7 +151,7 @@ public class PPU {
         }
 
         mapper.mirrorNametables(nametable);
-    }
+    }*/
 
     private void setupInternalRegisters() {
         ppuCtrl   = new Address(0, PPUCTRL_ADDRESS);
@@ -234,7 +235,7 @@ public class PPU {
     @SuppressWarnings("PointlessArithmeticExpression")
     private void fetchNametableByte() {
         int address = (registerV.getValue() & Integer.parseInt("000111111111111", 2)) >> 0;
-        latchNametable = nametable[address];
+        latchNametable = readNametable(address);
     }
 
     @SuppressWarnings("PointlessArithmeticExpression")
@@ -244,15 +245,16 @@ public class PPU {
         int nametableAddress = (registerV.getValue() & Integer.parseInt("000110000000000", 2)) >> 10;
 
         int offset = nametableAddress * NAMETABLE_SIZE + Integer.parseInt("03C0", 16);
-        latchAttributeTable = nametable[offset + (coarseX >> 2) + 8 * (coarseY >> 2)];
+        latchAttributeTable = readNametable(offset + (coarseX >> 2) + 8 * (coarseY >> 2));
     }
 
     private void fetchPatternTableLowByte() {
         int address = latchNametable.getValue();
         int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
-        int patternTableSelect = 1;
-        int patternTableLow = Util.reverse(patternTables[patternTableSelect].getTileLow(address)[fineY].getValue(), 8);
+        int patternTableSelect = 0;
+        int offset = patternTableSelect * Integer.parseInt("1000");
+        int patternTableLow = Util.reverse(getTileLow(offset + address)[fineY].getValue(), 8);
         latchPatternTableLow.setValue(patternTableLow);
     }
 
@@ -260,8 +262,9 @@ public class PPU {
         int address = latchNametable.getValue();
         int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
-        int patternTableSelect = 1;
-        int patternTableHigh = Util.reverse(patternTables[patternTableSelect].getTileHigh(address)[fineY].getValue(), 8);
+        int patternTableSelect = 0;
+        int offset = patternTableSelect * Integer.parseInt("1000");
+        int patternTableHigh = Util.reverse(getTileHigh(offset + address)[fineY].getValue(), 8);
 
         latchPatternTableHigh.setValue(patternTableHigh);
     }
@@ -589,13 +592,11 @@ public class PPU {
         // $3F20 - $3FFF | $BFE0 | Mirrors of $3F00-$3F1F
 
         if        (pointer <= Integer.parseInt("0FFF", 16)) {
-            return patternTables[0].readMemory(pointer);
-        } else if (pointer <= Integer.parseInt("1FFF", 16)) {
-            return patternTables[1].readMemory(pointer - Integer.parseInt("1000", 16));
+            return bus.mapperReadPpu(pointer);
         } else if (pointer <= Integer.parseInt("2FFF", 16)) {
-            return nametable[pointer - Integer.parseInt("2000", 16)];
+            return readNametable(pointer - Integer.parseInt("2000", 16));
         } else if (pointer <= Integer.parseInt("3EFF", 16)) {
-            return nametable[pointer - Integer.parseInt("3000", 16)];
+            return readNametable(pointer - Integer.parseInt("3000", 16));
         } else {
             return paletteRamIndexes.readMemory((pointer - Integer.parseInt("3F00", 16)) % PALETTE_RAM_SIZE);
         }
@@ -615,19 +616,19 @@ public class PPU {
         // $3F20 - $3FFF | $BFE0 | Mirrors of $3F00-$3F1F
 
         if        (pointer <= Integer.parseInt("0FFF", 16)) {
-            patternTables[0].writeMemory(pointer, value);
+            // patternTables[0].writeMemory(pointer, value);
         } else if (pointer <= Integer.parseInt("1FFF", 16)) {
-            patternTables[1].writeMemory(pointer - Integer.parseInt("1000", 16), value);
+            // patternTables[1].writeMemory(pointer - Integer.parseInt("1000", 16), value);
         } else if (pointer <= Integer.parseInt("2FFF", 16)) {
             if (value != 0) {
                 int x = 2;
             }
-            nametable[pointer - Integer.parseInt("2000", 16)].setValue(value);
+            writeNametable(pointer - Integer.parseInt("2000", 16), value);
         } else if (pointer <= Integer.parseInt("3EFF", 16)) {
             if (value != 0) {
                 int x = 2;
             }
-            nametable[pointer - Integer.parseInt("3000", 16)].setValue(value);
+            writeNametable(pointer - Integer.parseInt("3000", 16), value);
         } else {
             int mirroredAddress = (pointer - Integer.parseInt("3F00", 16)) % PALETTE_RAM_SIZE;
             System.out.print(Integer.toHexString(pointer) + " -> ");
@@ -652,40 +653,38 @@ public class PPU {
 
 
     // Getters and Setters
-    private void setLatch(int latch, Address value) {
-        latches[latch] = value;
+    public void setNametableMirroring(Mirroring nametableMirroring) {
+        this.nametableMirroring = nametableMirroring;
     }
 
-    public Address getRegisterV() {
-        return registerV;
+    public Address readNametable(int pointer) {
+        int rawPointer = pointer;
+        switch (nametableMirroring) {
+            case HORIZONTAL:
+                pointer = pointer % Integer.parseInt("0400", 16);
+                pointer += (rawPointer > Integer.parseInt("8000")) ? Integer.parseInt("0800", 16) : 0;
+                break;
+            case VERTICAL:
+                pointer = pointer % Integer.parseInt("0800", 16);
+                break;
+        }
+
+        return nametable[pointer];
     }
 
-    public Address getRegisterT() {
-        return registerT;
-    }
+    public void writeNametable(int pointer, int value) {
+        int rawPointer = pointer;
+        switch (nametableMirroring) {
+            case HORIZONTAL:
+                pointer = pointer % Integer.parseInt("0400", 16);
+                pointer += (rawPointer > Integer.parseInt("8000")) ? Integer.parseInt("0800", 16) : 0;
+                break;
+            case VERTICAL:
+                pointer = pointer % Integer.parseInt("0800", 16);
+                break;
+        }
 
-    public Address getRegisterX() {
-        return registerX;
-    }
-
-    public Address getRegisterW() {
-        return registerW;
-    }
-
-    public void setRegisterV(int registerV) {
-        this.registerV.setValue(registerV);
-    }
-
-    public void setRegisterT(int registerT) {
-        this.registerT.setValue(registerT);
-    }
-
-    public void setRegisterX(int registerX) {
-        this.registerX.setValue(registerX);
-    }
-
-    public void setRegisterW(int registerW) {
-        this.registerW.setValue(registerW);
+        nametable[pointer].setValue(value);
     }
 
     public Pixels getPixels() {
@@ -716,10 +715,12 @@ public class PPU {
     }
 
     private void renderPatternTable(Pixels pixels, int patternTable, int offsetX, int offsetY, int basePalette) {
+        int offset = patternTable * Integer.parseInt("1000");
+
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                Address[] low  = patternTables[patternTable].getTileLow(i + j * 16);
-                Address[] high = patternTables[patternTable].getTileHigh(i + j * 16);
+                Address[] low  = getTileLow(i + j * 16);
+                Address[] high = getTileHigh(i + j * 16);
                 for (int k = 0; k < 8; k++) {
                     for (int l = 0; l < 8; l++) {
                         int formattedLow  = Util.getNthBit(low[l].getValue(),  7 - k);
@@ -734,15 +735,16 @@ public class PPU {
     }
 
     public void renderNameTables(Pixels pixels, int basePalette) {
-        int patternTableSelect = 1;// ppuCtrl.getValue() & Integer.parseInt("00001000", 2) >> 3;
+        int patternTableSelect = 0;// ppuCtrl.getValue() & Integer.parseInt("00001000", 2) >> 3;
+        int offset = patternTableSelect * Integer.parseInt("1000");
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 for (int k = 0; k < 32; k++) {
                     for (int l = 0; l < 30; l++) {
-                        int address  = nametable[((2 * i + j) << 10) + (l << 5) + (k << 0)].getValue();
-                        Address[] low  = patternTables[patternTableSelect].getTileLow(address);
-                        Address[] high = patternTables[patternTableSelect].getTileHigh(address);
+                        int address  = readNametable(((2 * i + j) << 10) + (l << 5) + (k << 0)).getValue();
+                        Address[] low  = getTileLow(offset + address);
+                        Address[] high = getTileHigh(offset + address);
 
                         for (int m = 0; m < 8; m++) {
                             for (int n = 0; n < 8; n++) {
@@ -757,6 +759,28 @@ public class PPU {
                 }
             }
         }
+    }
+
+    public Address[] getTileLow(int pointer) {
+        int tile    = pointer;
+        int offset  = tile << 4;
+
+        Address[] tileLow = new Address[8];
+        for (int i = 0; i < 8; i++) {
+            tileLow[i - 0] = readMemory(offset + i);
+        }
+        return tileLow;
+    }
+
+    public Address[] getTileHigh(int pointer) {
+        int tile    = pointer;
+        int offset  = tile << 4;
+
+        Address[] tileHigh = new Address[8];
+        for (int i = 8; i < 16; i++) {
+            tileHigh[i - 8] = readMemory(offset + i);
+        }
+        return tileHigh;
     }
 
     public int getCycles() {

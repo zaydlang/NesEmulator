@@ -22,8 +22,8 @@ public class NRom extends Mapper {
 
     // EFFECTS: initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
     // fills the prgRam with the initial state.
-    public NRom(Mirroring mirroring, Address[] prgRom, Address[] chrRom) {
-        super(mirroring, prgRom, chrRom);
+    public NRom(Address[] prgRom, Address[] chrRom) {
+        super(prgRom, chrRom);
 
         prgRam  = new Address[PRG_RAM_SIZE];
         for (int i = 0; i < PRG_RAM_SIZE; i++) {
@@ -35,7 +35,8 @@ public class NRom extends Mapper {
     // REQUIRES: address is in between 0x6000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     // see the table below for a detailed description of what is stored at which address.
-    public Address readMemory(int address) {
+    @Override
+    public Address readMemoryCpu(int address) {
         // https://wiki.nesdev.com/w/index.php/NROM
         // ADDRESS RANGE | SIZE  | DEVICE
         // $6000 - $7FFF | $2000 | PRG RAM, mirrored as necessary to fill entire 8 KiB window
@@ -55,8 +56,17 @@ public class NRom extends Mapper {
     }
 
     // REQUIRES: address is in between 0x6000 and 0xFFFF, inclusive.
+    // EFFECTS: returns the value of the memory at the given address.
+    // see the table below for a detailed description of what is stored at which address.
+    @Override
+    public Address readMemoryPpu(int address) {
+        return chrRom[address];
+    }
+
+    // REQUIRES: address is in between 0x6000 and 0xFFFF, inclusive.
     // MODIFIES: prgRam, prgRom
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
+    @Override
     public void writeMemory(int address, int rawValue) {
         // https://wiki.nesdev.com/w/index.php/NROM
         // ADDRESS RANGE | SIZE  | DEVICE
@@ -93,10 +103,5 @@ public class NRom extends Mapper {
     // EFFECTS: sets the PRG ROM at the specified index to the specified value
     public void setPrgRom(int index, int value) {
         this.prgRom[index] = new Address(value);
-    }
-
-    @Override
-    public Address readChrRom(int address) {
-        return chrRom[address];
     }
 }

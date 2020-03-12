@@ -4,20 +4,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/*
+
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class CpuTest {
+    Bus bus;
     CPU cpu;
 
     @BeforeEach
     void runBefore() {
-        cpu = new CPU();
-
         try {
-            cpu.loadCartridge("test/TestLoadRomTrainerPresent.nes");
+            bus = new Bus();
+            cpu = bus.getCpu();
+            bus.loadCartridge(new File("data/test/TestLoadRomTrainerPresent.nes"));
         } catch (IOException e) {
             fail();
         }
@@ -28,13 +30,8 @@ public class CpuTest {
         assertTrue(cpu.getRegisterA().getValue()  == CPU.INITIAL_REGISTER_A);
         assertTrue(cpu.getRegisterX().getValue()  == CPU.INITIAL_REGISTER_X);
         assertTrue(cpu.getRegisterY().getValue()  == CPU.INITIAL_REGISTER_Y);
-        assertTrue(cpu.getRegisterPC().getValue() == CPU.INITIAL_REGISTER_PC);
         assertTrue(cpu.getRegisterS().getValue()  == CPU.INITIAL_REGISTER_S);
         assertTrue(cpu.getCycles()                == CPU.INITIAL_CYCLES);
-
-        for (Address address : cpu.ram) {
-            assertTrue(address.getValue() == CPU.INITIAL_RAM_STATE);
-        }
     }
 
     // ########## TESTS FOR READING MEMORY: INTERNAL RAM ##########
@@ -221,18 +218,6 @@ public class CpuTest {
     }
 
     @Test
-    void testIncrementCycles() {
-        cpu.incrementCycles(CPU.MAXIMUM_CYCLES - CPU.MINIMUM_CYCLES - 3);
-        assertTrue(cpu.getCycles() == CPU.MAXIMUM_CYCLES - CPU.MINIMUM_CYCLES - 3);
-    }
-
-    @Test
-    void testIncrementCyclesOverflow() {
-        cpu.incrementCycles(CPU.MAXIMUM_CYCLES - CPU.MINIMUM_CYCLES + 2);
-        assertTrue(cpu.getCycles() == CPU.MINIMUM_CYCLES + 1);
-    }
-
-    @Test
     void testSetStatus() {
         int testCpuStatus = Integer.parseInt("11010001", 2);
         cpu.setStatus(testCpuStatus);
@@ -308,8 +293,8 @@ public class CpuTest {
 
     @Test
     void testCycleIntoABreakpoint() {
-        cpu.addBreakpoint(new Address(Integer.parseInt("C000", 16), 0, 65536));
+        cpu.addBreakpoint(cpu.getRegisterPC());
         cpu.cycle();
         assertFalse(cpu.isEnabled());
     }
-}*/
+}
