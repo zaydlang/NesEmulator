@@ -68,15 +68,13 @@ public class PPU {
 
     private Address ppuCtrl;
     private Address ppuMask;
-    private Address ppuStatus;
+    public Address ppuStatus;
     private Address oamAddr;
     private Address oamData;
     private Address ppuScroll;
     private Address ppuAddr;
-    private Address ppuData;
+    public Address ppuData;
     private Address oamDma;
-
-    private Address[] latches;
 
     private Address ppuDataBuffer;
 
@@ -98,23 +96,31 @@ public class PPU {
     private Bus bus;
 
     public PPU(Bus bus) {
-        // TODO: initialize states somehow
-        // TODO: just figure out how to initialize everything honestly
         nametable             = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
-        // patternTables         = new PatternTable[NUM_PATTERNTABLES];
         paletteRamIndexes     = new PaletteRamIndexes();
         oam                   = new Address[OAM_SIZE];
-
-        registerV             = new Address(INITIAL_REGISTER_V, 0, (int) Math.pow(2, REGISTER_V_SIZE) - 1);
-        registerT             = new Address(INITIAL_REGISTER_T, 0, (int) Math.pow(2, REGISTER_T_SIZE) - 1);
-        registerX             = new Address(INITIAL_REGISTER_X, 0, (int) Math.pow(2, REGISTER_X_SIZE) - 1);
-        registerW             = new Address(INITIAL_REGISTER_W, 0, (int) Math.pow(2, REGISTER_W_SIZE) - 1);
 
         shiftRegisterSmall0   = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
         shiftRegisterSmall1   = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
         shiftRegisterLarge0   = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
         shiftRegisterLarge1   = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
-        latches               = new Address[NUM_LATCHES];
+
+        this.bus              = bus;
+
+        reset();
+    }
+
+    public void reset() {
+        registerV     = new Address(INITIAL_REGISTER_V, 0, (int) Math.pow(2, REGISTER_V_SIZE) - 1);
+        registerT     = new Address(INITIAL_REGISTER_T, 0, (int) Math.pow(2, REGISTER_T_SIZE) - 1);
+        registerX     = new Address(INITIAL_REGISTER_X, 0, (int) Math.pow(2, REGISTER_X_SIZE) - 1);
+        registerW     = new Address(INITIAL_REGISTER_W, 0, (int) Math.pow(2, REGISTER_W_SIZE) - 1);
+        ppuDataBuffer = new Address(0);
+
+        shiftRegisterSmall0.setNthBits(0, 8, 0);
+        shiftRegisterSmall1.setNthBits(0, 8, 0);
+        shiftRegisterLarge0.setNthBits(0, 8, 0);
+        shiftRegisterLarge1.setNthBits(0, 8, 0);
 
         latchNametable        = new Address(0);
         latchAttributeTable   = new Address(0);
@@ -124,19 +130,12 @@ public class PPU {
         cycle                 = 0;
         scanline              = 0;
         isOddFrame            = false;
-        this.bus              = bus;
-
-        setupInternalRegisters();
 
         for (int i = 0; i < nametable.length; i++) {
             nametable[i] = new Address(0, Integer.parseInt("2000", 16) + i);
         }
 
-        for (int i = 0; i < latches.length; i++) {
-            latches[i] = new Address(0, 0, 65536);
-        }
-
-        ppuDataBuffer = new Address(0);
+        setupInternalRegisters();
     }
 
     /*
@@ -170,13 +169,13 @@ public class PPU {
 
     // Cycling
     public void cycle() {
-        if        (scanline <= -1) { // Pre-Render Scanlines
+        if        (scanline <= -1  && Util.getNthBit(ppuMask.getValue(), 3) == 1) { // Pre-Render Scanlines
             runPreRenderScanline();
-        } else if (scanline <= 239) { // Visible Scanlines
+        } else if (scanline <= 239 && Util.getNthBit(ppuMask.getValue(), 3) == 1) { // Visible Scanlines
             runVisibleScanline();
-        } else if (scanline <= 240) { // Post-Render Scanlines
+        } else if (scanline <= 240 && Util.getNthBit(ppuMask.getValue(), 3) == 1) { // Post-Render Scanlines
             runPostRenderScanline();
-        } else if (scanline <= 260) { // Vertical Blanking Scanline
+        } else if (241 <= scanline && scanline <= 260) { // Vertical Blanking Scanlines
             runVerticalBlankingScanline();
         }
 
@@ -195,10 +194,6 @@ public class PPU {
         if        (cycle <= 0) {   // Idle Cycle
             drawX = 0;
         } else if (cycle <= 256) { // Memory fetches for current scanline
-            if (scanline != 0 && cycle == 256) {
-                incrementFineY();
-                drawY++;
-            }
             runVisibleScanlineRenderingCycles();
         } else if (cycle <= 320) { // Mostly Garbage memory fetches
             runHorizontalBlankCycles();
@@ -210,6 +205,11 @@ public class PPU {
     }
 
     private void runVisibleScanlineRenderingCycles() {
+        if (scanline != 0 && cycle == 256) {
+            incrementFineY();
+            drawY++;
+        }
+
         switch ((cycle - 1) % 8) {
             case 0:
                 break;
@@ -252,8 +252,8 @@ public class PPU {
         int address = latchNametable.getValue();
         int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
-        int patternTableSelect = 0;
-        int offset = patternTableSelect * Integer.parseInt("1000");
+        int patternTableSelect = 1; // Util.getNthBit(ppuCtrl.getValue(), 4);
+        int offset = patternTableSelect * Integer.parseInt("0100", 16);
         int patternTableLow = Util.reverse(getTileLow(offset + address)[fineY].getValue(), 8);
         latchPatternTableLow.setValue(patternTableLow);
     }
@@ -262,8 +262,8 @@ public class PPU {
         int address = latchNametable.getValue();
         int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
-        int patternTableSelect = 0;
-        int offset = patternTableSelect * Integer.parseInt("1000");
+        int patternTableSelect = 1; //Util.getNthBit(ppuCtrl.getValue(), 4);
+        int offset = patternTableSelect * Integer.parseInt("0100", 16);
         int patternTableHigh = Util.reverse(getTileHigh(offset + address)[fineY].getValue(), 8);
 
         latchPatternTableHigh.setValue(patternTableHigh);
@@ -378,9 +378,9 @@ public class PPU {
     }
 
     private void runVerticalBlankingScanline() {
-        if (cycle == 1) {
+        if (scanline == 241 && cycle == 1) {
             ppuStatus.setValue(ppuStatus.getValue() | Integer.parseInt("10000000", 2));
-            if (scanline == 241 && Util.getNthBit(ppuCtrl.getValue(), 7) == 1) {
+            if (Util.getNthBit(ppuCtrl.getValue(), 7) == 1) {
                 bus.setNmi(true);
             }
         }
@@ -439,10 +439,11 @@ public class PPU {
 
     private void setPpuMask(int value) {
         ppuMask.setValue(value);
+
     }
 
     private void setPpuStatus(int value) {
-        ppuStatus.setValue(value);
+        // Cannot be done
     }
 
     private void setOamAddr(int value) {
@@ -456,11 +457,11 @@ public class PPU {
     private void setPpuScroll(int value) {
         if (registerW.getValue() == 0) { // First Write
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 0, 5));
-            registerX.setValue(Util.maskNthBits(value, registerX.getValue(), 0, 0, 3));
+            registerX.setValue(value & Integer.parseInt("00000111", 2));
         } else {                         // Second Write
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 12, 3));
-            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 8,  2));
-            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 6, 5,  3));
+            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 5,  5));
+            // TODO:
         }
 
         registerW.setValue(registerW.getValue() ^ 1);
@@ -468,11 +469,11 @@ public class PPU {
 
     private void setPpuAddr(int value) {
         if (registerW.getValue() == 0) { // First Write
-            ppuAddr.setValue(Util.maskNthBits(value, ppuAddr.getValue(), 0, 8, 6));
+            // ppuAddr.setValue(Util.maskNthBits(value, ppuAddr.getValue(), 0, 8, 6));
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 8,  6));
             registerT.setValue(Util.maskNthBits(0, registerT.getValue(), 0, 14, 1));
         } else {                         // Second Write
-            ppuAddr.setValue(Util.maskNthBits(value, ppuAddr.getValue(), 0, 0, 8));
+            // ppuAddr.setValue(Util.maskNthBits(value, ppuAddr.getValue(), 0, 0, 8));
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 0,  8));
             registerV.setValue(registerT.getValue());
         }
@@ -481,12 +482,12 @@ public class PPU {
     }
 
     private void setPpuData(int value) {
-        writeMemory(ppuAddr.getValue(), value);
+        writeMemory(registerV.getValue(), value);
 
         if (Util.getNthBit(ppuCtrl.getValue(), 2) == 1) {
-            ppuAddr.setValue(ppuAddr.getValue() + 32);
+            registerV.setValue(registerV.getValue() + 32);
         } else {
-            ppuAddr.setValue(ppuAddr.getValue() + 1);
+            registerV.setValue(registerV.getValue() + 1);
         }
     }
 
@@ -525,6 +526,8 @@ public class PPU {
 
         int value1 = ppuStatus.getValue() & Integer.parseInt("11100000", 2);
         int value2 = ppuDataBuffer.getValue() & Integer.parseInt("00011111", 2);
+
+        ppuStatus.setValue(ppuStatus.getValue() & Integer.parseInt("01111111"));
         return new Address(value1 | value2);
     }
 
@@ -546,36 +549,18 @@ public class PPU {
 
     private Address getPpuData() {
         ppuData.setValue(ppuDataBuffer.getValue());
-        ppuDataBuffer.setValue(readMemory(ppuAddr.getValue()).getValue());
-        if (ppuAddr.getValue() >= Integer.parseInt("3F00", 16)) {
-            ppuData.setValue(readMemory(ppuAddr.getValue()).getValue());
+        ppuDataBuffer.setValue(readMemory(registerV.getValue()).getValue());
+        if (registerV.getValue() >= Integer.parseInt("3F00", 16)) {
+            ppuData.setValue(readMemory(registerV.getValue()).getValue());
         }
 
-        ppuAddr.setValue(ppuAddr.getValue() + 1);
+        if (Util.getNthBit(ppuCtrl.getValue(), 2) == 1) {
+            registerV.setValue(registerV.getValue() + 32);
+        } else {
+            registerV.setValue(registerV.getValue() + 1);
+        }
+
         return ppuData;
-    }
-
-
-    public Address peekRegister(int pointer) {
-        if        (pointer == PPUCTRL_ADDRESS) {
-            return ppuCtrl;
-        } else if (pointer == PPUMASK_ADDRESS) {
-            return ppuMask;
-        } else if (pointer == PPUSTATUS_ADDRESS) {
-            return ppuStatus;
-        } else if (pointer == OAMADDR_ADDRESS) {
-            return oamAddr;
-        } else if (pointer == OAMDATA_ADDRESS) {
-            return oamData;
-        } else if (pointer == PPUSCROLL_ADDRESS) {
-            return ppuScroll;
-        } else if (pointer == PPUADDR_ADDRESS) {
-            return ppuAddr;
-        } else if (pointer == PPUDATA_ADDRESS) {
-            return ppuData;
-        }
-
-        return null;
     }
 
     public Address readMemory(int pointer) {
@@ -591,7 +576,7 @@ public class PPU {
         // $3F00 - $3F1F | $0008 | Palette RAM indexes
         // $3F20 - $3FFF | $BFE0 | Mirrors of $3F00-$3F1F
 
-        if        (pointer <= Integer.parseInt("0FFF", 16)) {
+        if        (pointer <= Integer.parseInt("1FFF", 16)) {
             return bus.mapperReadPpu(pointer);
         } else if (pointer <= Integer.parseInt("2FFF", 16)) {
             return readNametable(pointer - Integer.parseInt("2000", 16));
@@ -715,12 +700,12 @@ public class PPU {
     }
 
     private void renderPatternTable(Pixels pixels, int patternTable, int offsetX, int offsetY, int basePalette) {
-        int offset = patternTable * Integer.parseInt("1000");
+        int offset = patternTable * Integer.parseInt("0100");
 
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                Address[] low  = getTileLow(i + j * 16);
-                Address[] high = getTileHigh(i + j * 16);
+                Address[] low  = getTileLow(offset + i + j * 16);
+                Address[] high = getTileHigh(offset + i + j * 16);
                 for (int k = 0; k < 8; k++) {
                     for (int l = 0; l < 8; l++) {
                         int formattedLow  = Util.getNthBit(low[l].getValue(),  7 - k);
@@ -735,8 +720,8 @@ public class PPU {
     }
 
     public void renderNameTables(Pixels pixels, int basePalette) {
-        int patternTableSelect = 0;// ppuCtrl.getValue() & Integer.parseInt("00001000", 2) >> 3;
-        int offset = patternTableSelect * Integer.parseInt("1000");
+        int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 4);
+        int offset = patternTableSelect * Integer.parseInt("0100", 16);
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
@@ -762,8 +747,7 @@ public class PPU {
     }
 
     public Address[] getTileLow(int pointer) {
-        int tile    = pointer;
-        int offset  = tile << 4;
+        int offset  = pointer << 4;
 
         Address[] tileLow = new Address[8];
         for (int i = 0; i < 8; i++) {
@@ -774,7 +758,7 @@ public class PPU {
 
     public Address[] getTileHigh(int pointer) {
         int tile    = pointer;
-        int offset  = tile << 4;
+        int offset  = pointer << 4;
 
         Address[] tileHigh = new Address[8];
         for (int i = 8; i < 16; i++) {

@@ -5,6 +5,7 @@ import mapper.NRom;
 import ppu.Mirroring;
 import ppu.PPU;
 import ppu.PatternTable;
+import ui.CpuFileOutput;
 import ui.Pixels;
 import ui.controller.Controller;
 
@@ -47,6 +48,8 @@ public class Bus {
         cpu = new CPU(this);
         ppu = new PPU(this);
 
+        cpu.setLoggingOutput(new CpuFileOutput());
+
         cartridgeLoaded     = false;
         controllerConnected = false;
         enabled             = true;
@@ -58,7 +61,7 @@ public class Bus {
         readCartridge(file);
 
         cpu.reset();
-        // ppu.reset(); TODO
+        ppu.reset();
         cartridgeLoaded = true;
     }
 

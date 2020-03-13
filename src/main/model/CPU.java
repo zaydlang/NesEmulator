@@ -139,6 +139,8 @@ public class CPU {
     // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
     // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
     public void cycle() {
+        handleNMI();
+
         if (cyclesRemaining <= 1) {
             processInstruction();
         } else {
@@ -154,7 +156,6 @@ public class CPU {
     }
 
     private void processInstruction() {
-        handleNMI();
         if (isBreakpoint(registerPC)) {
             setEnabled(false);
         }
@@ -173,12 +174,14 @@ public class CPU {
         registerPC.setValue(registerPC.getValue() + instruction.getNumArguments() + 1);
 
         //System.out.println(preStatus);
+        String log = registerPC.toString() + " " + (bus.getPpu().ppuStatus.getValue() + " " + bus.getPpu().ppuData.getValue());
         Address opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
         Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
         //incrementCycles(instruction.getNumCycles());
 
         try {
-            loggingOutput.log(preStatus);
+            //System.out.println(log);
+            //loggingOutput.log(log);
         } catch (NullPointerException e) {
             // Do nothing
         }
@@ -194,10 +197,11 @@ public class CPU {
 
     private void handleNMI() {
         if (nmi) {
-            int byteOne = ((getRegisterPC().getValue() - 1) & Integer.parseInt("1111111100000000", 2)) >> 8;
-            int byteTwo = ((getRegisterPC().getValue() - 1) & Integer.parseInt("0000000011111111", 2));
+            int byteOne = ((getRegisterPC().getValue()) & Integer.parseInt("1111111100000000", 2)) >> 8;
+            int byteTwo = ((getRegisterPC().getValue()) & Integer.parseInt("0000000011111111", 2));
             pushStack(byteOne);
             pushStack(byteTwo);
+            pushStack(getStatus());
 
             byteOne = readMemory(Integer.parseInt("FFFA", 16)).getValue();
             byteTwo = readMemory(Integer.parseInt("FFFB", 16)).getValue();
@@ -558,7 +562,7 @@ public class CPU {
         breakpoints.add(breakpoint);
     }
 
-    public void setLoggingOutput(CpuViewer cpuViewer) {
-        this.loggingOutput = cpuViewer;
+    public void setLoggingOutput(CpuOutput cpuOutput) {
+        this.loggingOutput = cpuOutput;
     }
 }
