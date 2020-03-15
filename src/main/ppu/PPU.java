@@ -236,6 +236,9 @@ public class PPU {
     private void fetchNametableByte() {
         int address = (registerV.getValue() & Integer.parseInt("000111111111111", 2)) >> 0;
         latchNametable = readNametable(address);
+        if (drawY != (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12) {
+            int x = 2;
+        }
     }
 
     @SuppressWarnings("PointlessArithmeticExpression")
@@ -252,7 +255,7 @@ public class PPU {
         int address = latchNametable.getValue();
         int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
-        int patternTableSelect = 1; // Util.getNthBit(ppuCtrl.getValue(), 4);
+        int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 4);
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
         int patternTableLow = Util.reverse(getTileLow(offset + address)[fineY].getValue(), 8);
         latchPatternTableLow.setValue(patternTableLow);
@@ -262,7 +265,7 @@ public class PPU {
         int address = latchNametable.getValue();
         int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
-        int patternTableSelect = 1; //Util.getNthBit(ppuCtrl.getValue(), 4);
+        int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 4);
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
         int patternTableHigh = Util.reverse(getTileHigh(offset + address)[fineY].getValue(), 8);
 
@@ -271,13 +274,13 @@ public class PPU {
 
     @SuppressWarnings("PointlessArithmeticExpression")
     private void loadShiftRegisters() {
-        int coarseX0 = (registerV.getValue() & Integer.parseInt("000000000000001", 2)) >> 0;
-        int coarseY0 = (registerV.getValue() & Integer.parseInt("000000000100000", 2)) >> 5;
-        int attributeTableLow  = Util.getNthBit(latchAttributeTable.getValue(), ((coarseY0 * 2 + coarseX0) << 1) + 0);
-        int attributeTableHigh = Util.getNthBit(latchAttributeTable.getValue(), ((coarseY0 * 2 + coarseX0) << 1) + 1);
+        int coarseX1 = Util.getNthBit(registerV.getValue(), 1);
+        int coarseY1 = Util.getNthBit(registerV.getValue(), 6);
+        int attributeTableLow  = Util.getNthBit(latchAttributeTable.getValue(), ((coarseY1 * 2 + coarseX1) << 1) + 0);
+        int attributeTableHigh = Util.getNthBit(latchAttributeTable.getValue(), ((coarseY1 * 2 + coarseX1) << 1) + 1);
 
-        shiftRegisterSmall0.setNthBits(0, 8,  attributeTableLow);
-        shiftRegisterSmall1.setNthBits(0, 8,  attributeTableHigh);
+        shiftRegisterSmall0.setNthBits(0, 8,  attributeTableLow  == 1 ? 255 : 0);
+        shiftRegisterSmall1.setNthBits(0, 8,  attributeTableHigh == 1 ? 255 : 0);
         shiftRegisterLarge0.setNthBits(8, 16, latchPatternTableLow.getValue());
         shiftRegisterLarge1.setNthBits(8, 16, latchPatternTableHigh.getValue());
     }
@@ -398,9 +401,11 @@ public class PPU {
             ppuStatus.setValue(ppuStatus.getValue() & Integer.parseInt("01111111", 2));
         }
 
-        if        (280 <= cycle && cycle <= 304) { // Restore the CoarseY
+        if        (280 <= cycle && cycle <= 304) { // Restore the CoarseY and FineY
+            int newFineY   = (registerT.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
             int newCoarseY = (registerT.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
-            registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5, 5));
+            registerV.setValue(Util.maskNthBits(newFineY,   registerV.getValue(), 0, 12, 3));
+            registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5,  5));
         } else if (321 <= cycle && cycle <= 336) { // Fetches for next scanline
             runVisibleScanlineFutureCycles();
         }
@@ -605,14 +610,8 @@ public class PPU {
         } else if (pointer <= Integer.parseInt("1FFF", 16)) {
             // patternTables[1].writeMemory(pointer - Integer.parseInt("1000", 16), value);
         } else if (pointer <= Integer.parseInt("2FFF", 16)) {
-            if (value != 0) {
-                int x = 2;
-            }
             writeNametable(pointer - Integer.parseInt("2000", 16), value);
         } else if (pointer <= Integer.parseInt("3EFF", 16)) {
-            if (value != 0) {
-                int x = 2;
-            }
             writeNametable(pointer - Integer.parseInt("3000", 16), value);
         } else {
             int mirroredAddress = (pointer - Integer.parseInt("3F00", 16)) % PALETTE_RAM_SIZE;
@@ -620,9 +619,6 @@ public class PPU {
             System.out.print(Integer.toHexString(Integer.parseInt("3F00", 16) + mirroredAddress) + " : ");
             System.out.println(value);
             paletteRamIndexes.writeMemory(mirroredAddress, value);
-            if (value != 0) {
-                int u = 2;
-            }
         }
     }
 
@@ -647,7 +643,7 @@ public class PPU {
         switch (nametableMirroring) {
             case HORIZONTAL:
                 pointer = pointer % Integer.parseInt("0400", 16);
-                pointer += (rawPointer > Integer.parseInt("8000")) ? Integer.parseInt("0800", 16) : 0;
+                pointer += (rawPointer > Integer.parseInt("8000", 16)) ? Integer.parseInt("0800", 16) : 0;
                 break;
             case VERTICAL:
                 pointer = pointer % Integer.parseInt("0800", 16);
@@ -662,7 +658,7 @@ public class PPU {
         switch (nametableMirroring) {
             case HORIZONTAL:
                 pointer = pointer % Integer.parseInt("0400", 16);
-                pointer += (rawPointer > Integer.parseInt("8000")) ? Integer.parseInt("0800", 16) : 0;
+                pointer += (rawPointer > Integer.parseInt("8000", 16)) ? Integer.parseInt("0800", 16) : 0;
                 break;
             case VERTICAL:
                 pointer = pointer % Integer.parseInt("0800", 16);
@@ -700,7 +696,7 @@ public class PPU {
     }
 
     private void renderPatternTable(Pixels pixels, int patternTable, int offsetX, int offsetY, int basePalette) {
-        int offset = patternTable * Integer.parseInt("0100");
+        int offset = patternTable * Integer.parseInt("0100", 16);
 
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
