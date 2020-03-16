@@ -36,6 +36,7 @@ public class Display extends PixelWindow implements KeyListener {
 
     private PatternTableViewer patternTableViewer;
     private NameTableViewer    nameTableViewer;
+    private OamViewer          oamViewer;
     private CpuViewer          cpuViewer;
     private ControllerEditor   controllerEditor;
 
@@ -65,6 +66,13 @@ public class Display extends PixelWindow implements KeyListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             nameTableViewer = new NameTableViewer(bus);
+        }
+    });
+
+    JMenuItem viewOAM            = new JMenuItem(new AbstractAction("OAM") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            oamViewer = new OamViewer(bus);
         }
     });
 
@@ -142,6 +150,7 @@ public class Display extends PixelWindow implements KeyListener {
         view.add(viewCPUViewer);
         view.add(viewPatternTables);
         view.add(viewNameTables);
+        view.add(viewOAM);
 
         JMenu settings = new JMenu("Settings");
         settings.add(settingsController);

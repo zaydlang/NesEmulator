@@ -66,15 +66,14 @@ public class PPU {
     private ShiftRegister shiftRegisterLarge0;
     private ShiftRegister shiftRegisterLarge1;
 
+    private Sprite[] sprites;
+
     private Address ppuCtrl;
     private Address ppuMask;
     public Address ppuStatus;
     private Address oamAddr;
-    private Address oamData;
     private Address ppuScroll;
-    private Address ppuAddr;
     public Address ppuData;
-    private Address oamDma;
 
     private Address ppuDataBuffer;
 
@@ -83,7 +82,8 @@ public class PPU {
     private Address[] nametable;
     private Mirroring nametableMirroring;
     private PaletteRamIndexes paletteRamIndexes;
-    private Address[] oam;
+    private Address[] primaryOam;
+    private Address[] secondaryOam;
 
     // Cycling
     private int cycle;
@@ -98,7 +98,9 @@ public class PPU {
     public PPU(Bus bus) {
         nametable             = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
         paletteRamIndexes     = new PaletteRamIndexes();
-        oam                   = new Address[OAM_SIZE];
+        primaryOam            = new Address[OAM_SIZE];
+        secondaryOam          = new Address[4 * 8];
+        sprites               = new Sprite[8];
 
         shiftRegisterSmall0   = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
         shiftRegisterSmall1   = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
@@ -135,31 +137,21 @@ public class PPU {
             nametable[i] = new Address(0, Integer.parseInt("2000", 16) + i);
         }
 
-        setupInternalRegisters();
-    }
-
-    /*
-    private void applyMapper(Mapper mapper) {
-        for (int i = 0; i < patternTables.length; i++) {
-            patternTables[i] = new PatternTable();
-            for (int j = 0; j < Integer.parseInt("1000", 16); j++) {
-                int address = Integer.parseInt("1000", 16) * i + j;
-                int value = mapper.readChrRom(address).getValue();
-                patternTables[i].writeMemory(j, value);
-            }
+        for (int i = 0; i < primaryOam.length; i++) {
+            primaryOam[i] = new Address(Integer.parseInt("FF", 16), i);
         }
 
-        mapper.mirrorNametables(nametable);
-    }*/
+        resetSecondaryOam();
+        resetSprites();
+        setupInternalRegisters();
+    }
 
     private void setupInternalRegisters() {
         ppuCtrl   = new Address(0, PPUCTRL_ADDRESS);
         ppuMask   = new Address(0, PPUMASK_ADDRESS);
         ppuStatus = new Address(0, PPUSTATUS_ADDRESS);
         oamAddr   = new Address(0, OAMADDR_ADDRESS);
-        oamData   = new Address(0, OAMDATA_ADDRESS);
         ppuScroll = new Address(0, PPUSCROLL_ADDRESS);
-        ppuAddr   = new Address(0, PPUADDR_ADDRESS, 0, (int) Math.pow(2, 14) - 1);
         ppuData   = new Address(0, PPUDATA_ADDRESS);
     }
 
@@ -194,13 +186,80 @@ public class PPU {
         if        (cycle <= 0) {   // Idle Cycle
             drawX = 0;
         } else if (cycle <= 256) { // Memory fetches for current scanline
+            runVisibleScanlineSpriteEvaluationCycles();
             runVisibleScanlineRenderingCycles();
+            oamAddr.setValue(0);
         } else if (cycle <= 320) { // Mostly Garbage memory fetches
             runHorizontalBlankCycles();
         } else if (cycle <= 336) { // Memory fetches for next scanline
             runVisibleScanlineFutureCycles();
         } else if (cycle <= 340) { // Garbage memory fetches
             // Do nothing
+        }
+    }
+
+    private void runVisibleScanlineSpriteEvaluationCycles() {
+        // https://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
+        if        (cycle == 1) {
+            resetSecondaryOam();
+        } else if (cycle == 65) {
+            evaluateSprites();
+        }
+    }
+
+    private void resetSecondaryOam() {
+        for (int i = 0; i < secondaryOam.length; i++) {
+            secondaryOam[i] = new Address(Integer.parseInt("FF", 16), i);
+        }
+    }
+
+    private void resetSprites() {
+        for (int i = 0; i < sprites.length; i++) {
+            sprites[i] = new Sprite(0, 0, 255, 256, 255);
+        }
+    }
+
+    private void evaluateSprites() {
+        // https://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
+        int secondaryOamIndex = 0;
+        for (int i = 0; i < 64; i++) { // Loop through all the sprites
+            int spriteY = primaryOam[i * 4 + 0].getValue();
+            if (drawY - 6 <= spriteY && spriteY <= drawY + 1) { // Are we drawing the sprite on the next scanline?
+                for (int j = 0; j < 4; j++) { // TODO: possible bug?
+                    if (secondaryOamIndex >= 32) { // Should the sprite overflow flag be set?
+                        ppuStatus.setValue(ppuStatus.getValue() | Integer.parseInt("00100000", 2));
+                    } else {
+                        secondaryOam[secondaryOamIndex++].setValue(primaryOam[i * 4 + j].getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    private void loadSprites() {
+        // https://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
+        resetSprites();
+        int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 3);
+        int offset = patternTableSelect * Integer.parseInt("0100", 16);
+
+        for (int i = 0; i < 8; i++) {
+            int spriteY             = secondaryOam[i * 4 + 0].getValue();
+            if (spriteY >= Integer.parseInt("EF", 16)) { // TODO: >= or >?
+                continue;
+            }
+
+            int patternTableAddress = secondaryOam[i * 4 + 1].getValue();
+            int attribute           = (secondaryOam[i * 4 + 2].getValue() & Integer.parseInt("00000011", 2)) + 4;
+            int spriteX             = secondaryOam[i * 4 + 3].getValue();
+            int fineY               = drawY - spriteY;
+            int priority            = Util.getNthBit(secondaryOam[i * 4 + 2].getValue(), 5);
+
+            if (patternTableAddress >= Integer.parseInt("A2", 16)) { // TODO: >= or >?
+                int x = 2;
+            }
+            int patternTableLow  = Util.reverse(getTileLow(offset + patternTableAddress)[fineY].getValue(), 8);
+            int patternTableHigh = Util.reverse(getTileHigh(offset + patternTableAddress)[fineY].getValue(), 8);
+            sprites[i] = new Sprite(patternTableLow, patternTableHigh, attribute, spriteX, priority);
         }
     }
 
@@ -329,10 +388,7 @@ public class PPU {
         int bitFour  = Util.getNthBit(shiftRegisterLarge1.getValue(), fineX);
         int fullByte = bitOne * 4 + bitTwo * 8 + bitThree * 1 + bitFour * 2;
 
-        if (fullByte != 3) {
-            int x = 2;
-        }
-        Color color = getColor(fullByte);
+        Color color = getColor(getColorAddressUsingPriority(fullByte));
         pixels.setPixel(drawX, drawY, color);
 
         drawX++;
@@ -340,6 +396,27 @@ public class PPU {
         shiftRegisterSmall1.shiftLeft(1);
         shiftRegisterLarge0.shiftLeft(1);
         shiftRegisterLarge1.shiftLeft(1);
+    }
+
+    private int getColorAddressUsingPriority(int backgroundFullByte) {
+        int returnByte = backgroundFullByte;
+        for (int i = 0; i < 8; i++) {
+            if (sprites[i].isActive()) {
+                int spriteFullByte = sprites[i].getNextColorAddressAsInt();
+                int priority       = sprites[i].getPriority();
+                int bgPixelLow     = backgroundFullByte & Integer.parseInt("0011", 2);
+                int spritePixelLow = spriteFullByte     & Integer.parseInt("0011", 2);
+
+                if (priority == 0 || bgPixelLow == 0) {
+                    returnByte = spriteFullByte;
+                } else {
+                    returnByte = backgroundFullByte;
+                }
+            }
+            sprites[i].decrementCounter();
+        }
+
+        return returnByte;
     }
 
     private Color getColor(int address) {
@@ -350,6 +427,8 @@ public class PPU {
         if (cycle == 257) {                 // Restore the CoarseX
             int newCoarseX = (registerT.getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
             registerV.setValue(Util.maskNthBits(newCoarseX, registerV.getValue(), 0, 0, 5));
+
+            loadSprites();
         }
     }
 
@@ -401,11 +480,14 @@ public class PPU {
             ppuStatus.setValue(ppuStatus.getValue() & Integer.parseInt("01111111", 2));
         }
 
-        if        (280 <= cycle && cycle <= 304) { // Restore the CoarseY and FineY
-            int newFineY   = (registerT.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
-            int newCoarseY = (registerT.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
-            registerV.setValue(Util.maskNthBits(newFineY,   registerV.getValue(), 0, 12, 3));
-            registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5,  5));
+        if        (258 <= cycle && cycle <= 320) {
+            if    (280 <= cycle && cycle <= 304) { // Restore the CoarseY and FineY
+                int newFineY = (registerT.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
+                int newCoarseY = (registerT.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
+                registerV.setValue(Util.maskNthBits(newFineY,   registerV.getValue(), 0, 12, 3));
+                registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5,  5));
+            }
+            oamAddr.setValue(0);
         } else if (321 <= cycle && cycle <= 336) { // Fetches for next scanline
             runVisibleScanlineFutureCycles();
         }
@@ -456,7 +538,8 @@ public class PPU {
     }
 
     private void setOamData(int value) {
-        oamData.setValue(value);
+        primaryOam[oamAddr.getValue()].setValue(value);
+        oamAddr.setValue(oamAddr.getValue() + 1);
     }
 
     private void setPpuScroll(int value) {
@@ -504,7 +587,7 @@ public class PPU {
         } else if (pointer == PPUSTATUS_ADDRESS) {
             return getPpuStatus();
         } else if (pointer == OAMADDR_ADDRESS) {
-            return getOamAddr();
+            return new Address(0); // Not allowed!
         } else if (pointer == OAMDATA_ADDRESS) {
             return getOamData();
         } else if (pointer == PPUSCROLL_ADDRESS) {
@@ -541,7 +624,7 @@ public class PPU {
     }
 
     private Address getOamData() {
-        return oamData;
+        return primaryOam[oamAddr.getValue()]; // TODO: something about only incrementing oamAddr during vblank?
     }
 
     private Address getPpuScroll() {
@@ -742,6 +825,33 @@ public class PPU {
         }
     }
 
+    public void renderOAM(Pixels pixels, int scaleX, int scaleY) {
+        int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 3);
+        int offset = patternTableSelect * Integer.parseInt("0100", 16);
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                int attribute = (primaryOam[i * 4 + 2].getValue() & Integer.parseInt("00000011", 2)) + 4;
+                int address   = primaryOam[i * 4 * 8 + j * 4 + 1].getValue();
+                Address[] low = getTileLow(offset + address);
+                Address[] high = getTileHigh(offset + address);
+                for (int k = 0; k < 8; k++) {
+                    for (int l = 0; l < 8; l++) {
+                        int formattedLow = Util.getNthBit(low[l].getValue(), 7 - k);
+                        int formattedHigh = Util.getNthBit(high[l].getValue(), 7 - k);
+                        int fullByte = (attribute << 2) + (formattedHigh << 1) + formattedLow;
+                        Color color = getColor(fullByte);
+                        for (int m = 0; m < scaleX; m++) {
+                            for (int n = 0; n < scaleY; n++) {
+                                pixels.setPixel((i * 8 + k) * scaleX + m, (j * 8 + l) * scaleY + n, color);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public Address[] getTileLow(int pointer) {
         int offset  = pointer << 4;
 
@@ -769,5 +879,10 @@ public class PPU {
 
     public void setPixels(Pixels pixels) {
         this.pixels = pixels;
+    }
+
+    public void writeOam(int value) {
+        primaryOam[oamAddr.getValue()].setValue(value);
+        oamAddr.setValue(oamAddr.getValue() + 1);
     }
 }

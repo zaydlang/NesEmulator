@@ -99,6 +99,10 @@ public class CPU {
 
     private CpuOutput loggingOutput;
 
+    private boolean dma;
+    private int     dmaPage;
+    private int     dmaIndex;
+
     // EFFECTS: initializes the RAM and STACK and calls reset() to reset all values in the cpu to their default states.
     public CPU(Bus bus) {
         init(bus);
@@ -134,20 +138,47 @@ public class CPU {
         setRegisterPC(byteOne + byteTwo * 256);
         //setRegisterPC(Integer.parseInt("C000", 16));     // Uncomment for nestest
         enabled = true;
+        dma      = false;
+        dmaPage  = 0;
+        dmaIndex = 0;
     }
 
     // MODIFIES: All registers, all flags, the ram, the stack, and the mapper may change.
     // EFFECTS: Cycles the cpu through one instruction, and updates the cpu's state as necessary.
     public void cycle() {
-        handleNMI();
+        if (!dma) {
+            handleNMI();
 
-        if (cyclesRemaining <= 1) {
-            processInstruction();
+            if (cyclesRemaining <= 1) {
+                processInstruction();
+            } else {
+                cyclesRemaining--;
+            }
         } else {
-            cyclesRemaining--;
+            handleDMA();
         }
 
         incrementCycles(1);
+    }
+
+    private void handleDMA() {
+        if (dmaIndex == 0) {
+            if (cycle % 2 == 0) {
+                dmaIndex++;
+            }
+            return;
+        } else {
+            if (dmaIndex == 513) {
+                dma = false;
+                return;
+            }
+
+            if (dmaIndex % 2 == 0) {
+                int value = readMemory((dmaPage << 8) + (dmaIndex - 1) / 2).getValue();
+                bus.ppuDma(value);
+            }
+            dmaIndex++;
+        }
     }
 
     public void incrementCyclesRemaining(int increment) {
@@ -241,24 +272,32 @@ public class CPU {
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // EFFECTS: returns the value of the memory at the given address.
     //          see the table below for a detailed description of what is stored at which address.
+    //          https://wiki.nesdev.com/w/index.php/CPU_memory_map
+    //          ADDRESS RANGE | SIZE  | DEVICE
+    //          $0000 - $07FF | $0800 | 2KB internal RAM
+    //          $0800 - $0FFF | $0800 |
+    //          $1000 - $17FF | $0800 | Mirrors of $0000-$07FF
+    //          $1800 - $1FFF | $0800 |
+    //          $2000 - $2007 | $0008 | NES PPU registers
+    //          $2008 - $3FFF | $1FF8 | Mirrors of $2000-$2007 (repeats every 8 bytes)
+    //          $4000 - $4017 | $0018 | NES APU and I/O registers
+    //          $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
+    //          $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
     protected Address readMemory(int pointer) {
-        // https://wiki.nesdev.com/w/index.php/CPU_memory_map
-        // ADDRESS RANGE | SIZE  | DEVICE
-        // $0000 - $07FF | $0800 | 2KB internal RAM
-        // $0800 - $0FFF | $0800 |
-        // $1000 - $17FF | $0800 | Mirrors of $0000-$07FF
-        // $1800 - $1FFF | $0800 |
-        // $2000 - $2007 | $0008 | NES PPU registers
-        // $2008 - $3FFF | $1FF8 | Mirrors of $2000-$2007 (repeats every 8 bytes)
-        // $4000 - $4017 | $0018 | NES APU and I/O registers
-        // $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
-        // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
 
         if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
             return ram[pointer % Integer.parseInt("0800",16)];
         } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
             pointer = (pointer - Integer.parseInt("2000", 16)) % 8 + Integer.parseInt("2000", 16);
-            return bus.ppuRead(pointer); // TODO add when the ppu is implemented. remember to add mirrors.
+            return bus.ppuRead(pointer);
+        } else if (pointer <= Integer.parseInt("4013", 16)) {
+            return new Address(0); // TODO: apu read
+        } else if (pointer <= Integer.parseInt("4014", 16)) {
+            return bus.ppuRead(pointer);
+        } else if (pointer <= Integer.parseInt("4015", 16)) {
+            return new Address(0); // TODO: apu read
+        } else if (pointer <= Integer.parseInt("4016", 16)) {
+            return bus.controllerRead(pointer);
         } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
             return bus.controllerRead(pointer);
         } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
@@ -272,18 +311,18 @@ public class CPU {
     // REQUIRES: address is in between 0x0000 and 0xFFFF, inclusive.
     // MODIFIES: ram
     // EFFECTS: check the table below for a detailed explanation of what is affected and how.
+    //          https://wiki.nesdev.com/w/index.php/CPU_memory_map
+    //          ADDRESS RANGE | SIZE  | DEVICE
+    //          $0000 - $07FF | $0800 | 2KB internal RAM
+    //          $0800 - $0FFF | $0800 |
+    //          $1000 - $17FF | $0800 | Mirrors of $0000-$07FF
+    //          $1800 - $1FFF | $0800 |
+    //          $2000 - $2007 | $0008 | NES PPU registers
+    //          $2008 - $3FFF | $1FF8 | Mirrors of $2000-$2007 (repeats every 8 bytes)
+    //          $4000 - $4017 | $0018 | NES APU and I/O registers
+    //          $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
+    //          $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
     protected void writeMemory(int pointer, int rawValue) {
-        // https://wiki.nesdev.com/w/index.php/CPU_memory_map
-        // ADDRESS RANGE | SIZE  | DEVICE
-        // $0000 - $07FF | $0800 | 2KB internal RAM
-        // $0800 - $0FFF | $0800 |
-        // $1000 - $17FF | $0800 | Mirrors of $0000-$07FF
-        // $1800 - $1FFF | $0800 |
-        // $2000 - $2007 | $0008 | NES PPU registers
-        // $2008 - $3FFF | $1FF8 | Mirrors of $2000-$2007 (repeats every 8 bytes)
-        // $4000 - $4017 | $0018 | NES APU and I/O registers
-        // $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
-        // $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
         int value = rawValue % 256;
         if (value < 0) {
             value += 256;
@@ -293,6 +332,14 @@ public class CPU {
             ram[pointer % Integer.parseInt("0800",16)].setValue(value);
         } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
             bus.ppuWrite((pointer - Integer.parseInt("2000", 16) % Integer.parseInt("0008", 16)), value);
+        } else if (pointer <= Integer.parseInt("4013", 16)) {
+            // TODO: apu read
+        } else if (pointer <= Integer.parseInt("4014", 16)) {
+            startDMA(value);
+        } else if (pointer <= Integer.parseInt("4015", 16)) {
+            // TODO: apu read
+        } else if (pointer <= Integer.parseInt("4016", 16)) {
+            bus.controllerWrite(pointer, value);
         } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers.
             bus.controllerWrite(pointer, value);
         } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
@@ -301,6 +348,12 @@ public class CPU {
         } else {
             bus.mapperWrite(pointer, rawValue);
         }
+    }
+
+    private void startDMA(int value) {
+        dma      = true;
+        dmaPage  = value;
+        dmaIndex = 0;
     }
 /*
     private void writeIORegisters(int pointer, int value) {

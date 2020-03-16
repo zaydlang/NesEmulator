@@ -219,4 +219,8 @@ public class Bus {
     public boolean getCartridgeLoaded() {
         return cartridgeLoaded;
     }
+
+    public void ppuDma(int value) {
+        ppu.writeOam(value);
+    }
 }
