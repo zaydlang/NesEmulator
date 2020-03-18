@@ -4,8 +4,8 @@ import model.Address;
 
 public class PaletteRamIndexes {
     // Constants
-    private static final int PALETTE_RAM_INDEXES_SIZE = Integer.parseInt("0200");
-    private static final int INITIAL_INDEX_VALUE      = Integer.parseInt("00");
+    protected static final int PALETTE_RAM_INDEXES_SIZE = Integer.parseInt("0200", 16);
+    protected static final int INITIAL_INDEX_VALUE      = Integer.parseInt("00",   16);
 
     // Fields
     private Address[] indexes;

@@ -4,17 +4,12 @@ import mapper.Mapper;
 import mapper.NRom;
 import ppu.Mirroring;
 import ppu.PPU;
-import ppu.PatternTable;
 import ui.CpuFileOutput;
-import ui.Pixels;
 import ui.controller.Controller;
 
-import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Scanner;
 
 public class Bus {
     public static final int HEADER_SIZE           = 16;    // bytes
@@ -24,6 +19,8 @@ public class Bus {
 
     private CPU cpu;
     private PPU ppu;
+    private Controller controller;
+    private Mapper mapper;
 
     private boolean cartridgeLoaded;
     private boolean controllerConnected;
@@ -36,15 +33,10 @@ public class Bus {
     // TODO reset when cartridge loaded
     // TODO controller
 
-    private Controller controller;
 
-    private Mapper mapper;
-
-    Scanner scanner1 = new Scanner(new File("data/test/nestest_ppu.log"));
-    Scanner scanner2 = new Scanner(new File("data/test/nestest_cyc.log"));
     private boolean enabled;
 
-    public Bus() throws FileNotFoundException {
+    public Bus() {
         cpu = new CPU(this);
         ppu = new PPU(this);
 
@@ -79,7 +71,7 @@ public class Bus {
         boolean trainerPresent = Util.getNthBit(header[6].getValue(), 2) == 1;
         Address[] trainer = readFile(fileInputStream, 0, 0, trainerPresent ? TRAINER_SIZE : 0);
 
-        Address[] prgRom = readFile(fileInputStream, 0, Integer.parseInt("8000", 16),header[4].getValue() * PRG_ROM_SIZE);
+        Address[] prgRom = readFile(fileInputStream, 0, 8 * 4096,header[4].getValue() * PRG_ROM_SIZE);
         Address[] chrRom = readFile(fileInputStream, 0, 0, header[5].getValue() * CHR_ROM_SIZE);
         mapper = new NRom(prgRom, chrRom);
         ppu.setNametableMirroring(Mirroring.VERTICAL);
@@ -105,7 +97,7 @@ public class Bus {
     // REQUIRES: logFile is open.
     // MODIFIES: cpu, logfile
     // EFFECTS: cycles the cpu through one instruction, throws IOException if logfile has been closed.
-    public void cycle() throws IOException {
+    public void cycle() {
         if (!cartridgeLoaded || !enabled) {
             return;
         }
@@ -142,10 +134,6 @@ public class Bus {
 
 
 
-    public Address cpuRead(int pointer) {
-        return cpu.readMemory(pointer);
-    }
-
     public Address ppuRead(int pointer) {
         return ppu.readRegister(pointer);
     }
@@ -166,10 +154,6 @@ public class Bus {
         } else {
             return new Address(0);
         }
-    }
-
-    public void cpuWrite(int pointer, int value) {
-        cpu.writeMemory(pointer, value);
     }
 
     public void ppuWrite(int pointer, int value) {
@@ -204,6 +188,10 @@ public class Bus {
         return cpu;
     }
 
+    public Mapper getMapper() {
+        return mapper;
+    }
+
     public Controller getController() {
         return controller;
     }
@@ -218,6 +206,10 @@ public class Bus {
 
     public boolean getCartridgeLoaded() {
         return cartridgeLoaded;
+    }
+
+    public boolean getControllerConnected() {
+        return controllerConnected;
     }
 
     public void ppuDma(int value) {

@@ -48,4 +48,9 @@ public class StandardController extends Controller {
             pollingIndex = 0;
         }
     }
+
+    @Override
+    public boolean getPolling() {
+        return isPolling;
+    }
 }

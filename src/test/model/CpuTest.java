@@ -2,6 +2,8 @@ package model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ui.controller.Controller;
+import ui.controller.StandardController;
 
 import java.io.IOException;
 import java.io.File;
@@ -89,6 +91,49 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * Integer.parseInt("0800",16);
             assertTrue(cpu.readMemory(address).getValue() == 157);
+        }
+    }
+
+    @Test
+    void testReadMemoryPPURegisters() {
+        // Since PPU Reads will mainly be tested in PpuTest, I will only simply check that no exceptions are thrown.
+        for (int i = 0; i < 8; i++) {
+            int address = Integer.parseInt("2000", 16) + i;
+            try {
+                cpu.readMemory(address);
+            } catch (Exception e) {
+                fail("Read to address 0x" + address + " failed!");
+            }
+        }
+    }
+
+    @Test
+    void testReadMemoryPpuDma() {
+        try {
+            cpu.readMemory(Integer.parseInt("4014", 16));
+        } catch (Exception e) {
+            fail("Read to address 0x4014 failed!");
+        }
+    }
+
+    @Test
+    void testApuRead() {
+        // APU has not been implemented, so the CPU should return an empty address.
+        assertEquals(0, cpu.readMemory(Integer.parseInt("4000", 16)).getValue());
+        assertEquals(0, cpu.readMemory(Integer.parseInt("4013", 16)).getValue());
+        assertEquals(0, cpu.readMemory(Integer.parseInt("4015", 16)).getValue());
+        assertEquals(0, cpu.readMemory(Integer.parseInt("4018", 16)).getValue());
+        assertEquals(0, cpu.readMemory(Integer.parseInt("401F", 16)).getValue());
+    }
+
+    @Test
+    void testControllerRead() {
+        bus.setController(new StandardController());
+        try {
+            cpu.readMemory(Integer.parseInt("4016", 16));
+            cpu.readMemory(Integer.parseInt("4017", 16));
+        } catch (Exception e) {
+            fail("Read from Controller failed!");
         }
     }
 
@@ -186,6 +231,36 @@ public class CpuTest {
             cpu.writeMemory(address, 157 + i + Integer.parseInt("0800",16));
             assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
         }
+    }
+
+    @Test
+    void testWriteMemoryPPU() {
+        // Since PPU Writes will mainly be tested in PpuTest, I will only simply check that no exceptions are thrown.
+        for (int i = 0; i < 8; i++) {
+            int address = Integer.parseInt("2000", 16) + i;
+            try {
+                cpu.writeMemory(address, 0);
+            } catch (Exception e) {
+                fail("Write to address 0x" + address + " failed!");
+            }
+        }
+    }
+
+    @Test
+    void testWriteMemoryController() {
+        bus.setController(new StandardController());
+        Controller controller = bus.getController();
+        cpu.writeMemory(Integer.parseInt("4016", 16), 1);
+        assertEquals(true,  controller.getPolling());
+        cpu.writeMemory(Integer.parseInt("4016", 16), 0);
+        assertEquals(false, controller.getPolling());
+
+        // Controller 2 should not be connected yet, so writing to 0x4017 is useless.
+        // More importantly, it should not affect Controller 1's polling state.
+        cpu.writeMemory(Integer.parseInt("4017", 16), 1);
+        assertEquals(false, controller.getPolling());
+        cpu.writeMemory(Integer.parseInt("4017", 16), 0);
+        assertEquals(false, controller.getPolling());
     }
 
 
@@ -296,5 +371,53 @@ public class CpuTest {
         cpu.addBreakpoint(cpu.getRegisterPC());
         cpu.cycle();
         assertFalse(cpu.isEnabled());
+    }
+
+    @Test
+    void testHandleNMI() {
+        cpu.setRegisterPC(Integer.parseInt("0200", 16));
+        cpu.nmi = true;
+        cpu.cycle();
+        assertEquals(Integer.parseInt("AB25", 16), cpu.getRegisterPC().getValue());
+    }
+
+    @Test
+    void testHandleDMAOddCycles() {
+        // Force the cycles to be odd
+        if (cpu.getCycles() % 2 != 1) {
+            cpu.cycle();
+        }
+        assertTrue(cpu.getCycles() % 2 == 1);
+
+        // Test that the CPU is on hold for 513 cycles
+        cpu.setRegisterPC(Integer.parseInt("0200", 16));
+        cpu.writeMemory(Integer.parseInt("0200", 16), Integer.parseInt("A9", 16)); // LDA Immediate
+        cpu.writeMemory(Integer.parseInt("0201", 16), Integer.parseInt("02", 16)); // 2
+        cpu.setRegisterA(0); // If register A is set to two within the next 513 cycles, DMA has failed.
+        cpu.writeMemory(Integer.parseInt("4014", 16), 0); // Start DMA
+        for (int i = 0; i < 514; i++) {
+            cpu.cycle();
+            assertEquals(cpu.getRegisterA().getValue(), 0);
+        }
+    }
+
+    @Test
+    void testHandleDMAEvenCycles() {
+        // Force the cycles to be even
+        if (cpu.getCycles() % 2 != 0) {
+            cpu.cycle();
+        }
+        assertTrue(cpu.getCycles() % 2 == 0);
+
+        // Test that the CPU is on hold for 513 cycles
+        cpu.setRegisterPC(Integer.parseInt("0200", 16));
+        cpu.writeMemory(Integer.parseInt("0200", 16), Integer.parseInt("A9", 16)); // LDA Immediate
+        cpu.writeMemory(Integer.parseInt("0201", 16), Integer.parseInt("02", 16)); // 2
+        cpu.setRegisterA(0); // If register A is set to two within the next 513 cycles, DMA has failed.
+        cpu.writeMemory(Integer.parseInt("4014", 16), 0); // Start DMA
+        for (int i = 0; i < 513; i++) {
+            cpu.cycle();
+            assertEquals(cpu.getRegisterA().getValue(), 0);
+        }
     }
 }

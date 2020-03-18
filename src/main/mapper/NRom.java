@@ -13,7 +13,6 @@ import java.io.IOException;
 
 public class NRom extends Mapper {
     public static final int PRG_ROM_128_SIZE      = Integer.parseInt("4000", 16);
-    public static final int PRG_ROM_256_SIZE      = Integer.parseInt("8000", 16);
 
     public static final int INITIAL_PRG_RAM_STATE = Integer.parseInt("00",   16);
     public static final int PRG_RAM_SIZE          = Integer.parseInt("2000", 16);
@@ -81,27 +80,5 @@ public class NRom extends Mapper {
         } else {                                                         // PRG ROM. mirrored for NROM-128.
             throw new ArrayIndexOutOfBoundsException("Cannot write to a Read-Only Address!");
         }
-    }
-
-    // REQUIRES: index ranges from 0 to PRG_RAM_SIZE, inclusive
-    // EFFECTS: returns the PRG RAM
-    public Address getPrgRam(int index) {
-        return prgRam[index];
-    }
-
-    // REQUIRES: value ranges from 0x00 to 0xFF, inclusive
-    //           index ranges from 0 to PRG_RAM_SIZE, inclusive.
-    // MODIFIES: PRG RAM
-    // EFFECTS: sets the PRG RAM at the specified index to the specified value
-    public void setPrgRam(int index, int value) {
-        this.prgRam[index] = new Address(value);
-    }
-
-    // REQUIRES: value ranges from 0x00 to 0xFF, inclusive
-    //           index ranges from 0 to 16384 * x, inclusive.
-    // MODIFIES: PRG ROM
-    // EFFECTS: sets the PRG ROM at the specified index to the specified value
-    public void setPrgRom(int index, int value) {
-        this.prgRom[index] = new Address(value);
     }
 }

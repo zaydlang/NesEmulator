@@ -62,6 +62,10 @@ public class Pixels extends JPanel {
         pixels[x][y] = color;
     }
 
+    public Color getPixel(int i, int j) {
+        return pixels[i][j];
+    }
+
     public int getDisplayWidth() {
         return pixelWidth  * pixelsPerRow;
     }

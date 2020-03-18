@@ -99,7 +99,7 @@ public class ModeTest {
         argumentTwo  = Integer.parseInt("65", 16);
         fullArgument = cpu.readMemory(argumentOne + argumentTwo * 256);
         arguments    = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
-        assertTrue(Mode.runMode("ABSOLUTE", arguments, cpu) == fullArgument);
+        assertTrue(Mode.runMode("ABSOLUTE", arguments, cpu).getValue() == fullArgument.getValue());
     }
 
     @SuppressWarnings("PointlessArithmeticExpression")
@@ -114,7 +114,7 @@ public class ModeTest {
         Address expectedResult = cpu.readMemory(Integer.parseInt("60A9", 16));
 
         Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
-        assertTrue(Mode.runMode("INDIRECT", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("INDIRECT", arguments, cpu).getValue() == expectedResult.getValue());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class ModeTest {
         Address expectedResult = cpu.readMemory(Integer.parseInt("60A9", 16));
 
         Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
-        assertTrue(Mode.runMode("INDIRECT", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("INDIRECT", arguments, cpu).getValue()== expectedResult.getValue());
     }
 
     @Test
@@ -210,9 +210,6 @@ public class ModeTest {
         assertTrue(Mode.runMode("RELATIVE", arguments, cpu).getValue() == oldRegisterPC + argument);
     }
 
-    // TODO: there is an absolute indexed x that uses zero arguments, but as that instruction hasn't been fully
-    // TODO: implemented yet, i will write that test later. Same goes for absolute indexed y
-    // TODO: remove the separation of implementation and declaration maybe? ask in office hours.
     @Test
     void testAbsoluteIndexedXTwoArguments() {
         int argumentOne;
@@ -228,7 +225,7 @@ public class ModeTest {
         Address expectedResult = cpu.readMemory(registerX + fullArgument);
         Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
         cpu.setRegisterX(registerX);
-        assertTrue(Mode.runMode("ABSOLUTE_INDEXED_X", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("ABSOLUTE_INDEXED_X", arguments, cpu).getValue() == expectedResult.getValue());
     }
 
     @Test
@@ -246,7 +243,7 @@ public class ModeTest {
         Address expectedResult = cpu.readMemory(registerY + fullArgument);
         Address[] arguments = new Address[] {new Address(argumentOne), new Address(argumentTwo)};
         cpu.setRegisterY(registerY);
-        assertTrue(Mode.runMode("ABSOLUTE_INDEXED_Y", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("ABSOLUTE_INDEXED_Y", arguments, cpu).getValue() == expectedResult.getValue());
     }
 
     @Test
@@ -256,7 +253,7 @@ public class ModeTest {
         Address expectedResult = cpu.readMemory((registerX + argument) % Integer.parseInt("0100", 16));
         cpu.setRegisterX(registerX);
         Address[] arguments = new Address[] {new Address(argument)};
-        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_X", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_X", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 
     @Test
@@ -266,7 +263,7 @@ public class ModeTest {
         Address expectedResult = cpu.readMemory((registerX + argument) % Integer.parseInt("0100", 16));
         cpu.setRegisterX(registerX);
         Address[] arguments = new Address[] {new Address(argument)};
-        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_X", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_X", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 
     @Test
@@ -276,7 +273,7 @@ public class ModeTest {
         Address expectedResult = cpu.readMemory((registerY + argument) % Integer.parseInt("0100", 16));
         cpu.setRegisterY(registerY);
         Address[] arguments = new Address[] {new Address(argument)};
-        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_Y", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_Y", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 
     @Test
@@ -286,7 +283,7 @@ public class ModeTest {
         Address expectedResult = cpu.readMemory((registerY + argument) % Integer.parseInt("0100", 16));
         cpu.setRegisterY(registerY);
         Address[] arguments = new Address[] {new Address(argument)};
-        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_Y", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("ZERO_PAGE_INDEXED_Y", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 
     @Test
@@ -301,7 +298,7 @@ public class ModeTest {
         int fullPointer = cpu.readMemory(pointerOne).getValue() + cpu.readMemory(pointerTwo).getValue() * 256;
         Address expectedResult = cpu.readMemory(fullPointer);
 
-        assertTrue(Mode.runMode("INDEXED_INDIRECT", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("INDEXED_INDIRECT", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 
     @Test
@@ -316,7 +313,7 @@ public class ModeTest {
         int fullPointer = cpu.readMemory(pointerOne).getValue() + cpu.readMemory(pointerTwo).getValue() * 256;
         Address expectedResult = cpu.readMemory(fullPointer);
 
-        assertTrue(Mode.runMode("INDEXED_INDIRECT", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("INDEXED_INDIRECT", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 
     @Test
@@ -331,7 +328,7 @@ public class ModeTest {
         int fullPointer = (pointerOne + pointerTwo * 256 + cpu.getRegisterY().getValue());
         Address expectedResult = cpu.readMemory(fullPointer % Integer.parseInt("10000", 16));
 
-        assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 
     @Test
@@ -346,6 +343,6 @@ public class ModeTest {
         int fullPointer = (pointerOne + pointerTwo * 256 + cpu.getRegisterY().getValue());
         Address expectedResult = cpu.readMemory(fullPointer % Integer.parseInt("10000", 16));
 
-        assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu) == expectedResult);
+        assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 }

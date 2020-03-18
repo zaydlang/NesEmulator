@@ -15,40 +15,40 @@ import java.util.Scanner;
 
 public class PPU {
     // Constants
-    private static final int PATTERN_TABLE_SIZE        = Integer.parseInt("1000",          16);
-    private static final int NAMETABLE_SIZE            = Integer.parseInt("0400",          16);
-    private static final int PALETTE_RAM_SIZE          = Integer.parseInt("0020",          16);
-    private static final int OAM_SIZE                  = Integer.parseInt("0100",          16);
+    private static final int PATTERN_TABLE_SIZE = Integer.parseInt("1000", 16);
+    private static final int NAMETABLE_SIZE = Integer.parseInt("0400", 16);
+    private static final int PALETTE_RAM_SIZE = Integer.parseInt("0020", 16);
+    private static final int OAM_SIZE = Integer.parseInt("0100", 16);
 
-    private static final int PPUCTRL_ADDRESS           = Integer.parseInt("2000",          16);
-    private static final int PPUMASK_ADDRESS           = Integer.parseInt("2001",          16);
-    private static final int PPUSTATUS_ADDRESS         = Integer.parseInt("2002",          16);
-    private static final int OAMADDR_ADDRESS           = Integer.parseInt("2003",          16);
-    private static final int OAMDATA_ADDRESS           = Integer.parseInt("2004",          16);
-    private static final int PPUSCROLL_ADDRESS         = Integer.parseInt("2005",          16);
-    private static final int PPUADDR_ADDRESS           = Integer.parseInt("2006",          16);
-    private static final int PPUDATA_ADDRESS           = Integer.parseInt("2007",          16);
-    private static final int OAMDMA_ADDRESS            = Integer.parseInt("4014",          16);
+    private static final int PPUCTRL_ADDRESS = Integer.parseInt("2000", 16);
+    private static final int PPUMASK_ADDRESS = Integer.parseInt("2001", 16);
+    private static final int PPUSTATUS_ADDRESS = Integer.parseInt("2002", 16);
+    private static final int OAMADDR_ADDRESS = Integer.parseInt("2003", 16);
+    private static final int OAMDATA_ADDRESS = Integer.parseInt("2004", 16);
+    private static final int PPUSCROLL_ADDRESS = Integer.parseInt("2005", 16);
+    private static final int PPUADDR_ADDRESS = Integer.parseInt("2006", 16);
+    private static final int PPUDATA_ADDRESS = Integer.parseInt("2007", 16);
+    private static final int OAMDMA_ADDRESS = Integer.parseInt("4014", 16);
 
-    private static final int REGISTER_V_SIZE           = 15; // bits
-    private static final int REGISTER_T_SIZE           = 15; // bits
-    private static final int REGISTER_X_SIZE           = 3;  // bits
-    private static final int REGISTER_W_SIZE           = 1;  // bits
+    private static final int REGISTER_V_SIZE = 15; // bits
+    private static final int REGISTER_T_SIZE = 15; // bits
+    private static final int REGISTER_X_SIZE = 3;  // bits
+    private static final int REGISTER_W_SIZE = 1;  // bits
 
     private static final int SHIFT_REGISTER_SMALL_SIZE = 8;
     private static final int SHIFT_REGISTER_LARGE_SIZE = 16;
 
-    private static final int INITIAL_REGISTER_V        = Integer.parseInt("00000000000000", 2);
-    private static final int INITIAL_REGISTER_T        = Integer.parseInt("00000000000000", 2);
-    private static final int INITIAL_REGISTER_X        = Integer.parseInt("000",            2);
-    private static final int INITIAL_REGISTER_W        = Integer.parseInt("0",              2);
+    private static final int INITIAL_REGISTER_V = Integer.parseInt("00000000000000", 2);
+    private static final int INITIAL_REGISTER_T = Integer.parseInt("00000000000000", 2);
+    private static final int INITIAL_REGISTER_X = Integer.parseInt("000", 2);
+    private static final int INITIAL_REGISTER_W = Integer.parseInt("0", 2);
 
-    private static final int NUM_TILES                 = 64;
-    private static final int NUM_NAMETABLES            = 4;
-    private static final int NUM_PATTERNTABLES         = 2;
-    private static final int NUM_LATCHES               = 4;
-    private static final int NUM_CYCLES                = 341;
-    private static final int NUM_SCANLINES             = 261;
+    private static final int NUM_TILES = 64;
+    private static final int NUM_NAMETABLES = 4;
+    private static final int NUM_PATTERNTABLES = 2;
+    private static final int NUM_LATCHES = 4;
+    private static final int NUM_CYCLES = 341;
+    private static final int NUM_SCANLINES = 261;
 
     private Address latchNametable;
     private Address latchAttributeTable;
@@ -81,13 +81,13 @@ public class PPU {
     // private PatternTable[] patternTables;
     private Address[] nametable;
     private Mirroring nametableMirroring;
-    private PaletteRamIndexes paletteRamIndexes;
+    protected PaletteRamIndexes paletteRamIndexes;
     private Address[] primaryOam;
     private Address[] secondaryOam;
 
     // Cycling
-    private int cycle;
-    private int scanline;
+    protected int cycle;
+    protected int scanline;
     private int drawX;
     private int drawY;
     private boolean isOddFrame;
@@ -96,27 +96,27 @@ public class PPU {
     private Bus bus;
 
     public PPU(Bus bus) {
-        nametable             = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
-        paletteRamIndexes     = new PaletteRamIndexes();
-        primaryOam            = new Address[OAM_SIZE];
-        secondaryOam          = new Address[4 * 8];
-        sprites               = new Sprite[8];
+        nametable = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
+        paletteRamIndexes = new PaletteRamIndexes();
+        primaryOam = new Address[OAM_SIZE];
+        secondaryOam = new Address[4 * 8];
+        sprites = new Sprite[8];
 
-        shiftRegisterSmall0   = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
-        shiftRegisterSmall1   = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
-        shiftRegisterLarge0   = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
-        shiftRegisterLarge1   = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
+        shiftRegisterSmall0 = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
+        shiftRegisterSmall1 = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
+        shiftRegisterLarge0 = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
+        shiftRegisterLarge1 = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
 
-        this.bus              = bus;
+        this.bus = bus;
 
         reset();
     }
 
     public void reset() {
-        registerV     = new Address(INITIAL_REGISTER_V, 0, (int) Math.pow(2, REGISTER_V_SIZE) - 1);
-        registerT     = new Address(INITIAL_REGISTER_T, 0, (int) Math.pow(2, REGISTER_T_SIZE) - 1);
-        registerX     = new Address(INITIAL_REGISTER_X, 0, (int) Math.pow(2, REGISTER_X_SIZE) - 1);
-        registerW     = new Address(INITIAL_REGISTER_W, 0, (int) Math.pow(2, REGISTER_W_SIZE) - 1);
+        registerV = new Address(INITIAL_REGISTER_V, 0, (int) Math.pow(2, REGISTER_V_SIZE) - 1);
+        registerT = new Address(INITIAL_REGISTER_T, 0, (int) Math.pow(2, REGISTER_T_SIZE) - 1);
+        registerX = new Address(INITIAL_REGISTER_X, 0, (int) Math.pow(2, REGISTER_X_SIZE) - 1);
+        registerW = new Address(INITIAL_REGISTER_W, 0, (int) Math.pow(2, REGISTER_W_SIZE) - 1);
         ppuDataBuffer = new Address(0);
 
         shiftRegisterSmall0.setNthBits(0, 8, 0);
@@ -129,39 +129,42 @@ public class PPU {
         latchPatternTableLow  = new Address(0);
         latchPatternTableHigh = new Address(0);
 
-        cycle                 = 0;
-        scanline              = 0;
-        isOddFrame            = false;
+        cycle      = 0;
+        scanline   = 0;
+        isOddFrame = false;
 
-        for (int i = 0; i < nametable.length; i++) {
-            nametable[i] = new Address(0, Integer.parseInt("2000", 16) + i);
-        }
-
-        for (int i = 0; i < primaryOam.length; i++) {
-            primaryOam[i] = new Address(Integer.parseInt("FF", 16), i);
-        }
-
+        resetNametables();
+        resetPrimaryOam();
         resetSecondaryOam();
         resetSprites();
         setupInternalRegisters();
     }
 
-    private void setupInternalRegisters() {
-        ppuCtrl   = new Address(0, PPUCTRL_ADDRESS);
-        ppuMask   = new Address(0, PPUMASK_ADDRESS);
-        ppuStatus = new Address(0, PPUSTATUS_ADDRESS);
-        oamAddr   = new Address(0, OAMADDR_ADDRESS);
-        ppuScroll = new Address(0, PPUSCROLL_ADDRESS);
-        ppuData   = new Address(0, PPUDATA_ADDRESS);
+    private void resetNametables() {
+        for (int i = 0; i < nametable.length; i++) {
+            nametable[i] = new Address(0, Integer.parseInt("2000", 16) + i);
+        }
     }
 
+    private void resetPrimaryOam() {
+        for (int i = 0; i < primaryOam.length; i++) {
+            primaryOam[i] = new Address(Integer.parseInt("FF", 16), i);
+        }
+    }
 
-
+    private void setupInternalRegisters() {
+        ppuCtrl = new Address(0, PPUCTRL_ADDRESS);
+        ppuMask = new Address(0, PPUMASK_ADDRESS);
+        ppuStatus = new Address(0, PPUSTATUS_ADDRESS);
+        oamAddr = new Address(0, OAMADDR_ADDRESS);
+        ppuScroll = new Address(0, PPUSCROLL_ADDRESS);
+        ppuData = new Address(0, PPUDATA_ADDRESS);
+    }
 
 
     // Cycling
     public void cycle() {
-        if        (scanline <= -1  && Util.getNthBit(ppuMask.getValue(), 3) == 1) { // Pre-Render Scanlines
+        if (scanline <= -1 && Util.getNthBit(ppuMask.getValue(), 3) == 1) { // Pre-Render Scanlines
             runPreRenderScanline();
         } else if (scanline <= 239 && Util.getNthBit(ppuMask.getValue(), 3) == 1) { // Visible Scanlines
             runVisibleScanline();
@@ -183,7 +186,7 @@ public class PPU {
     }
 
     private void runVisibleScanline() {
-        if        (cycle <= 0) {   // Idle Cycle
+        if (cycle <= 0) {   // Idle Cycle
             drawX = 0;
         } else if (cycle <= 256) { // Memory fetches for current scanline
             runVisibleScanlineSpriteEvaluationCycles();
@@ -200,7 +203,7 @@ public class PPU {
 
     private void runVisibleScanlineSpriteEvaluationCycles() {
         // https://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
-        if        (cycle == 1) {
+        if (cycle == 1) {
             resetSecondaryOam();
         } else if (cycle == 65) {
             evaluateSprites();
@@ -219,7 +222,7 @@ public class PPU {
         }
     }
 
-    private void evaluateSprites() {
+    protected void evaluateSprites() {
         // https://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
         int secondaryOamIndex = 0;
         for (int i = 0; i < 64; i++) { // Loop through all the sprites
@@ -243,21 +246,18 @@ public class PPU {
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
 
         for (int i = 0; i < 8; i++) {
-            int spriteY             = secondaryOam[i * 4 + 0].getValue();
+            int spriteY = secondaryOam[i * 4 + 0].getValue();
             if (spriteY >= Integer.parseInt("EF", 16)) { // TODO: >= or >?
                 continue;
             }
 
             int patternTableAddress = secondaryOam[i * 4 + 1].getValue();
-            int attribute           = (secondaryOam[i * 4 + 2].getValue() & Integer.parseInt("00000011", 2)) + 4;
-            int spriteX             = secondaryOam[i * 4 + 3].getValue();
-            int fineY               = drawY - spriteY;
-            int priority            = Util.getNthBit(secondaryOam[i * 4 + 2].getValue(), 5);
+            int attribute = (secondaryOam[i * 4 + 2].getValue() & Integer.parseInt("00000011", 2)) + 4;
+            int spriteX = secondaryOam[i * 4 + 3].getValue();
+            int fineY = drawY - spriteY;
+            int priority = Util.getNthBit(secondaryOam[i * 4 + 2].getValue(), 5);
 
-            if (patternTableAddress >= Integer.parseInt("A2", 16)) { // TODO: >= or >?
-                int x = 2;
-            }
-            int patternTableLow  = Util.reverse(getTileLow(offset + patternTableAddress)[fineY].getValue(), 8);
+            int patternTableLow = Util.reverse(getTileLow(offset + patternTableAddress)[fineY].getValue(), 8);
             int patternTableHigh = Util.reverse(getTileHigh(offset + patternTableAddress)[fineY].getValue(), 8);
             sprites[i] = new Sprite(patternTableLow, patternTableHigh, attribute, spriteX, priority);
         }
@@ -302,8 +302,8 @@ public class PPU {
 
     @SuppressWarnings("PointlessArithmeticExpression")
     private void fetchAttributeTableByte() {
-        int coarseX          = (registerV.getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
-        int coarseY          = (registerV.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
+        int coarseX = (registerV.getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
+        int coarseY = (registerV.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
         int nametableAddress = (registerV.getValue() & Integer.parseInt("000110000000000", 2)) >> 10;
 
         int offset = nametableAddress * NAMETABLE_SIZE + Integer.parseInt("03C0", 16);
@@ -312,7 +312,7 @@ public class PPU {
 
     private void fetchPatternTableLowByte() {
         int address = latchNametable.getValue();
-        int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
+        int fineY = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
         int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 4);
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
@@ -322,7 +322,7 @@ public class PPU {
 
     private void fetchPatternTableHighByte() {
         int address = latchNametable.getValue();
-        int fineY   = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
+        int fineY = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
 
         int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 4);
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
@@ -335,11 +335,11 @@ public class PPU {
     private void loadShiftRegisters() {
         int coarseX1 = Util.getNthBit(registerV.getValue(), 1);
         int coarseY1 = Util.getNthBit(registerV.getValue(), 6);
-        int attributeTableLow  = Util.getNthBit(latchAttributeTable.getValue(), ((coarseY1 * 2 + coarseX1) << 1) + 0);
+        int attributeTableLow = Util.getNthBit(latchAttributeTable.getValue(), ((coarseY1 * 2 + coarseX1) << 1) + 0);
         int attributeTableHigh = Util.getNthBit(latchAttributeTable.getValue(), ((coarseY1 * 2 + coarseX1) << 1) + 1);
 
-        shiftRegisterSmall0.setNthBits(0, 8,  attributeTableLow  == 1 ? 255 : 0);
-        shiftRegisterSmall1.setNthBits(0, 8,  attributeTableHigh == 1 ? 255 : 0);
+        shiftRegisterSmall0.setNthBits(0, 8, attributeTableLow == 1 ? 255 : 0);
+        shiftRegisterSmall1.setNthBits(0, 8, attributeTableHigh == 1 ? 255 : 0);
         shiftRegisterLarge0.setNthBits(8, 16, latchPatternTableLow.getValue());
         shiftRegisterLarge1.setNthBits(8, 16, latchPatternTableHigh.getValue());
     }
@@ -362,7 +362,7 @@ public class PPU {
         }
     }
 
-    private void incrementCoarseX() {
+    protected void incrementCoarseX() {
         int newCoarseX = ((registerV.getValue() & Integer.parseInt("000000000011111", 2)) >> 0) + 1;
         if (newCoarseX >= Math.pow(2, 5)) {
             newCoarseX = 0;
@@ -371,7 +371,7 @@ public class PPU {
         registerV.setValue(Util.maskNthBits(newCoarseX, registerV.getValue(), 0, 0, 5));
     }
 
-    private void incrementCoarseY() {
+    protected void incrementCoarseY() {
         int newCoarseY = ((registerV.getValue() & Integer.parseInt("000001111100000", 2)) >> 5) + 1;
         if (newCoarseY >= Math.pow(2, 5)) {
             newCoarseY = 0;
@@ -381,11 +381,11 @@ public class PPU {
     }
 
     private void renderShiftRegisters() {
-        int fineX    = registerX.getValue();
-        int bitOne   = Util.getNthBit(shiftRegisterSmall0.getValue(), fineX);
-        int bitTwo   = Util.getNthBit(shiftRegisterSmall1.getValue(), fineX);
+        int fineX = registerX.getValue();
+        int bitOne = Util.getNthBit(shiftRegisterSmall0.getValue(), fineX);
+        int bitTwo = Util.getNthBit(shiftRegisterSmall1.getValue(), fineX);
         int bitThree = Util.getNthBit(shiftRegisterLarge0.getValue(), fineX);
-        int bitFour  = Util.getNthBit(shiftRegisterLarge1.getValue(), fineX);
+        int bitFour = Util.getNthBit(shiftRegisterLarge1.getValue(), fineX);
         int fullByte = bitOne * 4 + bitTwo * 8 + bitThree * 1 + bitFour * 2;
 
         Color color = getColor(getColorAddressUsingPriority(fullByte));
@@ -403,9 +403,9 @@ public class PPU {
         for (int i = 0; i < 8; i++) {
             if (sprites[i].isActive()) {
                 int spriteFullByte = sprites[i].getNextColorAddressAsInt();
-                int priority       = sprites[i].getPriority();
-                int bgPixelLow     = backgroundFullByte & Integer.parseInt("0011", 2);
-                int spritePixelLow = spriteFullByte     & Integer.parseInt("0011", 2);
+                int priority = sprites[i].getPriority();
+                int bgPixelLow = backgroundFullByte & Integer.parseInt("0011", 2);
+                int spritePixelLow = spriteFullByte & Integer.parseInt("0011", 2);
 
                 if (priority == 0 || bgPixelLow == 0) {
                     returnByte = spriteFullByte;
@@ -480,12 +480,12 @@ public class PPU {
             ppuStatus.setValue(ppuStatus.getValue() & Integer.parseInt("01111111", 2));
         }
 
-        if        (258 <= cycle && cycle <= 320) {
-            if    (280 <= cycle && cycle <= 304) { // Restore the CoarseY and FineY
+        if (258 <= cycle && cycle <= 320) {
+            if (280 <= cycle && cycle <= 304) { // Restore the CoarseY and FineY
                 int newFineY = (registerT.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
                 int newCoarseY = (registerT.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
-                registerV.setValue(Util.maskNthBits(newFineY,   registerV.getValue(), 0, 12, 3));
-                registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5,  5));
+                registerV.setValue(Util.maskNthBits(newFineY, registerV.getValue(), 0, 12, 3));
+                registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5, 5));
             }
             oamAddr.setValue(0);
         } else if (321 <= cycle && cycle <= 336) { // Fetches for next scanline
@@ -494,13 +494,8 @@ public class PPU {
     }
 
 
-
-
-
-
-
     public void writeRegister(int pointer, int value) {
-        if        (pointer == PPUCTRL_ADDRESS) {
+        if (pointer == PPUCTRL_ADDRESS) {
             setPpuCtrl(value);
         } else if (pointer == PPUMASK_ADDRESS) {
             setPpuMask(value);
@@ -548,7 +543,7 @@ public class PPU {
             registerX.setValue(value & Integer.parseInt("00000111", 2));
         } else {                         // Second Write
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 12, 3));
-            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 5,  5));
+            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 5, 5));
             // TODO:
         }
 
@@ -558,11 +553,11 @@ public class PPU {
     private void setPpuAddr(int value) {
         if (registerW.getValue() == 0) { // First Write
             // ppuAddr.setValue(Util.maskNthBits(value, ppuAddr.getValue(), 0, 8, 6));
-            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 8,  6));
+            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 8, 6));
             registerT.setValue(Util.maskNthBits(0, registerT.getValue(), 0, 14, 1));
         } else {                         // Second Write
             // ppuAddr.setValue(Util.maskNthBits(value, ppuAddr.getValue(), 0, 0, 8));
-            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 0,  8));
+            registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 0, 8));
             registerV.setValue(registerT.getValue());
         }
 
@@ -580,7 +575,7 @@ public class PPU {
     }
 
     public Address readRegister(int pointer) {
-        if        (pointer == PPUCTRL_ADDRESS) {
+        if (pointer == PPUCTRL_ADDRESS) {
             return getPpuCtrl();
         } else if (pointer == PPUMASK_ADDRESS) {
             return getPpuMask();
@@ -617,10 +612,6 @@ public class PPU {
 
         ppuStatus.setValue(ppuStatus.getValue() & Integer.parseInt("01111111"));
         return new Address(value1 | value2);
-    }
-
-    private Address getOamAddr() {
-        return oamAddr;
     }
 
     private Address getOamData() {
@@ -664,7 +655,7 @@ public class PPU {
         // $3F00 - $3F1F | $0008 | Palette RAM indexes
         // $3F20 - $3FFF | $BFE0 | Mirrors of $3F00-$3F1F
 
-        if        (pointer <= Integer.parseInt("1FFF", 16)) {
+        if (pointer <= Integer.parseInt("1FFF", 16)) {
             return bus.mapperReadPpu(pointer);
         } else if (pointer <= Integer.parseInt("2FFF", 16)) {
             return readNametable(pointer - Integer.parseInt("2000", 16));
@@ -675,7 +666,7 @@ public class PPU {
         }
     }
 
-    private void writeMemory(int pointer, int value) {
+    protected void writeMemory(int pointer, int value) {
         // https://wiki.nesdev.com/w/index.php/PPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
         // $0000 - $0FFF | $1000 | Pattern Table 0
@@ -688,7 +679,7 @@ public class PPU {
         // $3F00 - $3F1F | $0008 | Palette RAM indexes
         // $3F20 - $3FFF | $BFE0 | Mirrors of $3F00-$3F1F
 
-        if        (pointer <= Integer.parseInt("0FFF", 16)) {
+        if (pointer <= Integer.parseInt("0FFF", 16)) {
             // patternTables[0].writeMemory(pointer, value);
         } else if (pointer <= Integer.parseInt("1FFF", 16)) {
             // patternTables[1].writeMemory(pointer - Integer.parseInt("1000", 16), value);
@@ -706,22 +697,12 @@ public class PPU {
     }
 
 
-
-
-
-
-
-
-
-
-
-
     // Getters and Setters
     public void setNametableMirroring(Mirroring nametableMirroring) {
         this.nametableMirroring = nametableMirroring;
     }
 
-    public Address readNametable(int pointer) {
+    protected Address readNametable(int pointer) {
         int rawPointer = pointer;
         switch (nametableMirroring) {
             case HORIZONTAL:
@@ -736,7 +717,7 @@ public class PPU {
         return nametable[pointer];
     }
 
-    public void writeNametable(int pointer, int value) {
+    protected void writeNametable(int pointer, int value) {
         int rawPointer = pointer;
         switch (nametableMirroring) {
             case HORIZONTAL:
@@ -751,30 +732,9 @@ public class PPU {
         nametable[pointer].setValue(value);
     }
 
-    public Pixels getPixels() {
-        return pixels;
-    }
-
-
-
-    public void testcycle() {
-        cycle++;
-        if (cycle == 340) {
-            cycle = 0;
-            scanline++;
-        }
-        if (scanline == 260) {
-            scanline = 0;
-        }
-
-        if (cycle == 1) {
-            bus.setNmi(true);
-        }
-    }
-
 
     public void renderPatternTables(Pixels pixels, int basePalette) {
-        renderPatternTable(pixels, 0, 0,   0, basePalette);
+        renderPatternTable(pixels, 0, 0, 0, basePalette);
         renderPatternTable(pixels, 1, 128, 0, basePalette);
     }
 
@@ -783,11 +743,11 @@ public class PPU {
 
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                Address[] low  = getTileLow(offset + i + j * 16);
+                Address[] low = getTileLow(offset + i + j * 16);
                 Address[] high = getTileHigh(offset + i + j * 16);
                 for (int k = 0; k < 8; k++) {
                     for (int l = 0; l < 8; l++) {
-                        int formattedLow  = Util.getNthBit(low[l].getValue(),  7 - k);
+                        int formattedLow = Util.getNthBit(low[l].getValue(), 7 - k);
                         int formattedHigh = Util.getNthBit(high[l].getValue(), 7 - k);
                         int palette = formattedLow + formattedHigh * 2 + basePalette * 4;
                         Color color = getColor(palette);
@@ -806,13 +766,13 @@ public class PPU {
             for (int j = 0; j < 2; j++) {
                 for (int k = 0; k < 32; k++) {
                     for (int l = 0; l < 30; l++) {
-                        int address  = readNametable(((2 * i + j) << 10) + (l << 5) + (k << 0)).getValue();
-                        Address[] low  = getTileLow(offset + address);
+                        int address = readNametable(((2 * i + j) << 10) + (l << 5) + (k << 0)).getValue();
+                        Address[] low = getTileLow(offset + address);
                         Address[] high = getTileHigh(offset + address);
 
                         for (int m = 0; m < 8; m++) {
                             for (int n = 0; n < 8; n++) {
-                                int formattedLow  = Util.getNthBit(low[n].getValue(),  7 - m);
+                                int formattedLow = Util.getNthBit(low[n].getValue(), 7 - m);
                                 int formattedHigh = Util.getNthBit(high[n].getValue(), 7 - m);
                                 int palette = formattedLow + formattedHigh * 2 + basePalette * 4;
                                 Color color = getColor(palette);
@@ -832,7 +792,7 @@ public class PPU {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 int attribute = (primaryOam[i * 4 + 2].getValue() & Integer.parseInt("00000011", 2)) + 4;
-                int address   = primaryOam[i * 4 * 8 + j * 4 + 1].getValue();
+                int address = primaryOam[i * 4 * 8 + j * 4 + 1].getValue();
                 Address[] low = getTileLow(offset + address);
                 Address[] high = getTileHigh(offset + address);
                 for (int k = 0; k < 8; k++) {
@@ -852,8 +812,8 @@ public class PPU {
         }
     }
 
-    public Address[] getTileLow(int pointer) {
-        int offset  = pointer << 4;
+    private Address[] getTileLow(int pointer) {
+        int offset = pointer << 4;
 
         Address[] tileLow = new Address[8];
         for (int i = 0; i < 8; i++) {
@@ -862,19 +822,15 @@ public class PPU {
         return tileLow;
     }
 
-    public Address[] getTileHigh(int pointer) {
-        int tile    = pointer;
-        int offset  = pointer << 4;
+    private Address[] getTileHigh(int pointer) {
+        int tile = pointer;
+        int offset = pointer << 4;
 
         Address[] tileHigh = new Address[8];
         for (int i = 8; i < 16; i++) {
             tileHigh[i - 8] = readMemory(offset + i);
         }
         return tileHigh;
-    }
-
-    public int getCycles() {
-        return cycle;
     }
 
     public void setPixels(Pixels pixels) {
@@ -884,5 +840,37 @@ public class PPU {
     public void writeOam(int value) {
         primaryOam[oamAddr.getValue()].setValue(value);
         oamAddr.setValue(oamAddr.getValue() + 1);
+    }
+
+    protected void setRegisterT(int value) {
+        registerT.setValue(value);
+    }
+
+    protected void setRegisterV(int value) {
+        registerV.setValue(value);
+    }
+
+    protected void setRegisterX(int value) {
+        registerX.setValue(value);
+    }
+
+    protected void setRegisterW(int value) {
+        registerW.setValue(value);
+    }
+
+    protected Address getRegisterT() {
+        return registerT;
+    }
+
+    protected Address getRegisterV() {
+        return registerV;
+    }
+
+    protected Address getRegisterX() {
+        return registerX;
+    }
+
+    protected Address getRegisterW() {
+        return registerW;
     }
 }

@@ -61,4 +61,6 @@ public abstract class Controller {
     public abstract Address poll();
 
     public abstract void setPolling(boolean isPolling);
+
+    public abstract boolean getPolling();
 }

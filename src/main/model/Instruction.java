@@ -29,6 +29,11 @@ public class Instruction {
         return mode;
     }
 
+    @Override
+    public String toString() {
+        return opcode + " " + mode;
+    }
+
     // EFFECTS: returns the number of bytes
     public int getNumArguments() {
         return numArguments;

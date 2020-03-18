@@ -2,6 +2,7 @@ package model;
 
 import org.junit.jupiter.api.Test;
 import model.Util;
+import org.junit.jupiter.api.TestTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,5 +60,12 @@ public class UtilTest {
     @Test
     void testGetSignNegative() {
         assertEquals(Util.getSign(240), -1);
+    }
+
+    @Test
+    void testReverse() {
+        int original = Integer.parseInt("1010111001001", 2);
+        int expected = Integer.parseInt("1001001110101", 2);
+        assertEquals(Util.reverse(original, 13), expected);
     }
 }

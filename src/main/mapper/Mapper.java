@@ -17,18 +17,9 @@ public abstract class Mapper {
         this.chrRom    = chrRom;
     }
 
-    public Address readMemoryCpu(int address) {
-        return new Address(0);
-    }
-    public Address readMemoryPpu(int address) {
-        return new Address(0);
-    }
+    public abstract Address readMemoryCpu(int address);
 
-    public void writeMemory(int address, int value) {
-        return;
-    }
+    public abstract Address readMemoryPpu(int address);
 
-    public Address readChrRom(int address) {
-        return new Address(0);
-    }
+    public abstract void    writeMemory(int address, int value);
 }

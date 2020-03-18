@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class ColorPalette {
     public static Color getColor(int color) {
-        return colorPalette[color % colorPalette.length];
+        return colorPalette[color];
     }
 
     private static Color[] colorPalette = new Color[]{

@@ -3,19 +3,26 @@ package model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-/*
 @SuppressWarnings("SimplifiableJUnitAssertion")
 class OpcodeTest {
+    Bus bus;
     CPU cpu;
 
     @BeforeEach
     void runBefore() {
-        cpu = new CPU();
+        try {
+            bus = new Bus();
+            cpu = bus.getCpu();
+            bus.loadCartridge(new File("./data/test/TestLoadRomTrainerPresent.nes"));
+        } catch (IOException e) {
+            fail("Bus could not load cartridge!");
+        }
     }
 
     @Test
@@ -316,12 +323,6 @@ class OpcodeTest {
 
     @Test
     void testBrk() {
-        try {
-            cpu.loadCartridge("test/TestLoadRomTrainerPresent.nes");
-        } catch (IOException e) {
-            fail();
-        }
-
         cpu.setStatus(190);
         cpu.setRegisterPC(23 * 256 + 47);
         Opcode.runOpcode("BRK", new Address(0), cpu);
@@ -746,12 +747,13 @@ class OpcodeTest {
 
     @Test
     void testJsr() {
+        int oldRegisterPC = cpu.getRegisterPC().getValue();
         Opcode.runOpcode("JSR", new Address(0,CPU.INITIAL_REGISTER_PC + 234), cpu);
         assertTrue(cpu.getRegisterPC().getValue() == CPU.INITIAL_REGISTER_PC + 234);
 
         int byteOne = cpu.pullStack().getValue();
         int byteTwo = cpu.pullStack().getValue();
-        assertTrue(byteOne + byteTwo * 256 == CPU.INITIAL_REGISTER_PC - 1);
+        assertEquals(byteOne + byteTwo * 256, oldRegisterPC - 1);
     }
 
     @Test
@@ -895,7 +897,6 @@ class OpcodeTest {
         assertTrue(cpu.getRegisterA().getValue()  == CPU.INITIAL_REGISTER_A);
         assertTrue(cpu.getRegisterX().getValue()  == CPU.INITIAL_REGISTER_X);
         assertTrue(cpu.getRegisterY().getValue()  == CPU.INITIAL_REGISTER_Y);
-        assertTrue(cpu.getRegisterPC().getValue() == CPU.INITIAL_REGISTER_PC);
         assertTrue(cpu.getRegisterS().getValue()  == CPU.INITIAL_REGISTER_S);
         assertTrue(cpu.getCycles()     == CPU.INITIAL_CYCLES);
 
@@ -1509,4 +1510,4 @@ class OpcodeTest {
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 1));
     }
-}*/
+}

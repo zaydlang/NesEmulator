@@ -162,20 +162,19 @@ public class CPU {
     }
 
     private void handleDMA() {
+        System.out.println(dmaIndex);
         if (dmaIndex == 0) {
             if (cycle % 2 == 0) {
                 dmaIndex++;
             }
-            return;
         } else {
-            if (dmaIndex == 513) {
-                dma = false;
-                return;
-            }
-
             if (dmaIndex % 2 == 0) {
                 int value = readMemory((dmaPage << 8) + (dmaIndex - 1) / 2).getValue();
                 bus.ppuDma(value);
+                if (dmaIndex == 512) {
+                    dma = false;
+                    return;
+                }
             }
             dmaIndex++;
         }
@@ -204,26 +203,13 @@ public class CPU {
 
         registerPC.setValue(registerPC.getValue() + instruction.getNumArguments() + 1);
 
-        //System.out.println(preStatus);
-        String log = registerPC.toString() + " " + (bus.getPpu().ppuStatus.getValue() + " " + bus.getPpu().ppuData.getValue());
+        System.out.println(preStatus);
+        System.out.println(instruction.toString());
         Address opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
         Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
         //incrementCycles(instruction.getNumCycles());
 
-        try {
-            //System.out.println(log);
-            //loggingOutput.log(log);
-        } catch (NullPointerException e) {
-            // Do nothing
-        }
-
         //incrementCyclesRemaining(instruction.getNumCycles());
-    }
-
-    private void resetCyclesRemaining() {
-        Address valueAtProgramCounter = readMemory(registerPC.getValue());
-        Instruction instruction = Instruction.getInstructions()[valueAtProgramCounter.getValue()];
-        cyclesRemaining = instruction.getNumCycles();
     }
 
     private void handleNMI() {
