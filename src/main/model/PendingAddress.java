@@ -2,7 +2,7 @@ package model;
 
 public class PendingAddress extends Address {
     public interface PendingAddressValue {
-         Address run();
+        Address run();
     }
 
     private PendingAddressValue pendingAddressValue;

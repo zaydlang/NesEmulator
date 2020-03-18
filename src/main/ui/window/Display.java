@@ -76,7 +76,7 @@ public class Display extends PixelWindow implements KeyListener {
         }
     });
 
-    JMenuItem viewCPUViewer      = new JMenuItem(new AbstractAction("CPU Viewer") {
+    JMenuItem viewCpuViewer      = new JMenuItem(new AbstractAction("CPU Viewer") {
         @Override
         public void actionPerformed(ActionEvent e) {
             cpuViewer = new CpuViewer(bus);
@@ -95,7 +95,7 @@ public class Display extends PixelWindow implements KeyListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             bus.setEnabled(!bus.getEnabled());
-            viewCPUViewer.setEnabled(!bus.getEnabled());
+            viewCpuViewer.setEnabled(!bus.getEnabled());
 
             if (bus.getEnabled()) {
                 pauseButton.setIcon(ICON_PAUSE);
@@ -142,8 +142,8 @@ public class Display extends PixelWindow implements KeyListener {
         file.add(new JMenuItem("Reload State"));
 
         JMenu view = new JMenu("View");
-        viewCPUViewer.setEnabled(false);
-        view.add(viewCPUViewer);
+        viewCpuViewer.setEnabled(false);
+        view.add(viewCpuViewer);
         view.add(viewPatternTables);
         view.add(viewNameTables);
         view.add(viewOAM);

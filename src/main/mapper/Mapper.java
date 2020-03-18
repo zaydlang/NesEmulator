@@ -1,10 +1,6 @@
 package mapper;
 
 import model.Address;
-import ppu.Mirroring;
-
-import java.io.FileInputStream;
-import java.io.IOException;
 
 public abstract class Mapper {
     protected Address[] prgRom;
