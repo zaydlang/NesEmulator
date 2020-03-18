@@ -125,11 +125,7 @@ public class Display extends PixelWindow implements KeyListener {
             @Override
             public void run() {
                 for (int i = 0; i < CYCLES_PER_FRAME; i++) {
-                    try {
-                        bus.cycle();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    bus.cycle();
                 }
             }
         };
