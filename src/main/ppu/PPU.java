@@ -66,24 +66,21 @@ public class PPU {
     private ShiftRegister shiftRegisterLarge0;
     private ShiftRegister shiftRegisterLarge1;
 
-    private Sprite[] sprites;
-
     private Address ppuCtrl;
     private Address ppuMask;
     public Address ppuStatus;
     private Address oamAddr;
     private Address ppuScroll;
     public Address ppuData;
-
     private Address ppuDataBuffer;
 
     // Memory
-    // private PatternTable[] patternTables;
     private Address[] nametable;
     private Mirroring nametableMirroring;
     protected PaletteRamIndexes paletteRamIndexes;
     private Address[] primaryOam;
     private Address[] secondaryOam;
+    private Sprite[] sprites;
 
     // Cycling
     protected int cycle;
@@ -858,19 +855,35 @@ public class PPU {
         registerW.setValue(value);
     }
 
-    protected Address getRegisterT() {
+    public Address getRegisterT() {
         return registerT;
     }
 
-    protected Address getRegisterV() {
+    public Address getRegisterV() {
         return registerV;
     }
 
-    protected Address getRegisterX() {
+    public Address getRegisterX() {
         return registerX;
     }
 
-    protected Address getRegisterW() {
+    public Address getRegisterW() {
         return registerW;
+    }
+
+    public Address getLatchNametable() {
+        return latchNametable;
+    }
+
+    public Address getLatchAttributeTable() {
+        return latchAttributeTable;
+    }
+
+    public Address getLatchPatternTableLow() {
+        return latchPatternTableLow;
+    }
+
+    public Address getLatchPatternTableHigh() {
+        return latchPatternTableHigh;
     }
 }

@@ -17,7 +17,7 @@ public class NRom extends Mapper {
     // EFFECTS: initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
     // fills the prgRam with the initial state.
     public NRom(Address[] prgRom, Address[] chrRom) {
-        super(prgRom, chrRom);
+        super(prgRom, chrRom, 000);
 
         prgRam  = new Address[PRG_RAM_SIZE];
         for (int i = 0; i < PRG_RAM_SIZE; i++) {
@@ -75,5 +75,20 @@ public class NRom extends Mapper {
         } else {                                                         // PRG ROM. mirrored for NROM-128.
             throw new ArrayIndexOutOfBoundsException("Cannot write to a Read-Only Address!");
         }
+    }
+
+    @Override
+    public String serialize(String delimiter) {
+        StringBuilder output = new StringBuilder();
+        for (Address address : prgRom) {
+            output.append(address.serialize(delimiter));
+        }
+        for (Address address : prgRam) {
+            output.append(address.serialize(delimiter));
+        }
+        for (Address address : chrRom) {
+            output.append(address.serialize(delimiter));
+        }
+        return output.toString();
     }
 }

@@ -269,7 +269,7 @@ public class CPU {
     //          $4000 - $4017 | $0018 | NES APU and I/O registers
     //          $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
     //          $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
-    protected Address readMemory(int pointer) {
+    public Address readMemory(int pointer) {
 
         if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
             return ram[pointer % Integer.parseInt("0800",16)];
@@ -603,5 +603,9 @@ public class CPU {
 
     public void setLoggingOutput(CpuOutput cpuOutput) {
         this.loggingOutput = cpuOutput;
+    }
+
+    public ArrayList<Address> getBreakpoints() {
+        return breakpoints;
     }
 }

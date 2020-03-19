@@ -39,4 +39,8 @@ public class ShiftRegister {
     public int getValue() {
         return value;
     }
+
+    public String serialize(String delimiter) {
+
+    }
 }

@@ -93,4 +93,9 @@ public class Address {
     public Address getReference() {
         return this;
     }
+
+    // EFFECTS: returns a string version of the Address of the format: value + delimiter + pointer + delimiter.
+    public String serialize(String delimiter) {
+        return value + delimiter + pointer + delimiter;
+    }
 }
