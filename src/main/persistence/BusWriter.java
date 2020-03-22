@@ -154,17 +154,20 @@ public class BusWriter {
 
     private static void writePpuPaletteRamIndexes(PPU ppu, FileWriter fileWriter) throws IOException {
         fileWriter.write(ppu.getPaletteRamIndexes().getIndexes().length + "");
+        fileWriter.write(DELIMITER);
         for (Address address : ppu.getPaletteRamIndexes().getIndexes()) {
             writeSerializable(address, fileWriter);
         }
     }
 
     private static void writePpuOam(PPU ppu, FileWriter fileWriter) throws IOException {
-        fileWriter.write(ppu.getPrimaryOam().length);
+        fileWriter.write(ppu.getPrimaryOam().length + "");
+        fileWriter.write(DELIMITER);
         for (Address address : ppu.getPrimaryOam()) {
             writeSerializable(address, fileWriter);
         }
-        fileWriter.write(ppu.getSecondaryOam().length);
+        fileWriter.write(ppu.getSecondaryOam().length + "");
+        fileWriter.write(DELIMITER);
         for (Address address : ppu.getSecondaryOam()) {
             writeSerializable(address, fileWriter);
         }
