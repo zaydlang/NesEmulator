@@ -2,7 +2,7 @@ package model;
 
 // Class Address:
 //     Address is a wrapper class for Integer. It's also a wrapper class in a more literal, punny sense, in that it
-//     wraps the integer between a given lowest value and highest value.
+//     wraps the integer between the given lowest value and highest value.
 
 import persistence.BusSerializable;
 
