@@ -102,7 +102,6 @@ public class BusReaderTest {
     @Test
     void testPpuInternalRegisters() {
         assertAddressEquality(expectedPpu.getRegisterT(), actualPpu.getRegisterT());
-        assertAddressEquality(expectedPpu.getRegisterV(), actualPpu.getRegisterV());
         assertAddressEquality(expectedPpu.getRegisterX(), actualPpu.getRegisterX());
         assertAddressEquality(expectedPpu.getRegisterW(), actualPpu.getRegisterW());
     }
