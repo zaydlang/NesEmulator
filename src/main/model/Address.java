@@ -63,7 +63,8 @@ public class Address implements BusSerializable {
     @Override
     public String toString() {
         StringBuilder rawValue = new StringBuilder(Integer.toHexString(getValue()).toUpperCase());
-        int length = (int) Math.floor(Math.log(highestValue - lowestValue + 1) / Math.log(16));
+        int length = (int) Math.floor(Math.log(highestValue - lowestValue + 1
+        ) / Math.log(16));
 
         while (rawValue.length() < length) {
             rawValue.insert(0, "0");
@@ -72,15 +73,12 @@ public class Address implements BusSerializable {
         return rawValue.toString();
     }
 
-    // EFFECTS: returns a string version of the Address of the format: value + delimiter + pointer + delimiter.
-    public String serialize(String delimiter) {
-        return value + delimiter + pointer + delimiter;
-    }
-
+    // EFFECTS: returns the value.
     public Integer getValue() {
         return value;
     }
 
+    // EFFECTS: returns the pointer.
     public int getPointer() {
         return pointer;
     }
