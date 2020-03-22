@@ -24,4 +24,35 @@ public final class Util {
             return (value <= 127) ? 1 : -1;
         }
     }
+
+    // REQUIRES: value >= 2^(n+len)
+    // EFFECTS: returns the bits from value[n] to value[n + len]
+    public static int getNthBits(int value, int n, int len) {
+        return (value >> n) & (int) (Math.pow(2, len) - 1);
+    }
+
+    // EFFECTS: masks the bits from value[valueOffset] to value[valueOffset + len] to the values from
+    //          fullMask[maskOffset] to fullMask[maskOffset + len]
+    public static int maskNthBits(int fullMask, int value, int maskOffset, int valueOffset, int len) {
+        for (int i = 0; i < len; i++) {
+            int maskBit = getNthBit(fullMask, maskOffset + i);
+            if (maskBit == 0) {
+                value &= ~(1 << valueOffset + i);
+            } else {
+                value |= 1 << (valueOffset + i);
+            }
+        }
+
+        return value;
+    }
+
+    // EFFECTS: reverses the bits[0:numBits] in value and returns the reversal
+    public static int reverse(Integer value, int numBits) {
+        int newValue = 0;
+        for (int i = 0; i < numBits; i++) {
+            newValue += Util.getNthBit(value, i) * Math.pow(2, numBits - i - 1);
+        }
+
+        return newValue;
+    }
 }

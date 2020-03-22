@@ -20,9 +20,21 @@ Features that I hope to get to:
 - As a user, I want to be able to accurately run the legal opcode instructions on this emulator.
 - As a user, I want to be able to run a ROM that uses the NROM memory mapper.
 - As a user, I want to be able the Addressing Modes to read memory properly.
-- As a user, I want the opcodes to be able to edit the registers and memory properly.
+- As a user, I want to the opcodes to be able to edit the registers and memory properly.
 - As a user, I want to be able to see the effects of each instruction on the CPU (what registers have been modified, how many cycles the CPU has gone through, etc.)
 - As a user, I want to be able to set breakpoints at a specific program counter.
-- As a user, I want to be able to create a savestate for the NES at any time.
-- As a user, I want to be able to be able to load a savestate for the NES at any time.
+- As a user, I want to be able to view the nametables, pattern tables, and OAM of the NES.
+- As a user, I want to be able to render 8x8 sprites and backgrounds onto the screen.
 
+## How to Use
+The File menu contains options such as Open, Save State, and Load State. 
+- Open allows you to open any NES ROM that uses the NROM memory mapper (one popular one that is provided in this project is Donkey Kong).
+- Save State allows you to save the NES' state into a file stored in ./data/save/savestate.sav
+- Load State allows you to load the NES' state from the above file.
+The View menu allows you to view parts of the CPU and PPU
+- CPUViewer and BreakpointViewer only work properly if the emulator is paused! This is where the "add X to Y" requirement is fulfilled; you can add a breakpoint to a list of breakpoints, and cycle into a breakpoint.
+- The rest of the viewers allow you to see the PPU's state. The Pattern Tables show you the tileset, the Nametables show you their arrangement on the screen, and the OAM shows you the current sprites! Press spacebar on the pattern table viewer or nametable viewer to change the color palette.
+
+Note that controls do not yet work; this emulator simply displays the NES onto the screen.
+
+(To the TA): Because I didn't get to give you a proper goodbye, I'd like to let you know you were really nice and helpful, and I enjoyed my time in the lab. Thanks for being our TA!
