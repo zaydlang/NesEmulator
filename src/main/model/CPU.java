@@ -137,7 +137,7 @@ public class CPU {
         int byteTwo = readMemory(Integer.parseInt("FFFD", 16)).getValue();
         setRegisterPC(byteOne + byteTwo * 256);
         //setRegisterPC(Integer.parseInt("C000", 16));     // Uncomment for nestest
-        enabled = true;
+        enabled  = true;
         dma      = false;
         dmaPage  = 0;
         dmaIndex = 0;
@@ -286,8 +286,7 @@ public class CPU {
             return bus.controllerRead(pointer);
         } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
             return bus.controllerRead(pointer);
-        } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
-            // normally disabled.
+        } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality (normally disabled)
             return new Address(0); // TODO add when the apu is implemented.
         } else {
             return bus.mapperReadCpu(pointer);
@@ -308,7 +307,7 @@ public class CPU {
     //          $4000 - $4017 | $0018 | NES APU and I/O registers
     //          $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
     //          $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
-    protected void writeMemory(int pointer, int rawValue) {
+    public void writeMemory(int pointer, int rawValue) {
         int value = rawValue % 256;
         if (value < 0) {
             value += 256;
@@ -607,5 +606,9 @@ public class CPU {
 
     public ArrayList<Address> getBreakpoints() {
         return breakpoints;
+    }
+
+    public void setCycles(Integer value) {
+        this.cycle = value;
     }
 }

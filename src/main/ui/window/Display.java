@@ -1,6 +1,8 @@
 package ui.window;
 
 import model.Bus;
+import persistence.BusReader;
+import persistence.BusWriter;
 import ui.controller.Controller;
 import ui.controller.StandardController;
 
@@ -52,6 +54,20 @@ public class Display extends PixelWindow implements KeyListener {
             } catch (IOException ex) {
                 // Do nothing
             }
+        }
+    });
+
+    JMenuItem fileSaveSate       = new JMenuItem(new AbstractAction("Save State") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            BusWriter.writeToFile(bus, "savestate.sav");
+        }
+    });
+
+    JMenuItem fileLoadState      = new JMenuItem(new AbstractAction("Load State") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            BusReader.readFromFile(bus, "savestate.sav");
         }
     });
 
@@ -138,8 +154,8 @@ public class Display extends PixelWindow implements KeyListener {
 
         JMenu file = new JMenu("File");
         file.add(fileOpenRom);
-        file.add(new JMenuItem("Save State"));
-        file.add(new JMenuItem("Reload State"));
+        file.add(fileSaveSate);
+        file.add(fileLoadState);
 
         JMenu view = new JMenu("View");
         viewCpuViewer.setEnabled(false);

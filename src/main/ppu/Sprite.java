@@ -1,10 +1,12 @@
 package ppu;
 
 import model.Util;
+import persistence.BusSerializable;
 
 import java.awt.*;
+import java.util.Scanner;
 
-public class Sprite {
+public class Sprite implements BusSerializable {
     // Constants
     private static final int SHIFT_REGISTER_SIZE = 8;
 
@@ -51,5 +53,25 @@ public class Sprite {
 
         shiftRegisters();
         return fullByte;
+    }
+
+    @Override
+    public String serialize(String delimiter) {
+        String output = "";
+        output += shiftRegister0.serialize(delimiter);
+        output += shiftRegister1.serialize(delimiter);
+        output += latch    + delimiter;
+        output += counter  + delimiter;
+        output += priority + delimiter;
+        return output;
+    }
+
+    @Override
+    public void deserialize(Scanner scanner) {
+        shiftRegister0.deserialize(scanner);
+        shiftRegister1.deserialize(scanner);
+        latch    = Integer.parseInt(scanner.next());
+        counter  = Integer.parseInt(scanner.next());
+        priority = Integer.parseInt(scanner.next());
     }
 }

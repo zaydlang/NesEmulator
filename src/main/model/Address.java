@@ -4,7 +4,11 @@ package model;
 //     Address is a wrapper class for Integer. It's also a wrapper class in a more literal, punny sense, in that it
 //     wraps the integer between a given lowest value and highest value.
 
-public class Address {
+import persistence.BusSerializable;
+
+import java.util.Scanner;
+
+public class Address implements BusSerializable {
     private static int DEFAULT_LOWEST_VALUE  = 0;
     private static int DEFAULT_HIGHEST_VALUE = 255;
 
@@ -95,7 +99,14 @@ public class Address {
     }
 
     // EFFECTS: returns a string version of the Address of the format: value + delimiter + pointer + delimiter.
+    @Override
     public String serialize(String delimiter) {
         return value + delimiter + pointer + delimiter;
+    }
+
+    @Override
+    public void deserialize(Scanner scanner) {
+        this.value   = Integer.parseInt(scanner.next());
+        this.pointer = Integer.parseInt(scanner.next());
     }
 }

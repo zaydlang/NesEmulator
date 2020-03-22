@@ -2,8 +2,11 @@ package ppu;
 
 import model.Address;
 import model.Util;
+import persistence.BusSerializable;
 
-public class ShiftRegister {
+import java.util.Scanner;
+
+public class ShiftRegister implements BusSerializable {
     private int value;
     private int max;
 
@@ -33,7 +36,14 @@ public class ShiftRegister {
         return value;
     }
 
+    @Override
     public String serialize(String delimiter) {
+        return value + delimiter + max + delimiter;
+    }
 
+    @Override
+    public void deserialize(Scanner scanner) {
+        this.value = Integer.parseInt(scanner.next());
+        this.max   = Integer.parseInt(scanner.next());
     }
 }

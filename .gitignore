@@ -1,3 +1,5 @@
 *.class
 workspace.xml
 data/log/*
+data/save/*
+

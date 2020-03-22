@@ -593,15 +593,15 @@ public class PPU {
         return null;
     }
 
-    private Address getPpuCtrl() {
+    public Address getPpuCtrl() {
         return ppuCtrl;
     }
 
-    private Address getPpuMask() {
+    public Address getPpuMask() {
         return ppuMask;
     }
 
-    private Address getPpuStatus() {
+    public Address getPpuStatus() {
         registerW.setValue(0);
 
         int value1 = ppuStatus.getValue() & Integer.parseInt("11100000", 2);
@@ -611,19 +611,19 @@ public class PPU {
         return new Address(value1 | value2);
     }
 
-    private Address getOamData() {
+    public Address getOamData() {
         return primaryOam[oamAddr.getValue()]; // TODO: something about only incrementing oamAddr during vblank?
     }
 
-    private Address getPpuScroll() {
+    public Address getPpuScroll() {
         return ppuScroll;
     }
 
-    private Address getPpuAddr() {
+    public Address getPpuAddr() {
         return new Address(0); // Cannot be read from!
     }
 
-    private Address getPpuData() {
+    public Address getPpuData() {
         ppuData.setValue(ppuDataBuffer.getValue());
         ppuDataBuffer.setValue(readMemory(registerV.getValue()).getValue());
         if (registerV.getValue() >= Integer.parseInt("3F00", 16)) {
@@ -885,5 +885,193 @@ public class PPU {
 
     public Address getLatchPatternTableHigh() {
         return latchPatternTableHigh;
+    }
+
+    public ShiftRegister getShiftRegisterSmall0() {
+        return shiftRegisterSmall0;
+    }
+
+    public ShiftRegister getShiftRegisterSmall1() {
+        return shiftRegisterSmall1;
+    }
+
+    public ShiftRegister getShiftRegisterLarge0() {
+        return shiftRegisterLarge0;
+    }
+
+    public ShiftRegister getShiftRegisterLarge1() {
+        return shiftRegisterLarge1;
+    }
+
+    public Address getOamAddr() {
+        return oamAddr;
+    }
+
+    public Address getPpuDataBuffer() {
+        return ppuDataBuffer;
+    }
+
+    public Address[] getNametable() {
+        return nametable;
+    }
+
+    public Mirroring getNametableMirroring() {
+        return nametableMirroring;
+    }
+
+    public PaletteRamIndexes getPaletteRamIndexes() {
+        return paletteRamIndexes;
+    }
+
+    public Address[] getPrimaryOam() {
+        return primaryOam;
+    }
+
+    public Address[] getSecondaryOam() {
+        return secondaryOam;
+    }
+
+    public Sprite[] getSprites() {
+        return sprites;
+    }
+
+    public int getCycle() {
+        return cycle;
+    }
+
+    public int getScanline() {
+        return scanline;
+    }
+
+    public int getDrawX() {
+        return drawX;
+    }
+
+    public int getDrawY() {
+        return drawY;
+    }
+
+    public boolean isOddFrame() {
+        return isOddFrame;
+    }
+
+    public boolean getIsOddFrame() {
+        return isOddFrame;
+    }
+
+    public void setLatchNametable(Address latchNametable) {
+        this.latchNametable = latchNametable;
+    }
+
+    public void setLatchAttributeTable(Address latchAttributeTable) {
+        this.latchAttributeTable = latchAttributeTable;
+    }
+
+    public void setLatchPatternTableLow(Address latchPatternTableLow) {
+        this.latchPatternTableLow = latchPatternTableLow;
+    }
+
+    public void setLatchPatternTableHigh(Address latchPatternTableHigh) {
+        this.latchPatternTableHigh = latchPatternTableHigh;
+    }
+
+    public void setRegisterV(Address registerV) {
+        this.registerV = registerV;
+    }
+
+    public void setRegisterT(Address registerT) {
+        this.registerT = registerT;
+    }
+
+    public void setRegisterX(Address registerX) {
+        this.registerX = registerX;
+    }
+
+    public void setRegisterW(Address registerW) {
+        this.registerW = registerW;
+    }
+
+    public void setShiftRegisterSmall0(ShiftRegister shiftRegisterSmall0) {
+        this.shiftRegisterSmall0 = shiftRegisterSmall0;
+    }
+
+    public void setShiftRegisterSmall1(ShiftRegister shiftRegisterSmall1) {
+        this.shiftRegisterSmall1 = shiftRegisterSmall1;
+    }
+
+    public void setShiftRegisterLarge0(ShiftRegister shiftRegisterLarge0) {
+        this.shiftRegisterLarge0 = shiftRegisterLarge0;
+    }
+
+    public void setShiftRegisterLarge1(ShiftRegister shiftRegisterLarge1) {
+        this.shiftRegisterLarge1 = shiftRegisterLarge1;
+    }
+
+    public void setPpuCtrl(Address ppuCtrl) {
+        this.ppuCtrl = ppuCtrl;
+    }
+
+    public void setPpuMask(Address ppuMask) {
+        this.ppuMask = ppuMask;
+    }
+
+    public void setPpuStatus(Address ppuStatus) {
+        this.ppuStatus = ppuStatus;
+    }
+
+    public void setOamAddr(Address oamAddr) {
+        this.oamAddr = oamAddr;
+    }
+
+    public void setPpuScroll(Address ppuScroll) {
+        this.ppuScroll = ppuScroll;
+    }
+
+    public void setPpuData(Address ppuData) {
+        this.ppuData = ppuData;
+    }
+
+    public void setPpuDataBuffer(Address ppuDataBuffer) {
+        this.ppuDataBuffer = ppuDataBuffer;
+    }
+
+    public void setNametable(Address[] nametable) {
+        this.nametable = nametable;
+    }
+
+    public void setPaletteRamIndexes(PaletteRamIndexes paletteRamIndexes) {
+        this.paletteRamIndexes = paletteRamIndexes;
+    }
+
+    public void setPrimaryOam(Address[] primaryOam) {
+        this.primaryOam = primaryOam;
+    }
+
+    public void setSecondaryOam(Address[] secondaryOam) {
+        this.secondaryOam = secondaryOam;
+    }
+
+    public void setSprites(Sprite[] sprites) {
+        this.sprites = sprites;
+    }
+
+    public void setCycle(int cycle) {
+        this.cycle = cycle;
+    }
+
+    public void setScanline(int scanline) {
+        this.scanline = scanline;
+    }
+
+    public void setDrawX(int drawX) {
+        this.drawX = drawX;
+    }
+
+    public void setDrawY(int drawY) {
+        this.drawY = drawY;
+    }
+
+    public void setOddFrame(boolean oddFrame) {
+        isOddFrame = oddFrame;
     }
 }

@@ -34,4 +34,8 @@ public class PaletteRamIndexes {
 
         return indexes[pointer];
     }
+
+    public Address[] getIndexes() {
+        return indexes;
+    }
 }

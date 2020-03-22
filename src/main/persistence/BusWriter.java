@@ -5,6 +5,7 @@ import model.Address;
 import model.Bus;
 import model.CPU;
 import ppu.PPU;
+import ppu.Sprite;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,14 +28,20 @@ public class BusWriter {
 
     // REQUIRES: if fileName contains a file path, then the path is valid.
     // EFFECTS: writes the NES' state to SAVE_DIRETORY/fileName.EXTENSION
-    public static void writeToFile(Bus bus, String fileName) throws IOException {
-        FileWriter fileWriter = new FileWriter(SAVE_DIRECTORY + fileName + EXTENSION, false);
-        writeCpu(bus.getCpu(), fileWriter);
-        writePpu(bus.getPpu(), fileWriter);
-        writeMapper(bus.getMapper(), fileWriter);
+    public static void writeToFile(Bus bus, String fileName) {
+        try {
+            bus.setEnabled(false);
+            FileWriter fileWriter = new FileWriter(SAVE_DIRECTORY + fileName + EXTENSION, false);
+            writeCpu(bus.getCpu(), fileWriter);
+            writePpu(bus.getPpu(), fileWriter);
+            writeMapper(bus.getMapper(), fileWriter);
 
-        fileWriter.flush();
-        fileWriter.close();
+            fileWriter.flush();
+            fileWriter.close();
+            bus.setEnabled(true);
+        } catch (IOException e) {
+            // Do nothing; failed to write to file.
+        }
     }
 
     // MODIFIES: fileWriter
@@ -51,11 +58,11 @@ public class BusWriter {
     // REQUIRES: fileWriter is open and can be written to.
     // EFFECTS: writes the CPU's Registers to the fileWriter
     private static void writeCpuRegisters(CPU cpu, FileWriter fileWriter) throws IOException {
-        fileWriter.write(cpu.getRegisterA().serialize(DELIMITER));
-        fileWriter.write(cpu.getRegisterX().serialize(DELIMITER));
-        fileWriter.write(cpu.getRegisterY().serialize(DELIMITER));
-        fileWriter.write(cpu.getRegisterPC().serialize(DELIMITER));
-        fileWriter.write(cpu.getRegisterS().serialize(DELIMITER));
+        writeSerializable(cpu.getRegisterA(), fileWriter);
+        writeSerializable(cpu.getRegisterX(), fileWriter);
+        writeSerializable(cpu.getRegisterY(), fileWriter);
+        writeSerializable(cpu.getRegisterPC(), fileWriter);
+        writeSerializable(cpu.getRegisterS(), fileWriter);
     }
 
     // MODIFIES: fileWriter
@@ -71,7 +78,7 @@ public class BusWriter {
     // EFFECTS: writes the CPU's ram to the fileWriter
     private static void writeCpuRam(CPU cpu, FileWriter fileWriter) throws IOException {
         for (int i = 0; i < Integer.parseInt("0800", 16); i++) {
-            fileWriter.write(cpu.readMemory(i).serialize(DELIMITER));
+            writeSerializable(cpu.readMemory(i), fileWriter);
         }
     }
 
@@ -79,13 +86,13 @@ public class BusWriter {
     // REQUIRES: fileWriter is open and can be written to.
     // EFFECTS: writes the CPU's state (cycles and breakpoints) to the fileWriter
     private static void writeCpuState(CPU cpu, FileWriter fileWriter) throws IOException {
-        fileWriter.write(new Address(cpu.getCycles()).serialize(DELIMITER));
+        writeSerializable(new Address(cpu.getCycles()), fileWriter);
 
         ArrayList<Address> breakpoints = cpu.getBreakpoints();
         fileWriter.write(Integer.toString(breakpoints.size()));
         fileWriter.write(DELIMITER);
         for (Address breakpoint : breakpoints) {
-            fileWriter.write(breakpoint.serialize(DELIMITER));
+            writeSerializable(breakpoint, fileWriter);
         }
     }
 
@@ -93,7 +100,6 @@ public class BusWriter {
         writePpuLatches(ppu, fileWriter);
         writePpuInternalRegisters(ppu, fileWriter);
         writePpuShiftRegisters(ppu, fileWriter);
-        writePpuSprites(ppu, fileWriter);
         writePpuRegisters(ppu, fileWriter);
         writePpuNametables(ppu, fileWriter);
         writePpuPaletteRamIndexes(ppu, fileWriter);
@@ -103,21 +109,76 @@ public class BusWriter {
     }
 
     private static void writePpuLatches(PPU ppu, FileWriter fileWriter) throws IOException {
-        fileWriter.write(ppu.getLatchNametable().serialize(DELIMITER));
-        fileWriter.write(ppu.getLatchAttributeTable().serialize(DELIMITER));
-        fileWriter.write(ppu.getLatchPatternTableLow().serialize(DELIMITER));
-        fileWriter.write(ppu.getLatchPatternTableHigh().serialize(DELIMITER));
+        writeSerializable(ppu.getLatchNametable(), fileWriter);
+        writeSerializable(ppu.getLatchAttributeTable(), fileWriter);
+        writeSerializable(ppu.getLatchPatternTableLow(), fileWriter);
+        writeSerializable(ppu.getLatchPatternTableHigh(), fileWriter);
     }
 
     private static void writePpuInternalRegisters(PPU ppu, FileWriter fileWriter) throws IOException {
-        fileWriter.write(ppu.getRegisterT().serialize(DELIMITER));
-        fileWriter.write(ppu.getRegisterV().serialize(DELIMITER));
-        fileWriter.write(ppu.getRegisterX().serialize(DELIMITER));
-        fileWriter.write(ppu.getRegisterW().serialize(DELIMITER));
+        writeSerializable(ppu.getRegisterT(), fileWriter);
+        writeSerializable(ppu.getRegisterV(), fileWriter);
+        writeSerializable(ppu.getRegisterX(), fileWriter);
+        writeSerializable(ppu.getRegisterW(), fileWriter);
     }
 
     private static void writePpuShiftRegisters(PPU ppu, FileWriter fileWriter) throws IOException {
+        writeSerializable(ppu.getShiftRegisterSmall0(), fileWriter);
+        writeSerializable(ppu.getShiftRegisterSmall1(), fileWriter);
+        writeSerializable(ppu.getShiftRegisterLarge0(), fileWriter);
+        writeSerializable(ppu.getShiftRegisterLarge1(), fileWriter);
+    }
 
+    private static void writePpuRegisters(PPU ppu, FileWriter fileWriter) throws IOException {
+        writeSerializable(ppu.getPpuCtrl(), fileWriter);
+        writeSerializable(ppu.getPpuMask(), fileWriter);
+        writeSerializable(ppu.getPpuStatus(), fileWriter);
+        writeSerializable(ppu.getOamAddr(), fileWriter);
+        writeSerializable(ppu.getPpuScroll(), fileWriter);
+        writeSerializable(ppu.getPpuData(), fileWriter);
+        writeSerializable(ppu.getPpuDataBuffer(), fileWriter);
+    }
+
+    private static void writePpuNametables(PPU ppu, FileWriter fileWriter) throws IOException {
+        fileWriter.write(ppu.getNametable().length);
+        for (Address address : ppu.getNametable()) {
+            writeSerializable(address, fileWriter);
+        }
+        fileWriter.write(ppu.getNametableMirroring().toString());
+        fileWriter.write(DELIMITER);
+    }
+
+    private static void writePpuPaletteRamIndexes(PPU ppu, FileWriter fileWriter) throws IOException {
+        fileWriter.write(ppu.getPaletteRamIndexes().getIndexes().length);
+        for (Address address : ppu.getPaletteRamIndexes().getIndexes()) {
+            writeSerializable(address, fileWriter);
+        }
+    }
+
+    private static void writePpuOam(PPU ppu, FileWriter fileWriter) throws IOException {
+        fileWriter.write(ppu.getPrimaryOam().length);
+        for (Address address : ppu.getPrimaryOam()) {
+            writeSerializable(address, fileWriter);
+        }
+        fileWriter.write(ppu.getSecondaryOam().length);
+        for (Address address : ppu.getSecondaryOam()) {
+            writeSerializable(address, fileWriter);
+        }
+    }
+
+    private static void writePpuSprites(PPU ppu, FileWriter fileWriter) throws IOException {
+        fileWriter.write(ppu.getSprites().length);
+        for (Sprite sprite : ppu.getSprites()) {
+            writeSerializable(sprite, fileWriter);
+        }
+    }
+
+    private static void writePpuCyclingData(PPU ppu, FileWriter fileWriter) throws IOException {
+        fileWriter.write(ppu.getCycle()                + DELIMITER);
+        fileWriter.write(ppu.getScanline()             + DELIMITER);
+        fileWriter.write(ppu.getDrawX()                + DELIMITER);
+        fileWriter.write(ppu.getDrawY()                + DELIMITER);
+        fileWriter.write((ppu.getIsOddFrame() ? 1 : 0) + DELIMITER);
     }
 
     // MODIFIES: fileWriter
@@ -128,6 +189,10 @@ public class BusWriter {
         int cartridgeId = mapper.getId();
         fileWriter.write(cartridgeId);
         fileWriter.write(DELIMITER);
-        fileWriter.write(mapper.serialize(DELIMITER));
+        writeSerializable(mapper, fileWriter);
+    }
+
+    private static void writeSerializable(BusSerializable busSerializable, FileWriter fileWriter) throws IOException {
+        fileWriter.write(busSerializable.serialize(DELIMITER));
     }
 }

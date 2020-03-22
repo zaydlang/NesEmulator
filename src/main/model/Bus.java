@@ -51,10 +51,14 @@ public class Bus {
 
     public void loadCartridge(File file) throws IOException {
         readCartridge(file);
+        cartridgeLoaded = true;
 
+        reset();
+    }
+
+    public void reset() {
         cpu.reset();
         ppu.reset();
-        cartridgeLoaded = true;
     }
 
     private void readCartridge(File file) throws IOException {
@@ -139,7 +143,11 @@ public class Bus {
     }
 
     public Address mapperReadCpu(int pointer) {
-        return mapper.readMemoryCpu(pointer);
+        try {
+            return mapper.readMemoryCpu(pointer);
+        } catch (NullPointerException e) {
+            return new Address(0);
+        }
     }
 
     public Address mapperReadPpu(int pointer) {
