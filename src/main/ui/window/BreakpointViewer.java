@@ -1,17 +1,17 @@
 package ui.window;
 
+import model.Address;
 import model.Bus;
 import ui.MaxedQueue;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.Queue;
 import java.io.File;
 import java.io.IOException;
+import java.util.Queue;
 
-public class CpuViewer extends PixelWindow implements CpuOutput {
+public class BreakpointViewer extends PixelWindow {
     private static final String FONT_FILE    = "./data/resource/font/CONSOLA.ttf";
     private static final float  FONT_SIZE    = 12.0f;
     private static final int    MAX_LOG_SIZE = 30;
@@ -41,30 +41,39 @@ public class CpuViewer extends PixelWindow implements CpuOutput {
     JButton breakpointButton = new JButton(new AbstractAction("Add Breakpoint") {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            try {
+                bus.getCpu().addBreakpoint(new Address(Integer.parseInt(breakpoint.getText(), 16)));
+                breakpoints.append("0x" + breakpoint.getText());
+            } catch (Exception ex) {
+                // Do nothing
+                int x = 2;
+            }
+            breakpoint.setText("");
         }
     });
 
-    private JTextArea    textArea;
     private JTextArea    breakpoints;
+    private JTextArea    breakpoint;
     private JScrollPane  scrollPane;
 
     private MaxedQueue<String> log;
 
-    public CpuViewer(Bus bus) {
+    public BreakpointViewer(Bus bus) {
         super(bus, 1, 1, 400 + 50, 400 + 100, "CPU Viewer");
 
-        textArea = new JTextArea(MAX_LOG_SIZE, 80);
-        textArea.setFont(font);
-        textArea.setEditable(false);
-        scrollPane = new JScrollPane(textArea);
-        add(scrollPane,  BorderLayout.CENTER);
+        breakpoints = new JTextArea(MAX_LOG_SIZE, 80);
+        breakpoints.setFont(font);
+        breakpoints.setEditable(false);
+        scrollPane = new JScrollPane(breakpoints);
+        scrollPane.setBounds(0, 0, 400, 400);
+        add(scrollPane,  BorderLayout.NORTH);
 
-        cycleButton.setBorder(BorderFactory.createEmptyBorder());
-        cycleButton.setPreferredSize(new Dimension(0, 60));
-        add(cycleButton, BorderLayout.SOUTH);
+        breakpoint = new JTextArea(MAX_LOG_SIZE, 80);
+        breakpoint.setFont(font);
+        add(breakpoint, BorderLayout.CENTER);
 
-        bus.getCpu().setLoggingOutput(this);
+        add(breakpointButton, BorderLayout.SOUTH);
+        setPreferredSize(new Dimension(800, 600));
         log = new MaxedQueue<>(MAX_LOG_SIZE);
 
         pack();
@@ -74,23 +83,6 @@ public class CpuViewer extends PixelWindow implements CpuOutput {
 
     @Override
     public void repaint() {
-        StringBuilder text = new StringBuilder();
-        Queue<String> queue = log.getQueue();
-
-        for (String cpuLog : queue) {
-            text.append(cpuLog);
-        }
-
-        textArea.setText(text.toString());
-        textArea.setSelectionEnd(0);
         super.repaint();
-    }
-
-    @Override
-    public void log(String cpuLog) {
-        log.add(cpuLog + "\n");
-        if (log.size() > MAX_LOG_SIZE) {
-            log.remove();
-        }
     }
 }

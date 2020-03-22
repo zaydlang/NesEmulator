@@ -104,6 +104,7 @@ public class Address implements BusSerializable {
         return value + delimiter + pointer + delimiter;
     }
 
+    // EFFECTS: deserializes the address using the scanner, setting the value and pointer accordingly.
     @Override
     public void deserialize(Scanner scanner) {
         this.value   = Integer.parseInt(scanner.next());

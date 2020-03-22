@@ -5,6 +5,10 @@ import persistence.BusSerializable;
 
 import java.util.Scanner;
 
+// Class Mapper:
+//     Mapper is an abstract, serializable class that represents a cartridge mapper for the NES.
+//     Serves as a mapping between CPU addresses to the cartridge addresses.
+
 public abstract class Mapper implements BusSerializable {
     protected Address[] prgRom;
     protected Address[] prgRam;

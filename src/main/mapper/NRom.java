@@ -18,12 +18,15 @@ public class NRom extends Mapper {
 
     private boolean isNRom128;
 
+    // MODIFIES: this
+    // EFFECTS: sets the ID to the given ID
     public NRom() {
         super(ID);
     }
 
-    // EFFECTS: initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
-    // fills the prgRam with the initial state.
+    // MODIFIES: this
+    // EFFECTS:  initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
+    //           fills the prgRam with the initial state.
     public NRom(Address[] prgRom, Address[] chrRom) {
         super(prgRom, chrRom, ID);
 
@@ -94,6 +97,7 @@ public class NRom extends Mapper {
         }
     }
 
+    // EFFECTS: serializes the NRom, storing the prgRom, prgRam, chrRom, and isNRom128 into a String.
     @Override
     public String serialize(String delimiter) {
         StringBuilder output = new StringBuilder();
@@ -113,6 +117,7 @@ public class NRom extends Mapper {
         return output.toString();
     }
 
+    // EFFECTS: deserializes the NRom to restore it from a savestate
     @Override
     public void deserialize(Scanner scanner) {
         prgRom = new Address[Integer.parseInt(scanner.next())];

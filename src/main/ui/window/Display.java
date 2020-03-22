@@ -60,19 +60,18 @@ public class Display extends PixelWindow implements KeyListener {
     JMenuItem fileSaveSate       = new JMenuItem(new AbstractAction("Save State") {
         @Override
         public void actionPerformed(ActionEvent e) {
-            BusWriter.writeToFile(bus, "savestate.sav");
+            BusWriter.writeToFile(bus, "savestate");
         }
     });
 
     JMenuItem fileLoadState      = new JMenuItem(new AbstractAction("Load State") {
         @Override
         public void actionPerformed(ActionEvent e) {
-            bus = BusReader.readFromFile("savestate.sav");
+            bus = BusReader.readFromFile("savestate");
             try {
                 setupBus();
             } catch (IOException ex) {
                 // Failed to load savestate!
-                int x = 2;
             }
             bus.setEnabled(true);
         }
@@ -106,6 +105,13 @@ public class Display extends PixelWindow implements KeyListener {
         }
     });
 
+    JMenuItem viewBreakpointViewer = new JMenuItem(new AbstractAction("Breakpoint Viewer") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            new BreakpointViewer(bus);
+        }
+    });
+
     JMenuItem settingsController = new JMenuItem(new AbstractAction("Controller Settings") {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -119,6 +125,7 @@ public class Display extends PixelWindow implements KeyListener {
         public void actionPerformed(ActionEvent e) {
             bus.setEnabled(!bus.getEnabled());
             viewCpuViewer.setEnabled(!bus.getEnabled());
+            viewBreakpointViewer.setEnabled(!bus.getEnabled());
 
             if (bus.getEnabled()) {
                 pauseButton.setIcon(ICON_PAUSE);
@@ -166,21 +173,18 @@ public class Display extends PixelWindow implements KeyListener {
 
         JMenu view = new JMenu("View");
         viewCpuViewer.setEnabled(false);
+        viewBreakpointViewer.setEnabled(false);
         view.add(viewCpuViewer);
+        view.add(viewBreakpointViewer);
         view.add(viewPatternTables);
         view.add(viewNameTables);
         view.add(viewOAM);
-
-        JMenu settings = new JMenu("Settings");
-        settings.add(settingsController);
-        settings.add(new JMenuItem("Mapper Settings"));
 
         pauseButton.setIcon(ICON_PAUSE);
         pauseButton.setBorder(BorderFactory.createEmptyBorder());
 
         menuBar.add(file);
         menuBar.add(view);
-        menuBar.add(settings);
         menuBar.add(pauseButton);
         getContentPane().add(BorderLayout.NORTH, menuBar);
     }

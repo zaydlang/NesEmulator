@@ -11,8 +11,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-// Class NesWriter
-//     NesWriter is a class that can write to a file given an NES, preserving the NES' state. Essentially allows the
+// Class BusWriter
+//     BusWriter is a class that can write to a file given an Bus, preserving the Bus' state. Essentially allows the
 //     user to create a savestate.
 
 public class BusWriter {
@@ -98,6 +98,9 @@ public class BusWriter {
         }
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's state to the fileWriter
     private static void writePpu(PPU ppu, FileWriter fileWriter) throws IOException {
         writePpuLatches(ppu, fileWriter);
         writePpuInternalRegisters(ppu, fileWriter);
@@ -110,6 +113,9 @@ public class BusWriter {
         writePpuCyclingData(ppu, fileWriter);
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's latches to the fileWriter
     private static void writePpuLatches(PPU ppu, FileWriter fileWriter) throws IOException {
         writeSerializable(ppu.getLatchNametable(), fileWriter);
         writeSerializable(ppu.getLatchAttributeTable(), fileWriter);
@@ -117,6 +123,9 @@ public class BusWriter {
         writeSerializable(ppu.getLatchPatternTableHigh(), fileWriter);
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's internal registers to the fileWriter
     private static void writePpuInternalRegisters(PPU ppu, FileWriter fileWriter) throws IOException {
         writeSerializable(ppu.getRegisterT(), fileWriter);
         writeSerializable(ppu.getRegisterV(), fileWriter);
@@ -124,6 +133,9 @@ public class BusWriter {
         writeSerializable(ppu.getRegisterW(), fileWriter);
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's shift registers to the fileWriter
     private static void writePpuShiftRegisters(PPU ppu, FileWriter fileWriter) throws IOException {
         writeSerializable(ppu.getShiftRegisterSmall0(), fileWriter);
         writeSerializable(ppu.getShiftRegisterSmall1(), fileWriter);
@@ -131,6 +143,9 @@ public class BusWriter {
         writeSerializable(ppu.getShiftRegisterLarge1(), fileWriter);
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's registers to the fileWriter
     private static void writePpuRegisters(PPU ppu, FileWriter fileWriter) throws IOException {
         writeSerializable(ppu.getPpuCtrl(), fileWriter);
         writeSerializable(ppu.getPpuMask(), fileWriter);
@@ -141,6 +156,9 @@ public class BusWriter {
         writeSerializable(ppu.getPpuDataBuffer(), fileWriter);
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's nametables to the fileWriter
     private static void writePpuNametables(PPU ppu, FileWriter fileWriter) throws IOException {
         fileWriter.write(ppu.getNametable().length + "");
         fileWriter.write(DELIMITER);
@@ -152,6 +170,9 @@ public class BusWriter {
         fileWriter.write(DELIMITER);
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's palette ram indexes to the fileWriter
     private static void writePpuPaletteRamIndexes(PPU ppu, FileWriter fileWriter) throws IOException {
         fileWriter.write(ppu.getPaletteRamIndexes().getIndexes().length + "");
         fileWriter.write(DELIMITER);
@@ -160,6 +181,9 @@ public class BusWriter {
         }
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's OAM to the fileWriter
     private static void writePpuOam(PPU ppu, FileWriter fileWriter) throws IOException {
         fileWriter.write(ppu.getPrimaryOam().length + "");
         fileWriter.write(DELIMITER);
@@ -173,6 +197,9 @@ public class BusWriter {
         }
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's sprites to the fileWriter
     private static void writePpuSprites(PPU ppu, FileWriter fileWriter) throws IOException {
         fileWriter.write(ppu.getSprites().length + "");
         fileWriter.write(DELIMITER);
@@ -181,6 +208,9 @@ public class BusWriter {
         }
     }
 
+    // MODIFIES: fileWriter
+    // REQUIRES: fileWriter is open and can be written to.
+    // EFFECTS:  writes the PPU's cycling data to the fileWriter
     private static void writePpuCyclingData(PPU ppu, FileWriter fileWriter) throws IOException {
         fileWriter.write(ppu.getCycle()                + DELIMITER);
         fileWriter.write(ppu.getScanline()             + DELIMITER);
@@ -199,6 +229,7 @@ public class BusWriter {
         writeSerializable(mapper, fileWriter);
     }
 
+    // EFFECTS: using busSerializable to write to the fileWriter
     private static void writeSerializable(BusSerializable busSerializable, FileWriter fileWriter) throws IOException {
         fileWriter.write(busSerializable.serialize(DELIMITER));
     }

@@ -13,6 +13,10 @@ import java.util.Scanner;
 // Lots of information about how the PPU works comes from this video:
 // https://www.youtube.com/watch?v=-THeUXqR3zY
 
+// Class PPU:
+//     Models the 2C02 PPU in the NES. Renders 8x8 sprites onto the screen and renders the background on the screen.
+//     Currently does not support color masking in ppuMask.
+
 public class PPU {
     // Constants
     public  static final int PATTERN_TABLE_SIZE = Integer.parseInt("1000", 16);
@@ -92,6 +96,8 @@ public class PPU {
     private Pixels pixels;
     private Bus bus;
 
+    // MODIFIES: this
+    // EFFECTS: initializes the ppu, connects it to the bus, and resets it.
     public PPU(Bus bus) {
         nametable = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
         paletteRamIndexes = new PaletteRamIndexes();
@@ -109,6 +115,8 @@ public class PPU {
         reset();
     }
 
+    // MODIFIES: this
+    // EFFECTS: resets all registers, latches, and cycling data of the PPU to their default values
     public void reset() {
         registerV = new Address(INITIAL_REGISTER_V, 0, (int) Math.pow(2, REGISTER_V_SIZE) - 1);
         registerT = new Address(INITIAL_REGISTER_T, 0, (int) Math.pow(2, REGISTER_T_SIZE) - 1);
@@ -137,18 +145,40 @@ public class PPU {
         setupInternalRegisters();
     }
 
+    // MODIFIES: nametable
+    // EFFECTS: resets the nametables to their default values
     private void resetNametables() {
         for (int i = 0; i < nametable.length; i++) {
             nametable[i] = new Address(0, Integer.parseInt("2000", 16) + i);
         }
     }
 
+    // MODIFIES: primaryOam
+    // EFFECTS: resets the primary OAM to its default value
     private void resetPrimaryOam() {
         for (int i = 0; i < primaryOam.length; i++) {
             primaryOam[i] = new Address(Integer.parseInt("FF", 16), i);
         }
     }
 
+    // MODIFIES: secondaryOam
+    // EFFECTS:  resets the secondary OAM to its default value
+    private void resetSecondaryOam() {
+        for (int i = 0; i < secondaryOam.length; i++) {
+            secondaryOam[i] = new Address(Integer.parseInt("FF", 16), i);
+        }
+    }
+
+    // MODIFIES: sprites
+    // EFFECTS: resets the sprites to their default value
+    private void resetSprites() {
+        for (int i = 0; i < sprites.length; i++) {
+            sprites[i] = new Sprite(0, 0, 255, 256, 255);
+        }
+    }
+
+    // MODIFIES: ppuCtrl, ppuMask, ppuStatus, oamAddr, ppuScroll, ppuData
+    // EFFECTS: resets the internal registers to their default values
     private void setupInternalRegisters() {
         ppuCtrl = new Address(0, PPUCTRL_ADDRESS);
         ppuMask = new Address(0, PPUMASK_ADDRESS);
@@ -158,8 +188,10 @@ public class PPU {
         ppuData = new Address(0, PPUDATA_ADDRESS);
     }
 
-
-    // Cycling
+    // REQUIRES: 0 <= scanline <= 260
+    // MODIFIES: this
+    // EFFECTS: runs the appropriate scanline and increments the cycle. Increments scanline if cycle overflows, and
+    //          toggles isOddFrame when scanline overflows.
     public void cycle() {
         if (scanline <= -1 && Util.getNthBit(ppuMask.getValue(), 3) == 1) { // Pre-Render Scanlines
             runPreRenderScanline();
@@ -182,6 +214,10 @@ public class PPU {
         }
     }
 
+    // REQUIRES: 0 <= cycle <= 340
+    // MODIFIES: this
+    // EFFECTS: runs the appropriate visible scanline cycle based on the value of cycle
+    //          resets drawX if cycle <= 0
     private void runVisibleScanline() {
         if (cycle <= 0) {   // Idle Cycle
             drawX = 0;
@@ -198,6 +234,10 @@ public class PPU {
         }
     }
 
+    // REQUIRES: 1 <= cycle <= 256
+    // MODIFIES: secondaryOam, sprites
+    // EFFECTS: if cycle == 1,  resets the secondaryOam
+    //          if cycle == 65, calculates which sprites should appear on the next scanline
     private void runVisibleScanlineSpriteEvaluationCycles() {
         // https://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
         if (cycle == 1) {
@@ -207,25 +247,17 @@ public class PPU {
         }
     }
 
-    private void resetSecondaryOam() {
-        for (int i = 0; i < secondaryOam.length; i++) {
-            secondaryOam[i] = new Address(Integer.parseInt("FF", 16), i);
-        }
-    }
-
-    private void resetSprites() {
-        for (int i = 0; i < sprites.length; i++) {
-            sprites[i] = new Sprite(0, 0, 255, 256, 255);
-        }
-    }
-
+    // MODIFIES: secondaryOam, ppuStatus
+    // EFFECTS: reads through the primaryOam, and if the sprite will appear on the next scanline, copies that
+    //          sprites' data to secondaryOam. If more than 8 sprites can render on the next scanline, only the first
+    //          8 will be displayed and the sprite overflow flag in ppuStatus will be set.
     protected void evaluateSprites() {
         // https://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
         int secondaryOamIndex = 0;
         for (int i = 0; i < 64; i++) { // Loop through all the sprites
             int spriteY = primaryOam[i * 4 + 0].getValue();
             if (drawY - 6 <= spriteY && spriteY <= drawY + 1) { // Are we drawing the sprite on the next scanline?
-                for (int j = 0; j < 4; j++) { // TODO: possible bug?
+                for (int j = 0; j < 4; j++) {
                     if (secondaryOamIndex >= 32) { // Should the sprite overflow flag be set?
                         ppuStatus.setValue(ppuStatus.getValue() | Integer.parseInt("00100000", 2));
                     } else {
@@ -236,6 +268,8 @@ public class PPU {
         }
     }
 
+    // MODIFIES: sprites
+    // EFFECTS: converts the data in secondaryOam to sprite objects that can be rendered by the PPU
     private void loadSprites() {
         // https://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
         resetSprites();
@@ -260,6 +294,10 @@ public class PPU {
         }
     }
 
+    // REQUIRES: 1 <= cycle <= 256
+    // MODIFIES: this
+    // EFFECTS: increments the fineY if this is the 256th cycle and scanline != 0. Processes the data in the nametables,
+    //          attribute tables, and pattern tables to render one pixel per 8 cycles.
     private void runVisibleScanlineRenderingCycles() {
         if (scanline != 0 && cycle == 256) {
             incrementFineY();
@@ -288,15 +326,17 @@ public class PPU {
         incrementFineX();
     }
 
+    // MODIFIES: latchNametable
+    // EFFECTS:  reads the nametable at the address stored in registerV and stores the result in latchNametable
     @SuppressWarnings("PointlessArithmeticExpression")
     private void fetchNametableByte() {
         int address = (registerV.getValue() & Integer.parseInt("000111111111111", 2)) >> 0;
         latchNametable = readNametable(address);
-        if (drawY != (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12) {
-            int x = 2;
-        }
     }
 
+    // MODIFIES: latchAttributeTable
+    // EFFECTS:  reads the attributeTable at the address stored in registerV and stores the result
+    //           in latchAttributeTable
     @SuppressWarnings("PointlessArithmeticExpression")
     private void fetchAttributeTableByte() {
         int coarseX = (registerV.getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
@@ -307,6 +347,9 @@ public class PPU {
         latchAttributeTable = readNametable(offset + (coarseX >> 2) + 8 * (coarseY >> 2));
     }
 
+    // MODIFIES: latchPatternTableLow
+    // EFFECTS:  reads the low byte of the patternTable at the address stored in registerV and stores the result
+    //           in latchPatternTableLow
     private void fetchPatternTableLowByte() {
         int address = latchNametable.getValue();
         int fineY = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
@@ -317,6 +360,9 @@ public class PPU {
         latchPatternTableLow.setValue(patternTableLow);
     }
 
+    // MODIFIES: latchPatternTableHigh
+    // EFFECTS:  reads the high byte of the patternTable at the address stored in registerV and stores the result
+    //           in latchPatternTableHigh
     private void fetchPatternTableHighByte() {
         int address = latchNametable.getValue();
         int fineY = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
@@ -328,6 +374,10 @@ public class PPU {
         latchPatternTableHigh.setValue(patternTableHigh);
     }
 
+    // MODIFIES: shiftRegisterSmall0, shiftRegisterSmall1, shiftRegisterLarge0, shiftRegisterLarge1
+    // EFFECTS:  loads the values of the attribute table and the pattern table into the shift registers.
+    //           NOTE: since latchAttributeTable is 2 bits and its corresponding shift registers are both 8 bits,
+    //           the shiftRegisters are just inflated with the same value (in other words, 1 becomes 11111111)
     @SuppressWarnings("PointlessArithmeticExpression")
     private void loadShiftRegisters() {
         int coarseX1 = Util.getNthBit(registerV.getValue(), 1);
@@ -341,15 +391,16 @@ public class PPU {
         shiftRegisterLarge1.setNthBits(8, 16, latchPatternTableHigh.getValue());
     }
 
+    // MODIFIES: registerV
+    // EFFECTS: increments coarseX if drawX % 8 == 0
     private void incrementFineX() {
-        //registerX.setValue(registerX.getValue() + 1); // Increment fineX
-        //int fineX = registerX.getValue();
-
         if (drawX % 8 == 0) {
             incrementCoarseX();
         }
     }
 
+    // MODIFIES: registerV
+    // EFFECTS: increments fineY, and increments coarseY if fineY overflows
     private void incrementFineY() {
         registerV.setValue(registerV.getValue() + Integer.parseInt("001000000000000", 2));  // Increment fineY
         int fineY = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
@@ -359,6 +410,8 @@ public class PPU {
         }
     }
 
+    // MODIFIES: registerV
+    // EFFECTS: increments coarseX.
     protected void incrementCoarseX() {
         int newCoarseX = ((registerV.getValue() & Integer.parseInt("000000000011111", 2)) >> 0) + 1;
         if (newCoarseX >= Math.pow(2, 5)) {
@@ -368,6 +421,8 @@ public class PPU {
         registerV.setValue(Util.maskNthBits(newCoarseX, registerV.getValue(), 0, 0, 5));
     }
 
+    // MODIFIES: registerV
+    // EFFECTS: increments coarseY.
     protected void incrementCoarseY() {
         int newCoarseY = ((registerV.getValue() & Integer.parseInt("000001111100000", 2)) >> 5) + 1;
         if (newCoarseY >= Math.pow(2, 5)) {
@@ -377,6 +432,9 @@ public class PPU {
         registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5, 5));
     }
 
+    // MODIFIES: shiftRegisterSmall0, shiftRegisterSmall1, shiftRegisterLarge0, shiftRegisterLarge1, pixels, drawX
+    // EFFECTS: renders one pixel on the screen based on the values in the shift registers.
+    //          increments drawX and shifts the shift registers.
     private void renderShiftRegisters() {
         int fineX = registerX.getValue();
         int bitOne = Util.getNthBit(shiftRegisterSmall0.getValue(), fineX);
@@ -395,6 +453,10 @@ public class PPU {
         shiftRegisterLarge1.shiftLeft(1);
     }
 
+    // MODIFIES: sprites
+    // EFFECTS: uses the values stored in the sprite to decide whether or not to display the background or the sprite.
+    //          if the sprite's priority is 0 (foreground) or the background pixel is empty (0), returns the background
+    //          pixel. else, returns the sprite pixel
     private int getColorAddressUsingPriority(int backgroundFullByte) {
         int returnByte = backgroundFullByte;
         for (int i = 0; i < 8; i++) {
@@ -416,10 +478,15 @@ public class PPU {
         return returnByte;
     }
 
+    // EFFECTS: returns the color associated with the given paletteRamIndexes address
     private Color getColor(int address) {
         return ColorPalette.getColor(paletteRamIndexes.readMemory(address).getValue());
     }
 
+    // REQUIRES: 257 <= cycle <= 320
+    // MODIFIES: this
+    // EFFECTS:  runs the horizontal blank cycle. When cycle == 256, coarseX is restored to the value in registerT
+    //           and the sprites are reloaded.
     private void runHorizontalBlankCycles() {
         if (cycle == 257) {                 // Restore the CoarseX
             int newCoarseX = (registerT.getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
@@ -429,6 +496,9 @@ public class PPU {
         }
     }
 
+    // REQUIRES: 321 <= cycle <= 336
+    // MODIFIES: this
+    // EFFECTS:  prepares the latches for rendering on the next scanline
     private void runVisibleScanlineFutureCycles() {
         switch ((cycle - 321) % 8) {
             case 1:
@@ -452,10 +522,13 @@ public class PPU {
         }
     }
 
+    // EFFECTS: nothing happens
     private void runPostRenderScanline() {
 
     }
 
+    // MODIFIES: this, bus
+    // EFFECTS: sets bus NMI if the 7th bit of PPUStatus is set, scanline == 241, and cycle == 1
     private void runVerticalBlankingScanline() {
         if (scanline == 241 && cycle == 1) {
             ppuStatus.setValue(ppuStatus.getValue() | Integer.parseInt("10000000", 2));
@@ -465,7 +538,8 @@ public class PPU {
         }
     }
 
-
+    // MODIFIES: this
+    // EFFECTS: runs dummy reads for the preRenderCycle. Sets up the ppu for the upcoming scanline.
     private void runPreRenderScanline() {
         if (cycle == 0 && isOddFrame) {
             cycle++;
@@ -490,7 +564,8 @@ public class PPU {
         }
     }
 
-
+    // MODIFIES: this:
+    // EFFECTS: writes the value to the appropriate PPU register.
     public void writeRegister(int pointer, int value) {
         if (pointer == PPUCTRL_ADDRESS) {
             setPpuCtrl(value);
@@ -511,6 +586,8 @@ public class PPU {
         }
     }
 
+    // MODIFIES: ppuCtrl
+    // EFFECTS:  setsPpuCtrl to the value and updates registerT accordingly
     private void setPpuCtrl(int value) {
         ppuCtrl.setValue(value);
         registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 10, 2));
@@ -529,11 +606,16 @@ public class PPU {
         oamAddr.setValue(value);
     }
 
+    // MODIFIES: primaryOam, oamAddr
+    // EFFECTS: sets primaryOam at index oamAddr to the value and increments oamAddr
     private void setOamData(int value) {
         primaryOam[oamAddr.getValue()].setValue(value);
         oamAddr.setValue(oamAddr.getValue() + 1);
     }
 
+    // MODIFIES: registerT, registerX, registerW
+    // EFFECTS: ppuScroll is a write x2 register. Sets registerT according to the value in registerW and the value
+    //          passed into the function.
     private void setPpuScroll(int value) {
         if (registerW.getValue() == 0) { // First Write
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 0, 5));
@@ -547,6 +629,9 @@ public class PPU {
         registerW.setValue(registerW.getValue() ^ 1);
     }
 
+    // MODIFIES: registerW, registerT, registerV
+    // EFFECTS: ppuAddr is a write x2 register. Sets registerT and registerV according to the value in registerW and
+    //          the value passed into the function.
     private void setPpuAddr(int value) {
         if (registerW.getValue() == 0) { // First Write
             // ppuAddr.setValue(Util.maskNthBits(value, ppuAddr.getValue(), 0, 8, 6));
@@ -561,6 +646,8 @@ public class PPU {
         registerW.setValue(registerW.getValue() ^ 1);
     }
 
+    // MODIFIES: this
+    // EFFECTS: sets the value in memory at address registerV to value, and increments registerV according to ppuCtrl.
     private void setPpuData(int value) {
         writeMemory(registerV.getValue(), value);
 
@@ -571,6 +658,8 @@ public class PPU {
         }
     }
 
+    // MODIFIES: this
+    // EFFECTS: returns the value accessed from the specific register. Some accesses modify the PPU's state
     public Address readRegister(int pointer) {
         if (pointer == PPUCTRL_ADDRESS) {
             return getPpuCtrl();
@@ -601,6 +690,8 @@ public class PPU {
         return ppuMask;
     }
 
+    // MODIFIES: registerW, ppuStatus
+    // EFFECTS:  resets registerW and sets the 7th bit of ppuStatus to false. Returns ppuStatus
     public Address getPpuStatus() {
         registerW.setValue(0);
 
@@ -623,6 +714,9 @@ public class PPU {
         return new Address(0); // Cannot be read from!
     }
 
+    // MODIFIES: ppuData, ppuDataBuffer, registerV
+    // EFFECTS:  returns the value in ppuData after the second access. returns the value immediately if the pointer is
+    //           in the paletteRamIndexes (>= 0x3F00).
     public Address getPpuData() {
         ppuData.setValue(ppuDataBuffer.getValue());
         ppuDataBuffer.setValue(readMemory(registerV.getValue()).getValue());
@@ -667,6 +761,7 @@ public class PPU {
         return ppuDataBuffer;
     }
 
+    // EFFECTS: reads the value in memory at the given pointer and returns it. See table below for more info.
     public Address readMemory(int pointer) {
         // https://wiki.nesdev.com/w/index.php/PPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
@@ -691,6 +786,8 @@ public class PPU {
         }
     }
 
+    // MODIFIES: this
+    // EFFECTS: writes the value in memory at the given pointer and returns it. See table below for more info.
     protected void writeMemory(int pointer, int value) {
         // https://wiki.nesdev.com/w/index.php/PPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE
@@ -714,19 +811,20 @@ public class PPU {
             writeNametable(pointer - Integer.parseInt("3000", 16), value);
         } else {
             int mirroredAddress = (pointer - Integer.parseInt("3F00", 16)) % PALETTE_RAM_SIZE;
-            System.out.print(Integer.toHexString(pointer) + " -> ");
-            System.out.print(Integer.toHexString(Integer.parseInt("3F00", 16) + mirroredAddress) + " : ");
-            System.out.println(value);
+            // System.out.print(Integer.toHexString(pointer) + " -> ");
+            // System.out.print(Integer.toHexString(Integer.parseInt("3F00", 16) + mirroredAddress) + " : ");
+            // System.out.println(value);
             paletteRamIndexes.writeMemory(mirroredAddress, value);
         }
     }
 
 
-    // Getters and Setters
     public void setNametableMirroring(Mirroring nametableMirroring) {
         this.nametableMirroring = nametableMirroring;
     }
 
+    // EFFECTS: mirrors the pointer according to the nametableMirroring and returns the value at that pointer in the
+    //          nametable
     protected Address readNametable(int pointer) {
         int rawPointer = pointer;
         switch (nametableMirroring) {
@@ -742,6 +840,9 @@ public class PPU {
         return nametable[pointer];
     }
 
+    // MODIFIES: nametable
+    // EFFECTS:  mirrors the pointer according to the nametableMirroring and writes the value at that pointer in the
+    //           nametable
     protected void writeNametable(int pointer, int value) {
         int rawPointer = pointer;
         switch (nametableMirroring) {
@@ -757,12 +858,16 @@ public class PPU {
         nametable[pointer].setValue(value);
     }
 
-
+    // MODIFIES: pixels
+    // EFFECTS:  renders the patternTables to the pixels using the given basePalette. This is because a given tile can
+    //           use multiple palettes, so a basePalette must be specified.
     public void renderPatternTables(Pixels pixels, int basePalette) {
-        renderPatternTable(pixels, 0, 0, 0, basePalette);
+        renderPatternTable(pixels, 0, 0,   0, basePalette);
         renderPatternTable(pixels, 1, 128, 0, basePalette);
     }
 
+    // MODIFIES: pixels
+    // EFFECTS:  renders one half of the pattern table to the pixels using the given offsets and basePalette.
     private void renderPatternTable(Pixels pixels, int patternTable, int offsetX, int offsetY, int basePalette) {
         int offset = patternTable * Integer.parseInt("0100", 16);
 
@@ -783,6 +888,9 @@ public class PPU {
         }
     }
 
+    // MODIFIES: pixels
+    // EFFECTS:  renders the nametable to the pixels using the given basePalette. This is because a given tile can
+    //           use multiple palettes, so a basePalette must be specified.
     public void renderNameTables(Pixels pixels, int basePalette) {
         int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 4);
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
@@ -810,6 +918,8 @@ public class PPU {
         }
     }
 
+    // MODIFIES: pixels
+    // EFFECTS:  renders the OAM to the pixels using the given scaling.
     public void renderOAM(Pixels pixels, int scaleX, int scaleY) {
         int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 3);
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
@@ -837,6 +947,8 @@ public class PPU {
         }
     }
 
+    // REQUIRES: 0x0000 <= pointer <= 0x1FFF
+    // EFFECTS:  returns the 8 low bits of the given tile at the pointer in memory.
     private Address[] getTileLow(int pointer) {
         int offset = pointer << 4;
 
@@ -847,6 +959,8 @@ public class PPU {
         return tileLow;
     }
 
+    // REQUIRES: 0x0000 <= pointer <= 0x1FFF
+    // EFFECTS:  returns the 8 high bits of the given tile at the pointer in memory.
     private Address[] getTileHigh(int pointer) {
         int tile = pointer;
         int offset = pointer << 4;
@@ -862,6 +976,8 @@ public class PPU {
         this.pixels = pixels;
     }
 
+    // MODIFIES: primaryOam
+    // EFFECTS: writes the value to the primaryOam at the address specified in oamAddr, and increments oamAddr
     public void writeOam(int value) {
         primaryOam[oamAddr.getValue()].setValue(value);
         oamAddr.setValue(oamAddr.getValue() + 1);

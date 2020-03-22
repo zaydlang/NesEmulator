@@ -2,6 +2,9 @@ package ppu;
 
 import java.awt.*;
 
+// Class ColorPalette:
+//     A static list of colors that maps a number to a color.
+
 public class ColorPalette {
     public static Color getColor(int color) {
         return colorPalette[color];

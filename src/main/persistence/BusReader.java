@@ -91,6 +91,7 @@ public class BusReader {
         }
     }
 
+    // EFFECTS: reads the scanner to set the PPU's state
     private static PPU readPpu(PPU ppu, Scanner scanner) throws IOException {
         readPpuLatches(ppu, scanner);
         readPpuInternalRegisters(ppu, scanner);
@@ -104,6 +105,8 @@ public class BusReader {
         return ppu;
     }
 
+    // REQUIRES: scanner has at least 4 * 2 delimited integers
+    // EFFECTS: reads the scanner to set the PPU's latches
     private static void readPpuLatches(PPU ppu, Scanner scanner) throws IOException {
         readSerializable(ppu.getLatchNametable(), scanner);
         readSerializable(ppu.getLatchAttributeTable(), scanner);
@@ -111,6 +114,8 @@ public class BusReader {
         readSerializable(ppu.getLatchPatternTableHigh(), scanner);
     }
 
+    // REQUIRES: scanner has at least 4 * 2 delimited integers
+    // EFFECTS: reads the scanner to set the PPU's internal registers
     private static void readPpuInternalRegisters(PPU ppu, Scanner scanner) throws IOException {
         readSerializable(ppu.getRegisterT(), scanner);
         readSerializable(ppu.getRegisterV(), scanner);
@@ -118,6 +123,8 @@ public class BusReader {
         readSerializable(ppu.getRegisterW(), scanner);
     }
 
+    // REQUIRES: scanner has at least 4 * 2 delimited integers.
+    // EFFECTS: reads the scanner to set the PPU's shift registers
     private static void readPpuShiftRegisters(PPU ppu, Scanner scanner) throws IOException {
         readSerializable(ppu.getShiftRegisterSmall0(), scanner);
         readSerializable(ppu.getShiftRegisterSmall1(), scanner);
@@ -125,6 +132,8 @@ public class BusReader {
         readSerializable(ppu.getShiftRegisterLarge1(), scanner);
     }
 
+    // REQUIRES: scanner has at least 7 * 2 delimited integers.
+    // EFFECTS: reads the scanner to set the PPU's registers
     private static void readPpuRegisters(PPU ppu, Scanner scanner) throws IOException {
         readSerializable(ppu.peekPpuCtrl(), scanner);
         readSerializable(ppu.peekPpuMask(), scanner);
@@ -135,6 +144,8 @@ public class BusReader {
         readSerializable(ppu.peekPpuDataBuffer(), scanner);
     }
 
+    // REQUIRES: scanner has at least 1 + 0x400 * 2 + 1 delimited integers.
+    // EFFECTS: reads the scanner to set the PPU's nametables
     private static void readPpuNametables(PPU ppu, Scanner scanner) throws IOException {
         int length = Integer.parseInt(scanner.next());
         for (int i = 0; i < length; i++) {
@@ -144,6 +155,8 @@ public class BusReader {
         ppu.setNametableMirroring(Mirroring.valueOf(scanner.next()));
     }
 
+    // REQUIRES: scanner has at least 0x0020 * 2 + 1 delimited integers.
+    // EFFECTS: reads the scanner to set the PPU's palette ram indexes
     private static void readPpuPaletteRamIndexes(PPU ppu, Scanner scanner) throws IOException {
         int length = Integer.parseInt(scanner.next());
         for (int i = 0; i < length; i++) {
@@ -151,6 +164,8 @@ public class BusReader {
         }
     }
 
+    // REQUIRES: scanner has at least 0x100 * 2 + 1 + 0x020 * 2 + 1 delimited integers.
+    // EFFECTS: reads the scanner to set the PPU's primary OAM and secondary OAM.
     private static void readPpuOam(PPU ppu, Scanner scanner) throws IOException {
         int primaryOamLength = Integer.parseInt(scanner.next());
         for (int i = 0; i < primaryOamLength; i++) {
@@ -162,6 +177,8 @@ public class BusReader {
         }
     }
 
+    // REQUIRES: scanner has at least 4 * 8 + 1 delimited integers.
+    // EFFECTS: reads the scanner to set the PPU's sprites
     private static void readPpuSprites(PPU ppu, Scanner scanner) throws IOException {
         int length = Integer.parseInt(scanner.next());
         for (int i = 0; i < length; i++) {
@@ -169,6 +186,8 @@ public class BusReader {
         }
     }
 
+    // REQUIRES: scanner has at least 5 delimited integers.
+    // EFFECTS: reads the scanner to set the PPU's Cycling Data
     private static void readPpuCyclingData(PPU ppu, Scanner scanner) throws IOException {
         ppu.setCycle(Integer.parseInt(scanner.next()));
         ppu.setScanline(Integer.parseInt(scanner.next()));
@@ -188,11 +207,12 @@ public class BusReader {
         return mapper;
     }
 
+    // MODIFIES: busSerializable, scanner
+    // EFFECTS:  deserializes the busSerializable using the scanner.
     private static void readSerializable(BusSerializable busSerializable, Scanner scanner) {
         busSerializable.deserialize(scanner);
     }
 
-    // REQUIRES: scanner has at least 2 (4096) delimited integers.
     // EFFECTS: reads the scanner to get the next address.
     private static Address getNextAddress(Scanner scanner) {
         return new Address(Integer.parseInt(scanner.next()), Integer.parseInt(scanner.next()), 0, Integer.MAX_VALUE);

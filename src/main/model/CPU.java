@@ -161,6 +161,9 @@ public class CPU {
         incrementCycles(1);
     }
 
+    // MODIFIES: this, bus
+    // EFFECTS:  runs one cycle of DMA in the CPU, transfering the memory in 0x[dmaPage]00 to 0x[dmaPage]FF to the
+    //           PPU primary OAM.
     private void handleDMA() {
         //System.out.println(dmaIndex);
         if (dmaIndex == 0) {
@@ -180,11 +183,15 @@ public class CPU {
         }
     }
 
+    // MODIFIES: cyclesRemaining
+    // EFFECTS:  increments cyclesRemaining by increment.
     public void incrementCyclesRemaining(int increment) {
         // System.out.println("Incremented +" + increment + " to " + cyclesRemaining + "!");
         cyclesRemaining += increment;
     }
 
+    // MODIFIES: processes one instruction and updates the CPU's state as necessary. An instruction is only considered
+    //           complete once the appropriate amount of cycles have been run through.
     private void processInstruction() {
         if (isBreakpoint(registerPC)) {
             setEnabled(false);
@@ -213,6 +220,9 @@ public class CPU {
         //incrementCyclesRemaining(instruction.getNumCycles());
     }
 
+    // MODIFIES: this
+    // EFFECTS:  handles the NMI (non-maskable interrupt). If the NMI flag is set, interrupts the CPU and sets
+    //           registerPC to the vector at 0xFFFA/B
     private void handleNMI() {
         if (nmi) {
             int byteOne = ((getRegisterPC().getValue()) & Integer.parseInt("1111111100000000", 2)) >> 8;

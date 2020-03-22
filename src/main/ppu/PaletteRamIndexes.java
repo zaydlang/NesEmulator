@@ -2,6 +2,10 @@ package ppu;
 
 import model.Address;
 
+// Class PaletteRamIndexes:
+//     A list of indexes into ColorPalette.java. Contains 8 palettes of 4 colors each; the bottom half is for
+//     background and the top half is for sprites.
+
 public class PaletteRamIndexes {
     // Constants
     protected static final int PALETTE_RAM_INDEXES_SIZE = Integer.parseInt("0200", 16);
@@ -9,6 +13,9 @@ public class PaletteRamIndexes {
 
     // Fields
     private Address[] indexes;
+
+    // MODIFIES: this
+    // EFFECTS:  initializes all the palette ram indexes and sets up the mirrors.
 
     public PaletteRamIndexes() {
         indexes = new Address[PALETTE_RAM_INDEXES_SIZE];
@@ -27,6 +34,7 @@ public class PaletteRamIndexes {
         indexes[pointer].setValue(value);
     }
 
+    // EFFECTS: returns the value in memory at indexes, taking into account n % 4 mirrors.
     public Address readMemory(int pointer) {
         if (pointer % 4 == 0) {
             return indexes[0];
