@@ -101,14 +101,15 @@ public class NRom extends Mapper {
         for (Address address : prgRom) {
             output.append(address.serialize(delimiter));
         }
-        output.append(prgRom.length + delimiter);
+        output.append(prgRam.length + delimiter);
         for (Address address : prgRam) {
             output.append(address.serialize(delimiter));
         }
-        output.append(prgRom.length + delimiter);
+        output.append(chrRom.length + delimiter);
         for (Address address : chrRom) {
             output.append(address.serialize(delimiter));
         }
+        output.append(isNRom128 ? 1 : 0 + delimiter);
         return output.toString();
     }
 
@@ -116,16 +117,20 @@ public class NRom extends Mapper {
     public void deserialize(Scanner scanner) {
         prgRom = new Address[Integer.parseInt(scanner.next())];
         for (int i = 0; i < prgRom.length; i++) {
-            prgRom[i].setValue(Integer.parseInt(scanner.next()));
+            prgRom[i] = new Address(0, 0);
+            prgRom[i].deserialize(scanner);
         }
         prgRam = new Address[Integer.parseInt(scanner.next())];
         for (int i = 0; i < prgRam.length; i++) {
-            prgRam[i].setValue(Integer.parseInt(scanner.next()));
+            prgRam[i] = new Address(0, 0);
+            prgRam[i].deserialize(scanner);
         }
         chrRom = new Address[Integer.parseInt(scanner.next())];
         for (int i = 0; i < chrRom.length; i++) {
-            chrRom[i].setValue(Integer.parseInt(scanner.next()));
+            chrRom[i] = new Address(0, 0);
+            chrRom[i].deserialize(scanner);
         }
+        isNRom128 = scanner.next().equals("1");
         enable();
     }
 }

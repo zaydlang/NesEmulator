@@ -161,7 +161,7 @@ public class Bus {
     public Address controllerRead(int pointer) {
         if (controllerConnected && pointer == Integer.parseInt("4016", 16)) {
             Address address = controller.poll();
-            System.out.println("POLLED: " + address);
+            // System.out.println("POLLED: " + address);
             return address;
         } else {
             return new Address(0);
@@ -178,7 +178,7 @@ public class Bus {
 
     public void controllerWrite(int pointer, int value) {
         if (controllerConnected && pointer == Integer.parseInt("4016", 16)) {
-            System.out.println("STROBE: " + value);
+            // System.out.println("STROBE: " + value);
             controller.setPolling(value == 1);
         }
     }
@@ -189,6 +189,14 @@ public class Bus {
 
     public PPU getPpu() {
         return ppu;
+    }
+
+    public void reload(CPU cpu, PPU ppu, Mapper mapper) {
+        this.cpu    = cpu;
+        this.ppu    = ppu;
+        this.mapper = mapper;
+
+        cartridgeLoaded = true;
     }
 
     public void setController(Controller controller) {

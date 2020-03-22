@@ -56,4 +56,8 @@ public abstract class Mapper implements BusSerializable {
     protected boolean getEnabled() {
         return enabled;
     }
+
+    public int getChrRomSize() {
+        return chrRom.length;
+    }
 }

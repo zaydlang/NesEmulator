@@ -162,7 +162,7 @@ public class CPU {
     }
 
     private void handleDMA() {
-        System.out.println(dmaIndex);
+        //System.out.println(dmaIndex);
         if (dmaIndex == 0) {
             if (cycle % 2 == 0) {
                 dmaIndex++;
@@ -203,11 +203,12 @@ public class CPU {
 
         registerPC.setValue(registerPC.getValue() + instruction.getNumArguments() + 1);
 
-        System.out.println(preStatus);
-        System.out.println(instruction.toString());
+        //System.out.println(preStatus);
+        //System.out.println(instruction.toString());
         Address opcodeArgument = Mode.runMode(instruction.getMode(), modeArguments, this);
         Opcode.runOpcode(instruction.getOpcode(), opcodeArgument, this);
         //incrementCycles(instruction.getNumCycles());
+        loggingOutput.log(preStatus);
 
         //incrementCyclesRemaining(instruction.getNumCycles());
     }

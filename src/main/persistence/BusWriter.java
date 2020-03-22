@@ -174,7 +174,8 @@ public class BusWriter {
     }
 
     private static void writePpuSprites(PPU ppu, FileWriter fileWriter) throws IOException {
-        fileWriter.write(ppu.getSprites().length);
+        fileWriter.write(ppu.getSprites().length + "");
+        fileWriter.write(DELIMITER);
         for (Sprite sprite : ppu.getSprites()) {
             writeSerializable(sprite, fileWriter);
         }
@@ -193,8 +194,7 @@ public class BusWriter {
     // EFFECTS: writes the mapper's cartridge name to the fileWriter
     //          NOTE: as the current mappers only contain ROM, only the cartridgeName need be preserved.
     private static void writeMapper(Mapper mapper, FileWriter fileWriter) throws IOException {
-        int cartridgeId = mapper.getId();
-        fileWriter.write(cartridgeId);
+        fileWriter.write(mapper.getId() + "");
         fileWriter.write(DELIMITER);
         writeSerializable(mapper, fileWriter);
     }

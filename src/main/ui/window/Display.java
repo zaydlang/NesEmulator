@@ -67,7 +67,14 @@ public class Display extends PixelWindow implements KeyListener {
     JMenuItem fileLoadState      = new JMenuItem(new AbstractAction("Load State") {
         @Override
         public void actionPerformed(ActionEvent e) {
-            BusReader.readFromFile(bus, "savestate.sav");
+            bus = BusReader.readFromFile("savestate.sav");
+            try {
+                setupBus();
+            } catch (IOException ex) {
+                // Failed to load savestate!
+                int x = 2;
+            }
+            bus.setEnabled(true);
         }
     });
 

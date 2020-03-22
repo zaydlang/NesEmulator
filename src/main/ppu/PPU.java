@@ -639,6 +639,34 @@ public class PPU {
         return ppuData;
     }
 
+    public Address peekPpuCtrl() {
+        return ppuCtrl;
+    }
+
+    public Address peekPpuMask() {
+        return ppuMask;
+    }
+
+    public Address peekPpuStatus() {
+        return ppuStatus;
+    }
+
+    public Address peekOamAddr() {
+        return oamAddr;
+    }
+
+    public Address peekPpuScroll() {
+        return ppuScroll;
+    }
+
+    public Address peekPpuData() {
+        return ppuData;
+    }
+
+    public Address peekPpuDataBuffer() {
+        return ppuDataBuffer;
+    }
+
     public Address readMemory(int pointer) {
         // https://wiki.nesdev.com/w/index.php/PPU_memory_map
         // ADDRESS RANGE | SIZE  | DEVICE

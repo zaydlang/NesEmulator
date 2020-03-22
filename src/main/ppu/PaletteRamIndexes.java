@@ -38,4 +38,8 @@ public class PaletteRamIndexes {
     public Address[] getIndexes() {
         return indexes;
     }
+
+    public Address peekMemory(int pointer) {
+        return indexes[pointer];
+    }
 }

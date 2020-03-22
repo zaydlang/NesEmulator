@@ -28,26 +28,31 @@ public class BusReader {
 
     // REQUIRES: fileName.EXTENSION exists in SAVE_DIRECTORY
     // EFFECTS: saves the NES' state to a file at filename. Throws IOException if the file could not be read from.
-    public static void readFromFile(Bus bus, String fileName) {
+    public static Bus readFromFile(String fileName) {
+        Bus bus = new Bus();
+        bus.reset();
+
         try {
-            bus.setEnabled(false);
             Scanner scanner = new Scanner(new File(SAVE_DIRECTORY + fileName + EXTENSION)).useDelimiter(DELIMITER);
 
-            readCpu(bus.getCpu(), scanner);
-            readPpu(bus.getPpu(), scanner);
-            //readMapper(bus.getMapper(), scanner);
-            bus.setEnabled(true);
+            CPU cpu       = readCpu(bus.getCpu(), scanner);
+            PPU ppu       = readPpu(bus.getPpu(), scanner);
+            Mapper mapper = readMapper(bus.getMapper(), scanner);
+            bus.reload(cpu, ppu, mapper);
         } catch (IOException e) {
             // Do nothing; failed to load!
         }
+
+        return bus;
     }
 
     // EFFECTS: reads the scanner to set the CPU's state
-    private static void readCpu(CPU cpu, Scanner scanner) {
+    private static CPU readCpu(CPU cpu, Scanner scanner) {
         readCpuRegisters(cpu, scanner);
         readCpuFlags(cpu, scanner);
         readCpuRam(cpu, scanner);
         readCpuState(cpu, scanner);
+        return cpu;
     }
 
     // REQUIRES: scanner has at least 10 delimited integers
@@ -86,7 +91,7 @@ public class BusReader {
         }
     }
 
-    private static void readPpu(PPU ppu, Scanner scanner) throws IOException {
+    private static PPU readPpu(PPU ppu, Scanner scanner) throws IOException {
         readPpuLatches(ppu, scanner);
         readPpuInternalRegisters(ppu, scanner);
         readPpuShiftRegisters(ppu, scanner);
@@ -96,6 +101,7 @@ public class BusReader {
         readPpuOam(ppu, scanner);
         readPpuSprites(ppu, scanner);
         readPpuCyclingData(ppu, scanner);
+        return ppu;
     }
 
     private static void readPpuLatches(PPU ppu, Scanner scanner) throws IOException {
@@ -120,13 +126,13 @@ public class BusReader {
     }
 
     private static void readPpuRegisters(PPU ppu, Scanner scanner) throws IOException {
-        readSerializable(ppu.getPpuCtrl(), scanner);
-        readSerializable(ppu.getPpuMask(), scanner);
-        readSerializable(ppu.getPpuStatus(), scanner);
-        readSerializable(ppu.getOamAddr(), scanner);
-        readSerializable(ppu.getPpuScroll(), scanner);
-        readSerializable(ppu.getPpuData(), scanner);
-        readSerializable(ppu.getPpuDataBuffer(), scanner);
+        readSerializable(ppu.peekPpuCtrl(), scanner);
+        readSerializable(ppu.peekPpuMask(), scanner);
+        readSerializable(ppu.peekPpuStatus(), scanner);
+        readSerializable(ppu.peekOamAddr(), scanner);
+        readSerializable(ppu.peekPpuScroll(), scanner);
+        readSerializable(ppu.peekPpuData(), scanner);
+        readSerializable(ppu.peekPpuDataBuffer(), scanner);
     }
 
     private static void readPpuNametables(PPU ppu, Scanner scanner) throws IOException {
@@ -141,7 +147,7 @@ public class BusReader {
     private static void readPpuPaletteRamIndexes(PPU ppu, Scanner scanner) throws IOException {
         int length = Integer.parseInt(scanner.next());
         for (int i = 0; i < length; i++) {
-            readSerializable(ppu.getPaletteRamIndexes().readMemory(i), scanner);
+            readSerializable(ppu.getPaletteRamIndexes().peekMemory(i), scanner);
         }
     }
 
@@ -174,13 +180,13 @@ public class BusReader {
     // REQUIRES: scanner has at least 1 delimited string.
     // EFFECTS: reads the scanner to set the CPU's mapper.
     @SuppressWarnings("ParameterCanBeLocal")
-    private static void readMapper(Mapper mapper, Scanner scanner) throws IOException {
+    private static Mapper readMapper(Mapper mapper, Scanner scanner) throws IOException {
         int id = Integer.parseInt(scanner.next());
 
         mapper = Mapper.getMapper(id);
         mapper.deserialize(scanner);
+        return mapper;
     }
-
 
     private static void readSerializable(BusSerializable busSerializable, Scanner scanner) {
         busSerializable.deserialize(scanner);

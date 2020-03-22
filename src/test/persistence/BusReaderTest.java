@@ -1,5 +1,6 @@
 package persistence;
 
+import mapper.Mapper;
 import model.Address;
 import model.Bus;
 import model.CPU;
@@ -17,38 +18,42 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BusReaderTest {
-    static Bus expectedBus;
-    static CPU expectedCpu;
-    static PPU expectedPpu;
+    static Bus    expectedBus;
+    static CPU    expectedCpu;
+    static PPU    expectedPpu;
+    static Mapper expectedMapper;
 
-    static Bus actualBus;
-    static CPU actualCpu;
-    static PPU actualPpu;
+    static Bus    actualBus;
+    static CPU    actualCpu;
+    static PPU    actualPpu;
+    static Mapper actualMapper;
 
     @BeforeAll
     static void runBeforeAll() {
         try {
-            actualBus   = new Bus();
-            actualBus.loadCartridge(new File("./data/rom/nestest.nes"));
-            actualBus.getCpu().addBreakpoint(new Address(Integer.parseInt("ABCD", 16)));
+            expectedBus = new Bus();
+            expectedBus.loadCartridge(new File("./data/rom/nestest.nes"));
+            expectedBus.getCpu().addBreakpoint(new Address(Integer.parseInt("ABCD", 16)));
 
             for (int i = 0; i < 10000; i++) {
-                actualBus.cycleComponents();
+                expectedBus.cycleComponents();
             }
 
-            BusWriter.writeToFile(actualBus, "test");
+            BusWriter.writeToFile(expectedBus, "test");
 
-            expectedBus = new Bus();
-            expectedBus.reset();
-            BusReader.readFromFile(expectedBus, "test");
+            actualBus = new Bus();
+            actualBus.reset();
+            actualBus = BusReader.readFromFile("test");
         } catch (IOException e) {
             fail("IOException thrown! Are you sure the file exists?");
         }
 
-        expectedCpu = expectedBus.getCpu();
-        expectedPpu = expectedBus.getPpu();
-        actualCpu   = actualBus.getCpu();
-        actualPpu   = actualBus.getPpu();
+        expectedCpu    = expectedBus.getCpu();
+        expectedPpu    = expectedBus.getPpu();
+        expectedMapper = expectedBus.getMapper();
+        actualCpu      = actualBus.getCpu();
+        actualPpu      = actualBus.getPpu();
+        actualMapper   = actualBus.getMapper();
     }
 
 
@@ -70,7 +75,7 @@ public class BusReaderTest {
     void testCpuFlags() {
         assertEquals(expectedCpu.getStatus(),  actualCpu.getStatus());
     }
-    
+
     @Test
     void testCpuRam() {
         for (int i = 0; i < Integer.parseInt("0800", 16); i++) {
@@ -162,6 +167,20 @@ public class BusReaderTest {
         assertEquals(expectedPpu.getDrawX(),      actualPpu.getDrawX());
         assertEquals(expectedPpu.getDrawY(),      actualPpu.getDrawY());
         assertEquals(expectedPpu.getIsOddFrame(), actualPpu.getIsOddFrame());
+    }
+
+    @Test
+    void testMapper() {
+        assertEquals(expectedMapper.getId(), actualMapper.getId());
+
+        for (int i = Integer.parseInt("6000", 16); i < Integer.parseInt("FFFF", 16) + 1; i++) {
+            assertAddressEquality(expectedMapper.readMemoryCpu(i), actualMapper.readMemoryCpu(i));
+        }
+
+        assertEquals(expectedMapper.getChrRomSize(), actualMapper.getChrRomSize());
+        for (int i = 0; i < expectedMapper.getChrRomSize(); i++) {
+            assertAddressEquality(expectedMapper.readMemoryPpu(i), actualMapper.readMemoryPpu(i));
+        }
     }
 
     void assertAddressEquality(Address expected, Address actual) {
