@@ -151,7 +151,11 @@ public class Bus {
     }
 
     public Address mapperReadPpu(int pointer) {
-        return mapper.readMemoryPpu(pointer);
+        try {
+            return mapper.readMemoryPpu(pointer);
+        } catch (NullPointerException e) {
+            return new Address(0);
+        }
     }
 
     public Address controllerRead(int pointer) {

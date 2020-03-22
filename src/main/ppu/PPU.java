@@ -15,11 +15,11 @@ import java.util.Scanner;
 
 public class PPU {
     // Constants
-    private static final int PATTERN_TABLE_SIZE = Integer.parseInt("1000", 16);
-    private static final int NAMETABLE_SIZE = Integer.parseInt("0400", 16);
-    private static final int PALETTE_RAM_SIZE = Integer.parseInt("0020", 16);
-    private static final int OAM_SIZE = Integer.parseInt("0100", 16);
-
+    public  static final int PATTERN_TABLE_SIZE = Integer.parseInt("1000", 16);
+    public  static final int NAMETABLE_SIZE     = Integer.parseInt("0400", 16);
+    public  static final int PALETTE_RAM_SIZE   = Integer.parseInt("0020", 16);
+    public  static final int PRIMARY_OAM_SIZE   = Integer.parseInt("0100", 16);
+    public  static final int SECONDARY_OAM_SIZE = Integer.parseInt("0020", 16);
     private static final int PPUCTRL_ADDRESS = Integer.parseInt("2000", 16);
     private static final int PPUMASK_ADDRESS = Integer.parseInt("2001", 16);
     private static final int PPUSTATUS_ADDRESS = Integer.parseInt("2002", 16);
@@ -95,8 +95,8 @@ public class PPU {
     public PPU(Bus bus) {
         nametable = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
         paletteRamIndexes = new PaletteRamIndexes();
-        primaryOam = new Address[OAM_SIZE];
-        secondaryOam = new Address[4 * 8];
+        primaryOam = new Address[PRIMARY_OAM_SIZE];
+        secondaryOam = new Address[SECONDARY_OAM_SIZE];
         sprites = new Sprite[8];
 
         shiftRegisterSmall0 = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);

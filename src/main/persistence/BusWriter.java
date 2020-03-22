@@ -86,7 +86,9 @@ public class BusWriter {
     // REQUIRES: fileWriter is open and can be written to.
     // EFFECTS: writes the CPU's state (cycles and breakpoints) to the fileWriter
     private static void writeCpuState(CPU cpu, FileWriter fileWriter) throws IOException {
-        writeSerializable(new Address(cpu.getCycles()), fileWriter);
+        fileWriter.write(cpu.getCycles() + "");
+        System.out.println(cpu.getCycles());
+        fileWriter.write(DELIMITER);
 
         ArrayList<Address> breakpoints = cpu.getBreakpoints();
         fileWriter.write(Integer.toString(breakpoints.size()));
@@ -140,16 +142,18 @@ public class BusWriter {
     }
 
     private static void writePpuNametables(PPU ppu, FileWriter fileWriter) throws IOException {
-        fileWriter.write(ppu.getNametable().length);
+        fileWriter.write(ppu.getNametable().length + "");
+        fileWriter.write(DELIMITER);
         for (Address address : ppu.getNametable()) {
             writeSerializable(address, fileWriter);
         }
+
         fileWriter.write(ppu.getNametableMirroring().toString());
         fileWriter.write(DELIMITER);
     }
 
     private static void writePpuPaletteRamIndexes(PPU ppu, FileWriter fileWriter) throws IOException {
-        fileWriter.write(ppu.getPaletteRamIndexes().getIndexes().length);
+        fileWriter.write(ppu.getPaletteRamIndexes().getIndexes().length + "");
         for (Address address : ppu.getPaletteRamIndexes().getIndexes()) {
             writeSerializable(address, fileWriter);
         }

@@ -34,7 +34,7 @@ public class BusReader {
             Scanner scanner = new Scanner(new File(SAVE_DIRECTORY + fileName + EXTENSION)).useDelimiter(DELIMITER);
 
             readCpu(bus.getCpu(), scanner);
-            //readPpu(bus.getPpu(), scanner);
+            readPpu(bus.getPpu(), scanner);
             //readMapper(bus.getMapper(), scanner);
             bus.setEnabled(true);
         } catch (IOException e) {
@@ -78,7 +78,7 @@ public class BusReader {
     //           in the scanner.
     // EFFECTS: reads the scanner to set the CPU's state. (cycles and breakpoints)
     private static void readCpuState(CPU cpu, Scanner scanner) {
-        cpu.setCycles(getNextAddress(scanner).getValue());
+        cpu.setCycles(Integer.parseInt(scanner.next()));
 
         int numBreakpoints = Integer.parseInt(scanner.next());
         for (int i = 0; i < numBreakpoints; i++) {

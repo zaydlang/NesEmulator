@@ -6,6 +6,9 @@ import model.CPU;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import ppu.PPU;
+import ppu.ShiftRegister;
+import ppu.Sprite;
 
 import java.io.IOException;
 import java.io.File;
@@ -15,10 +18,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class BusReaderTest {
     static Bus expectedBus;
-    static Bus actualBus;
-
     static CPU expectedCpu;
+    static PPU expectedPpu;
+
+    static Bus actualBus;
     static CPU actualCpu;
+    static PPU actualPpu;
 
     @BeforeAll
     static void runBeforeAll() {
@@ -26,7 +31,11 @@ public class BusReaderTest {
             actualBus   = new Bus();
             actualBus.loadCartridge(new File("./data/rom/nestest.nes"));
             actualBus.getCpu().addBreakpoint(new Address(Integer.parseInt("ABCD", 16)));
-            actualBus.cycleComponents();
+
+            for (int i = 0; i < 10000; i++) {
+                actualBus.cycleComponents();
+            }
+
             BusWriter.writeToFile(actualBus, "test");
 
             expectedBus = new Bus();
@@ -37,7 +46,9 @@ public class BusReaderTest {
         }
 
         expectedCpu = expectedBus.getCpu();
+        expectedPpu = expectedBus.getPpu();
         actualCpu   = actualBus.getCpu();
+        actualPpu   = actualBus.getPpu();
     }
 
 
@@ -69,14 +80,103 @@ public class BusReaderTest {
 
     @Test
     void testCpuState() {
-        assertEquals(expectedCpu.getCycles(), actualCpu.getCycles());
+        assertEquals(expectedCpu.getCycles(),      actualCpu.getCycles());
         for (int i = 0; i < expectedCpu.getBreakpoints().size(); i++) {
             assertAddressEquality(expectedCpu.getBreakpoints().get(i), actualCpu.getBreakpoints().get(i));
         }
     }
 
+    @Test
+    void testPpuLatches() {
+        assertAddressEquality(expectedPpu.getLatchNametable(),        actualPpu.getLatchNametable());
+        assertAddressEquality(expectedPpu.getLatchAttributeTable(),   actualPpu.getLatchAttributeTable());
+        assertAddressEquality(expectedPpu.getLatchPatternTableLow(),  actualPpu.getLatchPatternTableLow());
+        assertAddressEquality(expectedPpu.getLatchPatternTableHigh(), actualPpu.getLatchPatternTableHigh());
+    }
+
+    @Test
+    void testPpuInternalRegisters() {
+        assertAddressEquality(expectedPpu.getRegisterT(), actualPpu.getRegisterT());
+        assertAddressEquality(expectedPpu.getRegisterV(), actualPpu.getRegisterV());
+        assertAddressEquality(expectedPpu.getRegisterX(), actualPpu.getRegisterX());
+        assertAddressEquality(expectedPpu.getRegisterW(), actualPpu.getRegisterW());
+    }
+
+    @Test
+    void testPpuShiftRegisters() {
+        assertShiftRegisterEquality(expectedPpu.getShiftRegisterSmall0(), actualPpu.getShiftRegisterSmall0());
+        assertShiftRegisterEquality(expectedPpu.getShiftRegisterSmall1(), actualPpu.getShiftRegisterSmall1());
+        assertShiftRegisterEquality(expectedPpu.getShiftRegisterLarge0(), actualPpu.getShiftRegisterLarge0());
+        assertShiftRegisterEquality(expectedPpu.getShiftRegisterLarge1(), actualPpu.getShiftRegisterLarge1());
+    }
+
+    @Test
+    void testPpuRegisters() {
+        assertAddressEquality(expectedPpu.getPpuCtrl(),       actualPpu.getPpuCtrl());
+        assertAddressEquality(expectedPpu.getPpuMask(),       actualPpu.getPpuMask());
+        assertAddressEquality(expectedPpu.getPpuStatus(),     actualPpu.getPpuStatus());
+        assertAddressEquality(expectedPpu.getOamAddr(),       actualPpu.getOamAddr());
+        assertAddressEquality(expectedPpu.getPpuScroll(),     actualPpu.getPpuScroll());
+        assertAddressEquality(expectedPpu.getPpuData(),       actualPpu.getPpuData());
+        assertAddressEquality(expectedPpu.getPpuDataBuffer(), actualPpu.getPpuDataBuffer());
+    }
+
+    @Test
+    void testPpuNametables() {
+        for (int i = 0; i < PPU.NAMETABLE_SIZE; i++) {
+            assertAddressEquality(expectedPpu.getNametable()[i], actualPpu.getNametable()[i]);
+        }
+        assertEquals(expectedPpu.getNametableMirroring(), actualPpu.getNametableMirroring());
+    }
+
+    @Test
+    void testPpuPaletteRamIndexes() {
+        for (int i = 0; i < PPU.PALETTE_RAM_SIZE; i++) {
+            Address expected = expectedPpu.getPaletteRamIndexes().readMemory(i);
+            Address actual   = actualPpu.getPaletteRamIndexes().readMemory(i);
+            assertAddressEquality(expected, actual);
+        }
+    }
+
+    @Test
+    void testPpuOam() {
+        for (int i = 0; i < PPU.PRIMARY_OAM_SIZE; i++) {
+            assertAddressEquality(expectedPpu.getPrimaryOam()[i], actualPpu.getPrimaryOam()[i]);
+        }
+        for (int i = 0; i < PPU.SECONDARY_OAM_SIZE; i++) {
+            assertAddressEquality(expectedPpu.getSecondaryOam()[i], actualPpu.getSecondaryOam()[i]);
+        }
+    }
+
+    @Test
+    void testPpuSprites() {
+        for (int i = 0; i < 8; i++) {
+            assertSpriteEquality(expectedPpu.getSprites()[i], actualPpu.getSprites()[i]);
+        }
+    }
+
+    @Test
+    void testPpuCyclingData() {
+        assertEquals(expectedPpu.getCycle(),      actualPpu.getCycle());
+        assertEquals(expectedPpu.getScanline(),   actualPpu.getScanline());
+        assertEquals(expectedPpu.getDrawX(),      actualPpu.getDrawX());
+        assertEquals(expectedPpu.getDrawY(),      actualPpu.getDrawY());
+        assertEquals(expectedPpu.getIsOddFrame(), actualPpu.getIsOddFrame());
+    }
+
     void assertAddressEquality(Address expected, Address actual) {
         assertEquals(expected.getPointer(), actual.getPointer());
         assertEquals(expected.getValue(),   actual.getValue());
+    }
+
+
+    void assertShiftRegisterEquality(ShiftRegister expectedShiftRegister, ShiftRegister actualShiftRegisterLarge) {
+        assertEquals(expectedShiftRegister.getValue(), actualShiftRegisterLarge.getValue());
+    }
+
+    void assertSpriteEquality(Sprite expectedSprite, Sprite actualSprite) {
+        assertEquals(expectedSprite.getPriority(),              actualSprite.getPriority());
+        assertEquals(expectedSprite.getNextColorAddressAsInt(), actualSprite.getNextColorAddressAsInt());
+        assertEquals(expectedSprite.isActive(),                 actualSprite.isActive());
     }
 }
