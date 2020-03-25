@@ -444,7 +444,7 @@ public class PPU {
         int fullByte = bitOne * 4 + bitTwo * 8 + bitThree * 1 + bitFour * 2;
 
         Color color = getColor(getColorAddressUsingPriority(fullByte));
-        pixels.setPixel(drawX, drawY, color);
+        pixels.setPixel(drawX % 256, drawY % 240, color);
 
         drawX++;
         shiftRegisterSmall0.shiftLeft(1);
@@ -466,7 +466,7 @@ public class PPU {
                 int bgPixelLow = backgroundFullByte & Integer.parseInt("0011", 2);
                 int spritePixelLow = spriteFullByte & Integer.parseInt("0011", 2);
 
-                if (priority == 0 || bgPixelLow == 0) {
+                if (spritePixelLow != 0 && (bgPixelLow == 0 || priority == 0)) {
                     returnByte = spriteFullByte;
                 } else {
                     returnByte = backgroundFullByte;

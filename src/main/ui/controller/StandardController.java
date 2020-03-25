@@ -16,7 +16,7 @@ public class StandardController extends Controller {
             new Key(VK_UP,    "Up"),
             new Key(VK_DOWN,  "Down"),
             new Key(VK_LEFT,  "Left"),
-            new Key(VK_RIGHT, "Right"),
+            new Key(VK_RIGHT, "Right")
     };
 
     private boolean isPolling;
@@ -35,7 +35,7 @@ public class StandardController extends Controller {
             return new Address(1);
         }
 
-        Address result = new Address(keyState[pollingIndex] ? Integer.parseInt("0", 16) : Integer.parseInt("1", 16));
+        Address result = new Address(keyState[pollingIndex] ? 1 : 0);
         pollingIndex++;
         return result;
     }
@@ -43,7 +43,6 @@ public class StandardController extends Controller {
     @Override
     public void setPolling(boolean isPolling) {
         this.isPolling = isPolling;
-
         if (!isPolling) {
             pollingIndex = 0;
         }

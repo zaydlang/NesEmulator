@@ -1,6 +1,7 @@
 package ui.window;
 
 import model.Bus;
+import model.Opcode;
 import persistence.BusReader;
 import persistence.BusWriter;
 import ui.controller.Controller;
@@ -13,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.TimerTask;
 
 public class Display extends PixelWindow implements KeyListener {
@@ -21,7 +24,7 @@ public class Display extends PixelWindow implements KeyListener {
     private static final String    CARTRIDGE            = "nestest";
     private static final String    CARTRIDGE_EXTENSION  = ".nes";
     private static final int       FPS                  = 60;
-    private static final double    CYCLES_PER_FRAME     = (341 * 262 - 0.5) * 4;
+    private static final double    CYCLES_PER_FRAME     = (341 * 262 - 0.5) * 4 / 12;
 
     private static final int       ICON_SIZE            = 20;
     private static final ImageIcon ICON_PAUSE;
@@ -139,21 +142,35 @@ public class Display extends PixelWindow implements KeyListener {
         super(bus, 2, 2, 32 * 8, 30 * 8,  "NES Emulator");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        addKeyListener(this);
 
         postContructor(FPS);
         setupTasks();
         setupHeader();
         setupBus();
+        setFocusable(true);
+        addKeyListener(this);
 
         pack();
         setVisible(true);
     }
 
+
+    Instant previousSecond = Instant.now();
+    int frames = 0;
+
     private void setupTasks() {
         cycleTask = new TimerTask() {
             @Override
             public void run() {
+                frames++;
+                if (ChronoUnit.MILLIS.between(previousSecond, Instant.now()) >= 1 * 1000) {
+                    previousSecond = Instant.now();
+                    //Opcode.print(frames / 1);
+                    Opcode.advance();
+                    System.out.println(frames);
+                    frames = 0;
+                }
+
                 for (int i = 0; i < CYCLES_PER_FRAME; i++) {
                     bus.cycle();
                 }
@@ -206,6 +223,7 @@ public class Display extends PixelWindow implements KeyListener {
 
     public static void main(String[] args) throws IOException {
         Bus bus = new Bus();
+        //bus.loadCartridge(new File("./data/rom/donkeykong.nes"));
         new Display(bus);
     }
 
@@ -216,7 +234,6 @@ public class Display extends PixelWindow implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override

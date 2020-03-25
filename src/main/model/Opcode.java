@@ -1,20 +1,36 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 // Class Opcode:
 //     Opcode models
 @SuppressWarnings("CodeBlock2Expr")
 public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     private static Opcode opcodes;
+    static int currentOpcode = 0;
 
     public interface OpcodeAction {
         void run(Address argument, CPU cpu);
     }
 
+    public static void advance() {
+        currentOpcode++;
+    }
+
+    public static void print(int frames) {
+        List<Entry<String, OpcodeAction>> list = new ArrayList<>();
+        list.addAll(opcodes.entrySet());
+        System.out.println(list.get(currentOpcode).getKey() + ": " + frames);
+    }
+
     // MODIFIES: cpu
     // EFFECTS: Runs the given opcode with the given argument, modifying the CPU flags/registers/RAM as necessary.
     public static void runOpcode(String opcode, Address argument, CPU cpu) {
+        //List<Entry<String, OpcodeAction>> list = new ArrayList<>();
+        //list.addAll(opcodes.entrySet());
+        //list.get(currentOpcode).getValue().run(argument, cpu);
         opcodes.get(opcode).run(argument, cpu);
     }
 

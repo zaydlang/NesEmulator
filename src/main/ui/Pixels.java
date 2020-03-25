@@ -2,6 +2,8 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 public class Pixels extends JPanel {
@@ -59,7 +61,11 @@ public class Pixels extends JPanel {
     }
 
     public void setPixel(int x, int y, Color color) {
-        pixels[x][y] = color;
+        try {
+            pixels[x][y] = color;
+        } catch (Exception e) {
+            int u = 2;
+        }
     }
 
     public Color getPixel(int i, int j) {
