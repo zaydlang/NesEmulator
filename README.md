@@ -37,4 +37,18 @@ The View menu allows you to view parts of the CPU and PPU
 
 Note that controls do not yet work; this emulator simply displays the NES onto the screen.
 
+## Phase 4: Task 2
+I use the map interface in my code, specifically in both Opcode.java and Mode.java (They're both used very similarly). Opcode has a bunch interfaces of type OpcodeAction defined.
+```Java
+public interface OpcodeAction  {
+    void run(Address argument, CPU cpu);
+}
+```
+Each OpcodeAction takes in an argument and a CPU, and uses the argument to modify the CPU in some way. Each of these OpcodeActions are placed in a large hashmap that maps from String to OpcodeAction, which essentially allows me to give each OpcodeAction its own "name". Then, you can run a specific OpcodeAction using this method:
+```Java
+public static void runOpcode(String opcode, Address argument, CPU cpu) {
+    opcodes.get(opcode).run(argument, cpu);
+}
+``` 
+
 (To the TA): Because I didn't get to give you a proper goodbye, I'd like to let you know you were really nice and helpful, and I enjoyed my time in the lab. Thanks for being our TA!
