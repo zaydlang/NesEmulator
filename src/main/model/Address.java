@@ -86,8 +86,11 @@ public class Address implements BusSerializable {
     // MODIFIES: rawValue
     // EFFECTS: sets the given value to the value wrapped around highestValue and lowestValue
     public void setValue(int rawValue) {
-        rawValue = (rawValue - lowestValue) % (highestValue - lowestValue + 1) + lowestValue;
-        if (rawValue < lowestValue) {
+        while (rawValue > highestValue) {
+            rawValue -= highestValue - lowestValue + 1;
+        }
+
+        while (rawValue < lowestValue) {
             rawValue += highestValue - lowestValue + 1;
         }
 

@@ -1,5 +1,7 @@
 package model;
 
+import apu.APU;
+import apu.PulseChannel;
 import mapper.Mapper;
 import mapper.NRom;
 import ppu.Mirroring;
@@ -25,6 +27,7 @@ public class Bus {
 
     private CPU cpu;
     private PPU ppu;
+    private APU apu;
     private Controller controller;
     private Mapper mapper;
 
@@ -41,6 +44,7 @@ public class Bus {
     public Bus() {
         cpu = new CPU(this);
         ppu = new PPU(this);
+        apu = new APU(this);
 
         cpu.setLoggingOutput(new CpuFileOutput());
 
@@ -65,6 +69,7 @@ public class Bus {
     public void reset() {
         cpu.reset();
         ppu.reset();
+        apu.enable();
     }
 
     // MODIFIES: mapper
@@ -86,7 +91,7 @@ public class Bus {
         Address[] prgRom = readFile(fileInputStream, 0, 8 * 4096,header[4].getValue() * PRG_ROM_SIZE);
         Address[] chrRom = readFile(fileInputStream, 0, 0, header[5].getValue() * CHR_ROM_SIZE);
         mapper = new NRom(prgRom, chrRom);
-        ppu.setNametableMirroring(Mirroring.VERTICAL);
+        ppu.setNametableMirroring(Mirroring.HORIZONTAL);
     }
 
     // REQUIRES: file has at least numBytes available, otherwise throws IOException.
@@ -141,6 +146,13 @@ public class Bus {
         ppu.cycle();
         ppu.cycle();
         cpu.cycle();
+
+        ppu.cycle();
+        ppu.cycle();
+        ppu.cycle();
+        cpu.cycle();
+
+        apu.cycle();
     }
 
 
@@ -189,6 +201,18 @@ public class Bus {
     // EFFECTS:  writes the ppu register at the given pointer to the value.
     public void ppuWrite(int pointer, int value) {
         ppu.writeRegister(pointer, value);
+    }
+
+    // MODIFIES: apu
+    // EFFECTS:  writes the apu channel register at the given pointer to the value.
+    public void apuChannelWrite(int pointer, int value) {
+        apu.writeChannelMemory(pointer, value);
+    }
+
+    // MODIFIES: apu
+    // EFFECTS:  writes the apu register at the given pointer to the value.
+    public void apuWrite(int pointer, int value) {
+        apu.writeMemory(pointer, value);
     }
 
     // EFFECTS:  writes the mapper at the given pointer to the value.
@@ -260,5 +284,9 @@ public class Bus {
 
     public void ppuDma(int value) {
         ppu.writeOam(value);
+    }
+
+    public APU getApu() {
+        return apu;
     }
 }

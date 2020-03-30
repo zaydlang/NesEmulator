@@ -173,7 +173,7 @@ public class PPU {
     // EFFECTS: resets the sprites to their default value
     private void resetSprites() {
         for (int i = 0; i < sprites.length; i++) {
-            sprites[i] = new Sprite(0, 0, 255, 256, 255);
+            sprites[i] = new Sprite(0, 0, 255, 256, 255, false, false);
         }
     }
 
@@ -285,12 +285,19 @@ public class PPU {
             int patternTableAddress = secondaryOam[i * 4 + 1].getValue();
             int attribute = (secondaryOam[i * 4 + 2].getValue() & Integer.parseInt("00000011", 2)) + 4;
             int spriteX = secondaryOam[i * 4 + 3].getValue();
+
             int fineY = drawY - spriteY;
+            boolean isMirroredVertically   = Util.getNthBit(secondaryOam[i * 4 + 2].getValue(), 7) == 1;
+            if (isMirroredVertically) {
+                fineY = 7 - fineY;
+            }
             int priority = Util.getNthBit(secondaryOam[i * 4 + 2].getValue(), 5);
 
             int patternTableLow = Util.reverse(getTileLow(offset + patternTableAddress)[fineY].getValue(), 8);
             int patternTableHigh = Util.reverse(getTileHigh(offset + patternTableAddress)[fineY].getValue(), 8);
-            sprites[i] = new Sprite(patternTableLow, patternTableHigh, attribute, spriteX, priority);
+            boolean isMirroredHorizontally = Util.getNthBit(secondaryOam[i * 4 + 2].getValue(), 6) == 1;
+            sprites[i] = new Sprite(patternTableLow, patternTableHigh, attribute, spriteX, priority,
+                    isMirroredHorizontally, isMirroredVertically);
         }
     }
 
@@ -304,6 +311,7 @@ public class PPU {
             drawY++;
         }
 
+        renderShiftRegisters();
         switch ((cycle - 1) % 8) {
             case 0:
                 break;
@@ -322,7 +330,6 @@ public class PPU {
                 break;
         }
 
-        renderShiftRegisters();
         incrementFineX();
     }
 
@@ -459,6 +466,8 @@ public class PPU {
     //          pixel. else, returns the sprite pixel
     private int getColorAddressUsingPriority(int backgroundFullByte) {
         int returnByte = backgroundFullByte;
+        boolean isReturningSprite = false;
+
         for (int i = 0; i < 8; i++) {
             if (sprites[i].isActive()) {
                 int spriteFullByte = sprites[i].getNextColorAddressAsInt();
@@ -468,8 +477,11 @@ public class PPU {
 
                 if (spritePixelLow != 0 && (bgPixelLow == 0 || priority == 0)) {
                     returnByte = spriteFullByte;
+                    isReturningSprite = true;
                 } else {
-                    returnByte = backgroundFullByte;
+                    if (!isReturningSprite) {
+                        returnByte = backgroundFullByte;
+                    }
                 }
             }
             sprites[i].decrementCounter();

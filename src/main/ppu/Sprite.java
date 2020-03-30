@@ -20,9 +20,13 @@ public class Sprite implements BusSerializable {
     private int counter;
     private int priority;
 
+    private boolean isMirroredHorizontally;
+    private boolean isMirroredVertically;
+
     // MODIFIES: this
     // EFFECTS:  initializes all the fields according to the given data.
-    public Sprite(int patternTableData0, int patternTableData1, int attribute, int spriteX, int priority) {
+    public Sprite(int patternTableData0, int patternTableData1, int attribute, int spriteX, int priority,
+                  boolean isMirroredHorizontally, boolean isMirroredVertically) {
         shiftRegister0 = new ShiftRegister(SHIFT_REGISTER_SIZE);
         shiftRegister1 = new ShiftRegister(SHIFT_REGISTER_SIZE);
 
@@ -31,6 +35,9 @@ public class Sprite implements BusSerializable {
         latch          = attribute;
         counter        = spriteX;
         this.priority  = priority;
+
+        this.isMirroredHorizontally = isMirroredHorizontally;
+        this.isMirroredVertically   = isMirroredVertically;
     }
 
     public void decrementCounter() {
@@ -47,8 +54,13 @@ public class Sprite implements BusSerializable {
     // MODIFIES: shiftRegister0, shiftRegister1
     // EFFECTS:  shifts both shift registers to the left by 1.
     private void shiftRegisters() {
-        shiftRegister0.shiftLeft(1);
-        shiftRegister1.shiftLeft(1);
+        if (isMirroredHorizontally) {
+            shiftRegister0.shiftRight(1);
+            shiftRegister1.shiftRight(1);
+        } else {
+            shiftRegister0.shiftLeft(1);
+            shiftRegister1.shiftLeft(1);
+        }
     }
 
     public int getPriority() {
@@ -59,8 +71,8 @@ public class Sprite implements BusSerializable {
     // MODFIIES: shiftRegister0, shiftRegister1
     // EFFECTS:  calculates the next color address of the sprite
     public int getNextColorAddressAsInt() {
-        int patternTableLow  = Util.getNthBit(shiftRegister0.getValue(), 0);
-        int patternTableHigh = Util.getNthBit(shiftRegister1.getValue(), 0);
+        int patternTableLow  = Util.getNthBit(shiftRegister0.getValue(), isMirroredHorizontally ? 7 : 0);
+        int patternTableHigh = Util.getNthBit(shiftRegister1.getValue(), isMirroredHorizontally ? 7 : 0);
         int fullByte = (latch << 2) + (patternTableHigh << 1) + patternTableLow;
 
         shiftRegisters();
