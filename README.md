@@ -50,5 +50,5 @@ public static void runOpcode(String opcode, Address argument, CPU cpu) {
     opcodes.get(opcode).run(argument, cpu);
 }
 ``` 
-
+where String opcode is the name of an opcode: (example: JMP, ADC, SBC)
 (To the TA): Because I didn't get to give you a proper goodbye, I'd like to let you know you were really nice and helpful, and I enjoyed my time in the lab. Thanks for being our TA!
