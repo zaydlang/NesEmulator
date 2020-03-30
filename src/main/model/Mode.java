@@ -86,7 +86,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     //          the associated address on the zero page
     public static ModeAction getZeroPageIndexedX = (Address[] arguments, CPU cpu) -> {
         int rawAddress = (arguments[0].getValue() + cpu.getRegisterX().getValue());
-        int zeroPageAddress = rawAddress % Integer.parseInt("100", 16);
+        int zeroPageAddress = rawAddress & Integer.parseInt("FF", 16);
 
         return new PendingAddress(zeroPageAddress, () -> cpu.readMemory(zeroPageAddress));
     };
@@ -96,7 +96,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     //          the associated address on the zero page
     public static ModeAction getZeroPageIndexedY = (Address[] arguments, CPU cpu) -> {
         int rawAddress = (arguments[0].getValue() + cpu.getRegisterY().getValue());
-        int zeroPageAddress = rawAddress % Integer.parseInt("100", 16);
+        int zeroPageAddress = rawAddress & Integer.parseInt("FF", 16);
 
         return new PendingAddress(zeroPageAddress, () -> cpu.readMemory(zeroPageAddress));
     };
@@ -109,7 +109,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
             cpu.incrementCyclesRemaining(1);
         }
 
-        int mirroredPointer = pointer % Integer.parseInt("10000", 16);
+        int mirroredPointer = pointer & Integer.parseInt("FFFF", 16);
         return new PendingAddress(mirroredPointer, () -> cpu.readMemory(mirroredPointer));
     };
 
@@ -121,7 +121,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
             cpu.incrementCyclesRemaining(1);
         }
 
-        int mirroredPointer = pointer % Integer.parseInt("10000", 16);
+        int mirroredPointer = pointer & Integer.parseInt("FFFF", 16);
         return new PendingAddress(mirroredPointer, () -> cpu.readMemory(mirroredPointer));
     };
 
@@ -130,7 +130,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // fetches and returns the value in memory at that 2-byte address.
     public static ModeAction getIndexedIndirect = (Address[] arguments, CPU cpu) -> {
         int pointerOne = (arguments[0].getValue() + cpu.getRegisterX().getValue()) % Integer.parseInt("0100", 16);
-        int pointerTwo = (pointerOne + 1) % Integer.parseInt("0100", 16);
+        int pointerTwo = (pointerOne + 1) & Integer.parseInt("FF", 16);
         int fullPointer = cpu.readMemory(pointerOne).getValue() + cpu.readMemory(pointerTwo).getValue() * 256;
         return new PendingAddress(fullPointer, () -> cpu.readMemory(fullPointer));
     };
@@ -139,8 +139,8 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
     // EFFECTS: fetches the 2-byte value in memory at the argument on the zero page. Then, fetches and returns the value
     // in memory at (that 2-byte address + registerY).
     public static ModeAction getIndirectIndexed = (Address[] arguments, CPU cpu) -> {
-        int addressOne = arguments[0].getValue() % Integer.parseInt("0100", 16);
-        int addressTwo = (addressOne + 1) % Integer.parseInt("0100", 16);
+        int addressOne = arguments[0].getValue() & Integer.parseInt("FF", 16);
+        int addressTwo = (addressOne + 1) & Integer.parseInt("FF", 16);
 
         int pointerOne = cpu.readMemory(addressOne).getValue();
         int pointerTwo = cpu.readMemory(addressTwo).getValue();
@@ -149,7 +149,7 @@ public class Mode extends HashMap<String, Mode.ModeAction> {
             cpu.incrementCyclesRemaining(1);
         }
 
-        int mirroredPointer = fullPointer % Integer.parseInt("10000", 16);
+        int mirroredPointer = fullPointer & Integer.parseInt("FFFF", 16);
         return new PendingAddress(mirroredPointer, () -> cpu.readMemory(mirroredPointer));
     };
 

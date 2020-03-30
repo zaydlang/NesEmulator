@@ -12,7 +12,7 @@ public class SpriteTest {
     void runBefore() {
         int patternTableData0 = Integer.parseInt("10010011", 2);
         int patternTableData1 = Integer.parseInt("01011011", 2);
-        sprite = new Sprite(patternTableData0, patternTableData1, 3, 5, 0);
+        sprite = new Sprite(patternTableData0, patternTableData1, 3, 5, 0, false, false);
     }
 
     @Test

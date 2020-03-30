@@ -1,6 +1,7 @@
 package ui.window;
 
 import model.Bus;
+import model.Opcode;
 import persistence.BusReader;
 import persistence.BusWriter;
 import ui.controller.Controller;
@@ -13,19 +14,30 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static apu.APU.SAMPLE_RATE;
 
 public class Display extends PixelWindow implements KeyListener {
     // Constants
     private static final String    CARTRIDGE_FOLDER     = "data/rom/";
     private static final String    CARTRIDGE            = "nestest";
     private static final String    CARTRIDGE_EXTENSION  = ".nes";
-    private static final int       FPS                  = 60;
-    private static final double    CYCLES_PER_FRAME     = (341 * 262 - 0.5) * 4;
+    public  static final int       CYCLING_FPS          = 60;
+    public  static final int       APU_FPS              = 60;
+    public  static final double    CYCLES_PER_FRAME     = (341 * 262 - 0.5) * 4 / 12 / 2;
 
     private static final int       ICON_SIZE            = 20;
     private static final ImageIcon ICON_PAUSE;
     private static final ImageIcon ICON_PLAY;
+
+    private ScheduledExecutorService scheduledExecutorService;
 
     static {
         ICON_PAUSE = createIcon("./data/resource/icon/pause.png", ICON_SIZE, ICON_SIZE);
@@ -34,6 +46,7 @@ public class Display extends PixelWindow implements KeyListener {
 
     // Fields
     private TimerTask  cycleTask;
+    private TimerTask  apuTask;
     private Controller controller;
 
     private PatternTableViewer patternTableViewer;
@@ -139,18 +152,21 @@ public class Display extends PixelWindow implements KeyListener {
         super(bus, 2, 2, 32 * 8, 30 * 8,  "NES Emulator");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        addKeyListener(this);
 
-        postContructor(FPS);
+        scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        postContructor(CYCLING_FPS);
         setupTasks();
         setupHeader();
         setupBus();
+        setFocusable(true);
+        addKeyListener(this);
 
         pack();
         setVisible(true);
     }
 
     private void setupTasks() {
+
         cycleTask = new TimerTask() {
             @Override
             public void run() {
@@ -159,8 +175,17 @@ public class Display extends PixelWindow implements KeyListener {
                 }
             }
         };
+        schedule(cycleTask, CYCLING_FPS * 4);
+/*
+        scheduledExecutorService.scheduleAtFixedRate(
+                () -> {
+                    for (int i = 0; i < CYCLES_PER_FRAME; i++) {
+                        bus.cycle();
+                    }
+                },
+                0, (long) (1000 / CYCLING_FPS), TimeUnit.MILLISECONDS);*/
 
-        schedule(cycleTask, FPS);
+        scheduledExecutorService.scheduleAtFixedRate(() -> bus.getApu().frameCycle(), 0, 1000 / APU_FPS, TimeUnit.MILLISECONDS);
     }
 
     private void setupHeader() {
@@ -206,6 +231,7 @@ public class Display extends PixelWindow implements KeyListener {
 
     public static void main(String[] args) throws IOException {
         Bus bus = new Bus();
+        //bus.loadCartridge(new File("./data/rom/donkeykong.nes"));
         new Display(bus);
     }
 
@@ -216,7 +242,6 @@ public class Display extends PixelWindow implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override
