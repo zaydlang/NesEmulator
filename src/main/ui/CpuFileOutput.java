@@ -21,7 +21,7 @@ public class CpuFileOutput implements CpuOutput {
     public void log(String cpuLog) {
         try {
             fileWriter.write(cpuLog + "\n");
-        } catch (IOException e) {
+        } catch (Exception e) {
             // eek
         }
     }
