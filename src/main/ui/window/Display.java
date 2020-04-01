@@ -185,7 +185,8 @@ public class Display extends PixelWindow implements KeyListener {
                 },
                 0, (long) (1000 / CYCLING_FPS), TimeUnit.MILLISECONDS);*/
 
-        scheduledExecutorService.scheduleAtFixedRate(() -> bus.getApu().frameCycle(), 0, 1000 / APU_FPS, TimeUnit.MILLISECONDS);
+        int period = 1000 / APU_FPS;
+        scheduledExecutorService.scheduleAtFixedRate(() -> bus.getApu().frameCycle(), 0, period, TimeUnit.MILLISECONDS);
     }
 
     private void setupHeader() {
