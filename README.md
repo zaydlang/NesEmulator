@@ -50,5 +50,12 @@ public static void runOpcode(String opcode, Address argument, CPU cpu) {
     opcodes.get(opcode).run(argument, cpu);
 }
 ``` 
+
 where String opcode is the name of an opcode: (example: JMP, ADC, SBC)
-(To the TA): Because I didn't get to give you a proper goodbye, I'd like to let you know you were really nice and helpful, and I enjoyed my time in the lab. Thanks for being our TA!
+
+## Phase 4: Task 3
+I fixed some coupling and cohesion issues in PPU. My coupling issue was that I used a bitmask to get a certain range of bits from an integer. I was using this method throughout the file, so I fixed it by creating a method in PPU called bitMask() that creates and applies a bitmask using the parameters. 
+Funnily enough, the fix to my coupling issue had an issue in cohesion. The function that applies a bitmask should not be defined in PPU, as it is not something that is intrinsic to the PPU. So, I changed the calls to PPU.bitmask() to Util.getNthBits()
+
+## To the TA: 
+Because I didn't get to give you a proper goodbye, I'd like to let you know you were really nice and helpful, and I enjoyed my time in the lab. Thanks for being our TA!

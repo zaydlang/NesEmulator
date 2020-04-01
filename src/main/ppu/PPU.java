@@ -24,15 +24,15 @@ public class PPU {
     public  static final int PALETTE_RAM_SIZE   = Integer.parseInt("0020", 16);
     public  static final int PRIMARY_OAM_SIZE   = Integer.parseInt("0100", 16);
     public  static final int SECONDARY_OAM_SIZE = Integer.parseInt("0020", 16);
-    private static final int PPUCTRL_ADDRESS = Integer.parseInt("2000", 16);
-    private static final int PPUMASK_ADDRESS = Integer.parseInt("2001", 16);
-    private static final int PPUSTATUS_ADDRESS = Integer.parseInt("2002", 16);
-    private static final int OAMADDR_ADDRESS = Integer.parseInt("2003", 16);
-    private static final int OAMDATA_ADDRESS = Integer.parseInt("2004", 16);
-    private static final int PPUSCROLL_ADDRESS = Integer.parseInt("2005", 16);
-    private static final int PPUADDR_ADDRESS = Integer.parseInt("2006", 16);
-    private static final int PPUDATA_ADDRESS = Integer.parseInt("2007", 16);
-    private static final int OAMDMA_ADDRESS = Integer.parseInt("4014", 16);
+    private static final int PPUCTRL_ADDRESS    = Integer.parseInt("2000", 16);
+    private static final int PPUMASK_ADDRESS    = Integer.parseInt("2001", 16);
+    private static final int PPUSTATUS_ADDRESS  = Integer.parseInt("2002", 16);
+    private static final int OAMADDR_ADDRESS    = Integer.parseInt("2003", 16);
+    public  static final int OAMDATA_ADDRESS    = Integer.parseInt("2004", 16);
+    private static final int PPUSCROLL_ADDRESS  = Integer.parseInt("2005", 16);
+    private static final int PPUADDR_ADDRESS    = Integer.parseInt("2006", 16);
+    private static final int PPUDATA_ADDRESS    = Integer.parseInt("2007", 16);
+    public  static final int OAMDMA_ADDRESS     = Integer.parseInt("4014", 16);
 
     private static final int REGISTER_V_SIZE = 15; // bits
     private static final int REGISTER_T_SIZE = 15; // bits
@@ -283,7 +283,7 @@ public class PPU {
             }
 
             int patternTableAddress = secondaryOam[i * 4 + 1].getValue();
-            int attribute = (secondaryOam[i * 4 + 2].getValue() & Integer.parseInt("00000011", 2)) + 4;
+            int attribute = Util.getNthBits(secondaryOam[i * 4 + 2].getValue(), 6, 2) + 4;
             int spriteX = secondaryOam[i * 4 + 3].getValue();
 
             int fineY = drawY - spriteY;
@@ -337,7 +337,7 @@ public class PPU {
     // EFFECTS:  reads the nametable at the address stored in registerV and stores the result in latchNametable
     @SuppressWarnings("PointlessArithmeticExpression")
     private void fetchNametableByte() {
-        int address = (registerV.getValue() & Integer.parseInt("000111111111111", 2)) >> 0;
+        int address = Util.getNthBits(registerV.getValue(), 0, 12);
         latchNametable = readNametable(address);
     }
 
@@ -346,9 +346,9 @@ public class PPU {
     //           in latchAttributeTable
     @SuppressWarnings("PointlessArithmeticExpression")
     private void fetchAttributeTableByte() {
-        int coarseX = (registerV.getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
-        int coarseY = (registerV.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
-        int nametableAddress = (registerV.getValue() & Integer.parseInt("000110000000000", 2)) >> 10;
+        int coarseX = Util.getNthBits(registerV.getValue(), 0, 5);
+        int coarseY = Util.getNthBits(registerV.getValue(), 5, 5);
+        int nametableAddress = Util.getNthBits(registerV.getValue(), 10, 2);
 
         int offset = nametableAddress * NAMETABLE_SIZE + Integer.parseInt("03C0", 16);
         latchAttributeTable = readNametable(offset + (coarseX >> 2) + 8 * (coarseY >> 2));
@@ -359,7 +359,7 @@ public class PPU {
     //           in latchPatternTableLow
     private void fetchPatternTableLowByte() {
         int address = latchNametable.getValue();
-        int fineY = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
+        int fineY = getFineY();
 
         int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 4);
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
@@ -367,12 +367,16 @@ public class PPU {
         latchPatternTableLow.setValue(patternTableLow);
     }
 
+    private int getFineY() {
+        return Util.getNthBits(registerV.getValue(), 12, 3);
+    }
+
     // MODIFIES: latchPatternTableHigh
     // EFFECTS:  reads the high byte of the patternTable at the address stored in registerV and stores the result
     //           in latchPatternTableHigh
     private void fetchPatternTableHighByte() {
         int address = latchNametable.getValue();
-        int fineY = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
+        int fineY = getFineY();
 
         int patternTableSelect = Util.getNthBit(ppuCtrl.getValue(), 4);
         int offset = patternTableSelect * Integer.parseInt("0100", 16);
@@ -410,7 +414,7 @@ public class PPU {
     // EFFECTS: increments fineY, and increments coarseY if fineY overflows
     private void incrementFineY() {
         registerV.setValue(registerV.getValue() + Integer.parseInt("001000000000000", 2));  // Increment fineY
-        int fineY = (registerV.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
+        int fineY = getFineY();
 
         if (fineY == 0) {
             incrementCoarseY();
@@ -420,7 +424,7 @@ public class PPU {
     // MODIFIES: registerV
     // EFFECTS: increments coarseX.
     protected void incrementCoarseX() {
-        int newCoarseX = ((registerV.getValue() & Integer.parseInt("000000000011111", 2)) >> 0) + 1;
+        int newCoarseX = Util.getNthBits(registerV.getValue(), 0, 5) + 1;
         if (newCoarseX >= Math.pow(2, 5)) {
             newCoarseX = 0;
         }
@@ -431,7 +435,7 @@ public class PPU {
     // MODIFIES: registerV
     // EFFECTS: increments coarseY.
     protected void incrementCoarseY() {
-        int newCoarseY = ((registerV.getValue() & Integer.parseInt("000001111100000", 2)) >> 5) + 1;
+        int newCoarseY = Util.getNthBits(registerV.getValue(), 5, 5) + 1;
         if (newCoarseY >= Math.pow(2, 5)) {
             newCoarseY = 0;
         }
@@ -472,8 +476,8 @@ public class PPU {
             if (sprites[i].isActive()) {
                 int spriteFullByte = sprites[i].getNextColorAddressAsInt();
                 int priority = sprites[i].getPriority();
-                int bgPixelLow = backgroundFullByte & Integer.parseInt("0011", 2);
-                int spritePixelLow = spriteFullByte & Integer.parseInt("0011", 2);
+                int bgPixelLow = Util.getNthBits(backgroundFullByte, 0, 2);
+                int spritePixelLow = Util.getNthBits(spriteFullByte, 0, 2);
 
                 if (spritePixelLow != 0 && (bgPixelLow == 0 || priority == 0)) {
                     returnByte = spriteFullByte;
@@ -501,7 +505,7 @@ public class PPU {
     //           and the sprites are reloaded.
     private void runHorizontalBlankCycles() {
         if (cycle == 257) {                 // Restore the CoarseX
-            int newCoarseX = (registerT.getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
+            int newCoarseX = Util.getNthBits(registerT.getValue(), 0, 5);
             registerV.setValue(Util.maskNthBits(newCoarseX, registerV.getValue(), 0, 0, 5));
 
             loadSprites();
@@ -560,13 +564,13 @@ public class PPU {
         drawY = 0;
 
         if (cycle == 1) {
-            ppuStatus.setValue(ppuStatus.getValue() & Integer.parseInt("01111111", 2));
+            ppuStatus.setValue(Util.maskNthBits(0, ppuStatus.getValue(), 0, 7, 1));
         }
 
         if (258 <= cycle && cycle <= 320) {
             if (280 <= cycle && cycle <= 304) { // Restore the CoarseY and FineY
-                int newFineY = (registerT.getValue() & Integer.parseInt("111000000000000", 2)) >> 12;
-                int newCoarseY = (registerT.getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
+                int newFineY = Util.getNthBits(registerT.getValue(), 12, 3);
+                int newCoarseY = Util.getNthBits(registerT.getValue(), 5, 5);
                 registerV.setValue(Util.maskNthBits(newFineY, registerV.getValue(), 0, 12, 3));
                 registerV.setValue(Util.maskNthBits(newCoarseY, registerV.getValue(), 0, 5, 5));
             }
@@ -631,7 +635,7 @@ public class PPU {
     private void setPpuScroll(int value) {
         if (registerW.getValue() == 0) { // First Write
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 0, 5));
-            registerX.setValue(value & Integer.parseInt("00000111", 2));
+            registerX.setValue(Util.getNthBits(value, 0, 3));
         } else {                         // Second Write
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 0, 12, 3));
             registerT.setValue(Util.maskNthBits(value, registerT.getValue(), 3, 5, 5));
@@ -710,7 +714,7 @@ public class PPU {
         int value1 = ppuStatus.getValue() & Integer.parseInt("11100000", 2);
         int value2 = ppuDataBuffer.getValue() & Integer.parseInt("00011111", 2);
 
-        ppuStatus.setValue(ppuStatus.getValue() & Integer.parseInt("01111111"));
+        ppuStatus.setValue(Util.getNthBits(ppuStatus.getValue(), 0, 7));
         return new Address(value1 | value2);
     }
 
@@ -938,7 +942,7 @@ public class PPU {
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                int attribute = (primaryOam[i * 4 + 2].getValue() & Integer.parseInt("00000011", 2)) + 4;
+                int attribute = Util.getNthBits(primaryOam[i * 4 + 2].getValue(), 0, 2) + 4;
                 int address = primaryOam[i * 4 * 8 + j * 4 + 1].getValue();
                 Address[] low = getTileLow(offset + address);
                 Address[] high = getTileHigh(offset + address);

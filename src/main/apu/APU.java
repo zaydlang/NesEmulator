@@ -14,7 +14,6 @@ public class APU {
 
     private PulseChannel    pulseChannel1;
     private PulseChannel    pulseChannel2;
-    private TriangleChannel triangleChannel;
 
     private Bus bus;
 
@@ -26,7 +25,6 @@ public class APU {
         this.bus = bus;
         pulseChannel1   = new PulseChannel(0);
         pulseChannel2   = new PulseChannel(4);
-        triangleChannel = new TriangleChannel();
 
         cycle = 0;
     }
@@ -67,20 +65,17 @@ public class APU {
     private void cycleLengthCounters() {
         pulseChannel1.cycleLengthCounter();
         pulseChannel2.cycleLengthCounter();
-        // triangleChannel.cycleLengthCounter();
     }
 
     public void writeChannelMemory(int pointer, int value) {
         //System.out.println(Integer.toHexString(pointer));
         pulseChannel1.writeMemory(pointer, value);
         pulseChannel2.writeMemory(pointer, value);
-        triangleChannel.writeMemory(pointer, value);
     }
 
     public void writeMemory(int pointer, int value) {
         if        (pointer == Integer.parseInt("4015", 16)) {
             System.out.println(Integer.toBinaryString(value));
-            triangleChannel.setEnabled(Util.getNthBit(value, 2) == 1);
             pulseChannel2.setEnabled(Util.getNthBit(value,   1) == 1);
             pulseChannel1.setEnabled(Util.getNthBit(value,   0) == 1);
         } else if (pointer == Integer.parseInt("4017", 16)) {
@@ -94,13 +89,11 @@ public class APU {
     public void enable() {
         pulseChannel1.setEnabled(true);
         pulseChannel2.setEnabled(true);
-        triangleChannel.setEnabled(true);
     }
 
     // EFFECTS: called 60 times per second. advances the APU by one frame forward.
     public void frameCycle() {
         pulseChannel1.frameCycle();
         pulseChannel2.frameCycle();
-        triangleChannel.frameCycle();
     }
 }

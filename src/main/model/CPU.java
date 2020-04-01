@@ -1,5 +1,6 @@
 package model;
 
+import ppu.PPU;
 import ui.window.CpuOutput;
 import ui.window.CpuViewer;
 
@@ -185,7 +186,7 @@ public class CPU {
         } else {
             if (dmaIndex % 2 == 0) {
                 int value = readMemory((dmaPage << 8) + (dmaIndex - 1) / 2).getValue();
-                bus.ppuDma(value);
+                bus.ppuWrite(PPU.OAMDATA_ADDRESS, value);
                 if (dmaIndex == 512) {
                     dma = false;
                     return;
@@ -336,7 +337,7 @@ public class CPU {
             bus.ppuWrite(Util.getNthBits(pointer, 0, 3) + Integer.parseInt("2000", 16), value);
         } else if (pointer <= Integer.parseInt("4013", 16)) {
             bus.apuChannelWrite(pointer, value);
-        } else if (pointer <= Integer.parseInt("4014", 16)) {
+        } else if (pointer <= PPU.OAMDMA_ADDRESS) {
             startDMA(value);
         } else if (pointer <= Integer.parseInt("4015", 16)) {
             bus.apuWrite(pointer, value);

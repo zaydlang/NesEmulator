@@ -63,6 +63,26 @@ public class BusReaderTest {
     }
 
     @Test
+    void testReadFail() {
+        try {
+            Bus bus = new Bus();
+            bus.reset();
+            bus = BusReader.readFromFile("this/file/does/not.exist");
+        } catch (Exception e) {
+            fail("This should be handled by the BusReader!");
+        }
+    }
+
+    @Test
+    void testConstructor() {
+        try {
+            BusReader busReader = new BusReader();
+        } catch (Exception e) {
+            fail("Dummy constructor failed!");
+        }
+    }
+
+    @Test
     void testCpuRegisters() {
         assertAddressEquality(expectedCpu.getRegisterA(),  actualCpu.getRegisterA());
         assertAddressEquality(expectedCpu.getRegisterX(),  actualCpu.getRegisterX());
