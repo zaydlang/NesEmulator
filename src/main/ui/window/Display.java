@@ -1,7 +1,6 @@
 package ui.window;
 
 import model.Bus;
-import model.Opcode;
 import persistence.BusReader;
 import persistence.BusWriter;
 import ui.controller.Controller;
@@ -14,15 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.TimerTask;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import static apu.APU.SAMPLE_RATE;
 
 public class Display extends PixelWindow implements KeyListener {
     // Constants
@@ -36,6 +30,8 @@ public class Display extends PixelWindow implements KeyListener {
     private static final int       ICON_SIZE            = 20;
     private static final ImageIcon ICON_PAUSE;
     private static final ImageIcon ICON_PLAY;
+
+    private static boolean isTesting = true;
 
     private ScheduledExecutorService scheduledExecutorService;
 
@@ -165,6 +161,10 @@ public class Display extends PixelWindow implements KeyListener {
         setVisible(true);
     }
 
+    public static boolean getIsTesting() {
+        return isTesting;
+    }
+
     private void setupTasks() {
 
         cycleTask = new TimerTask() {
@@ -231,6 +231,7 @@ public class Display extends PixelWindow implements KeyListener {
     }
 
     public static void main(String[] args) throws IOException {
+        isTesting = false;
         Bus bus = new Bus();
         //bus.loadCartridge(new File("./data/rom/donkeykong.nes"));
         new Display(bus);

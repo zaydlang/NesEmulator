@@ -1,4 +1,4 @@
-package apu;
+package ui.apu;
 
 import model.Util;
 import ui.window.Display;
@@ -8,10 +8,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-
-import static apu.APU.SAMPLE_RATE;
+import static ui.apu.APU.SAMPLE_RATE;
 
 public class PulseChannel {
 
@@ -39,7 +36,7 @@ public class PulseChannel {
             12,  16,  24, 18,  48,  20,  96,  22, 192,  24,  72,  26,  16,  28,  32,  30
     };
 
-    public PulseChannel(int memoryOffset) {
+    public PulseChannel(int memoryOffset, boolean isTesting) {
         this.duty               = 0;
         this.envelopeLoop       = 0;
         this.constantVolume     = 0;
@@ -52,15 +49,17 @@ public class PulseChannel {
 
         this.enabled            = false;
 
-        af = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
-        try {
-            line = AudioSystem.getSourceDataLine(af);
-            line.open(af, SAMPLE_RATE);
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        }
+        if (!isTesting) {
+            af = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
+            try {
+                line = AudioSystem.getSourceDataLine(af);
+                line.open(af, SAMPLE_RATE);
+            } catch (LineUnavailableException e) {
+                e.printStackTrace();
+            }
 
-        generateTone();
+            generateTone();
+        }
     }
 
     public void writeMemory(int pointer, int value) {
@@ -122,6 +121,10 @@ public class PulseChannel {
     }
 
     public void setEnabled(boolean enabled) {
+        if (Display.getIsTesting()) {
+            return;
+        }
+
         if (enabled) {
             line.start();
         } else {

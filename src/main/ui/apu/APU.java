@@ -1,11 +1,8 @@
-package apu;
+package ui.apu;
 
 import model.Bus;
 import model.Util;
 import ui.window.Display;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 public class APU {
     public static final float  VOLUME           = 0.05f;
@@ -23,8 +20,8 @@ public class APU {
 
     public APU(Bus bus) {
         this.bus = bus;
-        pulseChannel1   = new PulseChannel(0);
-        pulseChannel2   = new PulseChannel(4);
+        pulseChannel1   = new PulseChannel(0, Display.getIsTesting());
+        pulseChannel2   = new PulseChannel(4, Display.getIsTesting());
 
         cycle = 0;
     }

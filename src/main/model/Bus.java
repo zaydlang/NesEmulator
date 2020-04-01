@@ -1,7 +1,6 @@
 package model;
 
-import apu.APU;
-import apu.PulseChannel;
+import ui.apu.APU;
 import mapper.Mapper;
 import mapper.NRom;
 import ppu.Mirroring;
@@ -12,8 +11,6 @@ import ui.controller.Controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 // Class Bus:
 //     Bus is a class that manages the CPU, PPU, controller, and mapper. Serves as a way for these four components
@@ -203,14 +200,14 @@ public class Bus {
         ppu.writeRegister(pointer, value);
     }
 
-    // MODIFIES: apu
-    // EFFECTS:  writes the apu channel register at the given pointer to the value.
+    // MODIFIES: ui.apu
+    // EFFECTS:  writes the ui.apu channel register at the given pointer to the value.
     public void apuChannelWrite(int pointer, int value) {
         apu.writeChannelMemory(pointer, value);
     }
 
-    // MODIFIES: apu
-    // EFFECTS:  writes the apu register at the given pointer to the value.
+    // MODIFIES: ui.apu
+    // EFFECTS:  writes the ui.apu register at the given pointer to the value.
     public void apuWrite(int pointer, int value) {
         apu.writeMemory(pointer, value);
     }
