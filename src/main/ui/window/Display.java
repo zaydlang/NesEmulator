@@ -31,8 +31,6 @@ public class Display extends PixelWindow implements KeyListener {
     private static final ImageIcon ICON_PAUSE;
     private static final ImageIcon ICON_PLAY;
 
-    private static boolean isTesting = true;
-
     private ScheduledExecutorService scheduledExecutorService;
 
     static {
@@ -161,10 +159,6 @@ public class Display extends PixelWindow implements KeyListener {
         setVisible(true);
     }
 
-    public static boolean getIsTesting() {
-        return isTesting;
-    }
-
     private void setupTasks() {
 
         cycleTask = new TimerTask() {
@@ -185,6 +179,7 @@ public class Display extends PixelWindow implements KeyListener {
                 },
                 0, (long) (1000 / CYCLING_FPS), TimeUnit.MILLISECONDS);*/
 
+        bus.startDataLines();
         int period = 1000 / APU_FPS;
         scheduledExecutorService.scheduleAtFixedRate(() -> bus.getApu().frameCycle(), 0, period, TimeUnit.MILLISECONDS);
     }
@@ -231,7 +226,6 @@ public class Display extends PixelWindow implements KeyListener {
     }
 
     public static void main(String[] args) throws IOException {
-        isTesting = false;
         Bus bus = new Bus();
         //bus.loadCartridge(new File("./data/rom/donkeykong.nes"));
         new Display(bus);

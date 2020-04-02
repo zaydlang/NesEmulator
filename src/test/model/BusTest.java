@@ -41,7 +41,7 @@ public class BusTest {
             bus.setEnabled(true);
             bus.loadCartridge(new File("./data/test/TestLoadRomTrainerNotPresentSmall.nes"));
             bus.cycle();
-            assertEquals(8, bus.getCpu().getCycles());
+            assertEquals(9, bus.getCpu().getCycles());
         } catch (IOException e) {
             fail("Bus failed to cycle!");
         }

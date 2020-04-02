@@ -1,4 +1,4 @@
-package ui.apu;
+package apu;
 
 import model.Util;
 import ui.window.Display;
@@ -8,7 +8,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import static ui.apu.APU.SAMPLE_RATE;
+import static apu.APU.SAMPLE_RATE;
 
 public class PulseChannel {
 
@@ -29,6 +29,7 @@ public class PulseChannel {
     private byte[] tone;
 
     private boolean enabled;
+    private boolean dataLineStarted;
 
     // https://wiki.nesdev.com/w/index.php/APU_Length_Counter
     private int[] lengthCounterLoadTable = new int[] {
@@ -36,7 +37,7 @@ public class PulseChannel {
             12,  16,  24, 18,  48,  20,  96,  22, 192,  24,  72,  26,  16,  28,  32,  30
     };
 
-    public PulseChannel(int memoryOffset, boolean isTesting) {
+    public PulseChannel(int memoryOffset) {
         this.duty               = 0;
         this.envelopeLoop       = 0;
         this.constantVolume     = 0;
@@ -49,17 +50,19 @@ public class PulseChannel {
 
         this.enabled            = false;
 
-        if (!isTesting) {
-            af = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
-            try {
-                line = AudioSystem.getSourceDataLine(af);
-                line.open(af, SAMPLE_RATE);
-            } catch (LineUnavailableException e) {
-                e.printStackTrace();
-            }
+        dataLineStarted = false;
+        af = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
+    }
 
-            generateTone();
+    public void startDataLine() {
+        dataLineStarted = true;
+        try {
+            line = AudioSystem.getSourceDataLine(af);
+            line.open(af, SAMPLE_RATE);
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
         }
+        generateTone();
     }
 
     public void writeMemory(int pointer, int value) {
@@ -71,8 +74,6 @@ public class PulseChannel {
             if (constantVolume == 0) {
                 lengthCounterTimer = 0;
             }
-        } else if (pointer + memoryOffset == Integer.parseInt("4001", 16)) {
-            // TODO: envelope
         } else if (pointer + memoryOffset == Integer.parseInt("4002", 16)) {
             timer = Util.maskNthBits(value, timer, 0, 0, 8);
             generateTone();
@@ -85,6 +86,10 @@ public class PulseChannel {
     }
 
     public void frameCycle() {
+        if (!dataLineStarted) {
+            return;
+        }
+
         if (enabled) {
             line.write(tone, (int) (toneOffset % SAMPLE_RATE), (int) APU.OFFSET_INCREMENT);
             toneOffset = (toneOffset + APU.OFFSET_INCREMENT) % SAMPLE_RATE;
@@ -121,7 +126,8 @@ public class PulseChannel {
     }
 
     public void setEnabled(boolean enabled) {
-        if (Display.getIsTesting()) {
+        this.enabled = enabled;
+        if (!dataLineStarted) {
             return;
         }
 
@@ -140,5 +146,37 @@ public class PulseChannel {
         if (lengthCounterTimer == 0) {
             enabled = false;
         }
+    }
+
+    public boolean getEnabled() {
+        return enabled;
+    }
+
+    public int getDuty() {
+        return duty;
+    }
+
+    public int getEnvelopeLoop() {
+        return envelopeLoop;
+    }
+
+    public int getConstantVolume() {
+        return constantVolume;
+    }
+
+    public int getVolume() {
+        return volume;
+    }
+
+    public int getTimer() {
+        return timer;
+    }
+
+    public int getLengthCounterTimer() {
+        return lengthCounterTimer;
+    }
+
+    public int getMemoryOffset() {
+        return memoryOffset;
     }
 }

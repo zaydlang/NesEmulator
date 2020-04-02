@@ -293,24 +293,24 @@ public class CPU {
     //          $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
     public Address readMemory(int pointer) {
         if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            while (pointer > Integer.parseInt("0800", 16)) {
+            while (pointer >= Integer.parseInt("0800", 16)) {
                 pointer -= Integer.parseInt("0800", 16);
             }
             return ram[pointer];
         } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
             return bus.ppuRead(Util.getNthBits(pointer, 0, 3) + Integer.parseInt("2000", 16));
         } else if (pointer <= Integer.parseInt("4013", 16)) {
-            return new Address(0); // TODO: ui.apu read
+            return new Address(0); // TODO: apu read
         } else if (pointer <= Integer.parseInt("4014", 16)) {
             return bus.ppuRead(pointer);
         } else if (pointer <= Integer.parseInt("4015", 16)) {
-            return new Address(0); // TODO: ui.apu read
+            return new Address(0); // TODO: apu read
         } else if (pointer <= Integer.parseInt("4016", 16)) {
             return bus.controllerRead(pointer);
         } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
             return bus.controllerRead(pointer);
         } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality (normally disabled)
-            return new Address(0); // TODO add when the ui.apu is implemented.
+            return new Address(0); // TODO add when the apu is implemented.
         } else {
             return bus.mapperReadCpu(pointer);
         }
@@ -348,7 +348,7 @@ public class CPU {
             bus.controllerWrite(pointer, value);
         } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
                                                                              // normally disabled
-            // TODO add when the ui.apu is implemented.
+            // TODO add when the apu is implemented.
         } else {
             bus.mapperWrite(pointer, value);
         }

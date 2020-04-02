@@ -1,6 +1,6 @@
 package model;
 
-import ui.apu.APU;
+import apu.APU;
 import mapper.Mapper;
 import mapper.NRom;
 import ppu.Mirroring;
@@ -200,14 +200,14 @@ public class Bus {
         ppu.writeRegister(pointer, value);
     }
 
-    // MODIFIES: ui.apu
-    // EFFECTS:  writes the ui.apu channel register at the given pointer to the value.
+    // MODIFIES: apu
+    // EFFECTS:  writes the apu channel register at the given pointer to the value.
     public void apuChannelWrite(int pointer, int value) {
         apu.writeChannelMemory(pointer, value);
     }
 
-    // MODIFIES: ui.apu
-    // EFFECTS:  writes the ui.apu register at the given pointer to the value.
+    // MODIFIES: apu
+    // EFFECTS:  writes the apu register at the given pointer to the value.
     public void apuWrite(int pointer, int value) {
         apu.writeMemory(pointer, value);
     }
@@ -285,5 +285,9 @@ public class Bus {
 
     public APU getApu() {
         return apu;
+    }
+
+    public void startDataLines() {
+        apu.startDataLines();
     }
 }

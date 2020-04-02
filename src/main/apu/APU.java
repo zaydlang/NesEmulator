@@ -1,4 +1,4 @@
-package ui.apu;
+package apu;
 
 import model.Bus;
 import model.Util;
@@ -15,13 +15,13 @@ public class APU {
     private Bus bus;
 
     private int mode;
-    private boolean interruptInhibit;
+    // private boolean interruptInhibit;
     private int cycle;
 
     public APU(Bus bus) {
         this.bus = bus;
-        pulseChannel1   = new PulseChannel(0, Display.getIsTesting());
-        pulseChannel2   = new PulseChannel(4, Display.getIsTesting());
+        pulseChannel1   = new PulseChannel(0);
+        pulseChannel2   = new PulseChannel(4);
 
         cycle = 0;
     }
@@ -59,6 +59,11 @@ public class APU {
         }
     }
 
+    public void startDataLines() {
+        pulseChannel1.startDataLine();
+        pulseChannel2.startDataLine();
+    }
+
     private void cycleLengthCounters() {
         pulseChannel1.cycleLengthCounter();
         pulseChannel2.cycleLengthCounter();
@@ -72,13 +77,11 @@ public class APU {
 
     public void writeMemory(int pointer, int value) {
         if        (pointer == Integer.parseInt("4015", 16)) {
-            System.out.println(Integer.toBinaryString(value));
             pulseChannel2.setEnabled(Util.getNthBit(value,   1) == 1);
             pulseChannel1.setEnabled(Util.getNthBit(value,   0) == 1);
         } else if (pointer == Integer.parseInt("4017", 16)) {
-            // System.out.println(value);
             this.mode             = Util.getNthBit(value, 7);
-            this.interruptInhibit = Util.getNthBit(value, 6) == 1;
+            // this.interruptInhibit = Util.getNthBit(value, 6) == 1;
             cycle = 0;
         }
     }
@@ -92,5 +95,17 @@ public class APU {
     public void frameCycle() {
         pulseChannel1.frameCycle();
         pulseChannel2.frameCycle();
+    }
+
+    public int getCycles() {
+        return cycle;
+    }
+
+    protected PulseChannel getPulseChannel1() {
+        return pulseChannel1;
+    }
+
+    protected PulseChannel getPulseChannel2() {
+        return pulseChannel2;
     }
 }
