@@ -156,9 +156,9 @@ public class BusReaderTest {
     @Test
     void testPpuPaletteRamIndexes() {
         for (int i = 0; i < PPU.PALETTE_RAM_SIZE; i++) {
-            Address expected = expectedPpu.getPaletteRamIndexes().readMemory(i);
-            Address actual   = actualPpu.getPaletteRamIndexes().readMemory(i);
-            assertAddressEquality(expected, actual);
+            int expected = expectedPpu.getPaletteRamIndexes().readMemory(i);
+            int actual   = actualPpu.getPaletteRamIndexes().readMemory(i);
+            assertEquals(expected, actual);
         }
     }
 
