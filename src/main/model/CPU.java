@@ -159,6 +159,7 @@ public class CPU {
             System.out.println("cpuwu: " + frames);
             frames = 0;
         }
+
         if (!dma) {
             handleNMI();
 

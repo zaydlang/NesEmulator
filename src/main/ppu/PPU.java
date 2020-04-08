@@ -283,7 +283,7 @@ public class PPU {
             }
 
             int patternTableAddress = secondaryOam[i * 4 + 1].getValue();
-            int attribute = Util.getNthBits(secondaryOam[i * 4 + 2].getValue(), 6, 2) + 4;
+            int attribute = Util.getNthBits(secondaryOam[i * 4 + 2].getValue(), 0, 2) + 4;
             int spriteX = secondaryOam[i * 4 + 3].getValue();
 
             int fineY = drawY - spriteY;
