@@ -496,7 +496,7 @@ public class PPU {
 
     // EFFECTS: returns the color associated with the given paletteRamIndexes address
     private Color getColor(int address) {
-        return ColorPalette.getColor(paletteRamIndexes.readMemory(address).getValue());
+        return ColorPalette.getColor(paletteRamIndexes.readMemory(address));
     }
 
     // REQUIRES: 257 <= cycle <= 320
@@ -798,7 +798,8 @@ public class PPU {
         } else if (pointer <= Integer.parseInt("3EFF", 16)) {
             return readNametable(pointer - Integer.parseInt("3000", 16));
         } else {
-            return paletteRamIndexes.readMemory((pointer - Integer.parseInt("3F00", 16)) % PALETTE_RAM_SIZE);
+            int address = paletteRamIndexes.readMemory((pointer - Integer.parseInt("3F00", 16)) % PALETTE_RAM_SIZE);
+            return new Address(address);
         }
     }
 
