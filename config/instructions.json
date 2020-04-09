@@ -1,0 +1,1538 @@
+[
+  {
+    "opcode": "BRK",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "ORA",
+    "mode": "INDEXED_INDIRECT",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "ORA",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "ASL",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "PHP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "ORA",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "ASL",
+    "mode": "ACCUMULATOR",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "ORA",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ASL",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BPL",
+    "mode": "RELATIVE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "ORA",
+    "mode": "INDIRECT_INDEXED",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "ORA",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ASL",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CLC",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "ORA",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "ORA",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ASL",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "7"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "JSR",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "AND",
+    "mode": "INDEXED_INDIRECT",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BIT",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "AND",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "ROL",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "PLP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "AND",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "ROL",
+    "mode": "ACCUMULATOR",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BIT",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "AND",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ROL",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BMI",
+    "mode": "RELATIVE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "AND",
+    "mode": "INDIRECT_INDEXED",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "AND",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ROL",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "SEC",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "AND",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "AND",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ROL",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "7"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "RTI",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "EOR",
+    "mode": "INDEXED_INDIRECT",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "EOR",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "LSR",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "PHA",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "EOR",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "LSR",
+    "mode": "ACCUMULATOR",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "JMP",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "EOR",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "LSR",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BVC",
+    "mode": "RELATIVE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "EOR",
+    "mode": "INDIRECT_INDEXED",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "EOR",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "LSR",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CLI",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "EOR",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "EOR",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "LSR",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "7"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "RTS",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "ADC",
+    "mode": "INDEXED_INDIRECT",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "ADC",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "ROR",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "PLA",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ADC",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "ROR",
+    "mode": "ACCUMULATOR",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "JMP",
+    "mode": "INDIRECT",
+    "numArguments": "2",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "ADC",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ROR",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BVS",
+    "mode": "RELATIVE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "ADC",
+    "mode": "INDIRECT_INDEXED",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "ADC",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ROR",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "SEI",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "ADC",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "ADC",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "ROR",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "7"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "STA",
+    "mode": "INDEXED_INDIRECT",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMMEDIATE",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "STY",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "STA",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "STX",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "DEY",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMMEDIATE",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "TXA",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "STY",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "STA",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "STX",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BCC",
+    "mode": "RELATIVE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "STA",
+    "mode": "INDIRECT_INDEXED",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "STY",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "STA",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "STX",
+    "mode": "ZERO_PAGE_INDEXED_Y",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "TYA",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "STA",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "TXS",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "SHY",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "STA",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "SHX",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "LDY",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "LDA",
+    "mode": "INDEXED_INDIRECT",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "LDX",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "LDY",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "LDA",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "LDX",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "TAY",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "LDA",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "TAX",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "LDY",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "LDA",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "LDX",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BCS",
+    "mode": "RELATIVE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "LDA",
+    "mode": "INDIRECT_INDEXED",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "LDY",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "LDA",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "LDX",
+    "mode": "ZERO_PAGE_INDEXED_Y",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CLV",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "LDA",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "TSX",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "LDY",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "LDA",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "LDX",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CPY",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "CMP",
+    "mode": "INDEXED_INDIRECT",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMMEDIATE",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CPY",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "CMP",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "DEC",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "INY",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "CMP",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "DEX",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CPY",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "CMP",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "DEC",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BNE",
+    "mode": "RELATIVE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "CMP",
+    "mode": "INDIRECT_INDEXED",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CMP",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "DEC",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CLD",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "CMP",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CMP",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "DEC",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "7"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CPX",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "SBC",
+    "mode": "INDEXED_INDIRECT",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMMEDIATE",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CPX",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "SBC",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "3"
+  },
+  {
+    "opcode": "INC",
+    "mode": "ZERO_PAGE",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "INX",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "SBC",
+    "mode": "IMMEDIATE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "CPX",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "SBC",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "INC",
+    "mode": "ABSOLUTE",
+    "numArguments": "2",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "BEQ",
+    "mode": "RELATIVE",
+    "numArguments": "1",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "SBC",
+    "mode": "INDIRECT_INDEXED",
+    "numArguments": "1",
+    "numCycles": "5"
+  },
+  {
+    "opcode": "STP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "SBC",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "INC",
+    "mode": "ZERO_PAGE_INDEXED_X",
+    "numArguments": "1",
+    "numCycles": "6"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "SED",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "2"
+  },
+  {
+    "opcode": "SBC",
+    "mode": "ABSOLUTE_INDEXED_Y",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "0"
+  },
+  {
+    "opcode": "SBC",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "4"
+  },
+  {
+    "opcode": "INC",
+    "mode": "ABSOLUTE_INDEXED_X",
+    "numArguments": "2",
+    "numCycles": "7"
+  },
+  {
+    "opcode": "NOP",
+    "mode": "IMPLICIT",
+    "numArguments": "0",
+    "numCycles": "0"
+  }
+]
