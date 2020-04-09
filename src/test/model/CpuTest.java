@@ -270,8 +270,8 @@ public class CpuTest {
 
     @Test
     void testCycle() {
-        for (int i = 0; i < Instruction.getInstructions().length; i++) {
-            Instruction instruction = Instruction.getInstructions()[i];
+        for (int i = 0; i < Instruction.getInstructions().size(); i++) {
+            Instruction instruction = Instruction.getInstructions().get(i);
             cpu.setRegisterPC(Integer.parseInt("6000", 16));
 
             // Simulate an instruction at the Program Counter

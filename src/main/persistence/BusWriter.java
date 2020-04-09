@@ -176,9 +176,8 @@ public class BusWriter {
     private static void writePpuPaletteRamIndexes(PPU ppu, FileWriter fileWriter) throws IOException {
         fileWriter.write(ppu.getPaletteRamIndexes().getIndexes().length + "");
         fileWriter.write(DELIMITER);
-        for (int address : ppu.getPaletteRamIndexes().getIndexes()) {
-            fileWriter.write(address);
-            fileWriter.write(DELIMITER);
+        for (Address address : ppu.getPaletteRamIndexes().getIndexes()) {
+            writeSerializable(address, fileWriter);
         }
     }
 
