@@ -160,7 +160,7 @@ public class BusReader {
     private static void readPpuPaletteRamIndexes(PPU ppu, Scanner scanner) throws IOException {
         int length = Integer.parseInt(scanner.next());
         for (int i = 0; i < length; i++) {
-            ppu.getPaletteRamIndexes().writeMemory(i, Integer.parseInt(scanner.next()));
+            ppu.getPaletteRamIndexes().getIndexes()[i].deserialize(scanner);
         }
     }
 

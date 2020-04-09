@@ -211,7 +211,7 @@ public class CPU {
         }
 
         Address valueAtProgramCounter = readMemory(registerPC.getValue());
-        Instruction instruction = Instruction.getInstructions()[valueAtProgramCounter.getValue()];
+        Instruction instruction = Instruction.getInstructions().get(valueAtProgramCounter.getValue());
         //cyclesRemaining = instruction.getNumCycles();
 
         Address[] modeArguments = new Address[instruction.getNumArguments()];
