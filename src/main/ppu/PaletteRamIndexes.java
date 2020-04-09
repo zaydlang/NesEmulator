@@ -16,7 +16,6 @@ public class PaletteRamIndexes {
 
     // MODIFIES: this
     // EFFECTS:  initializes all the palette ram indexes and sets up the mirrors.
-
     public PaletteRamIndexes() {
         indexes = new Address[PALETTE_RAM_INDEXES_SIZE];
         for (int i = 0; i < PALETTE_RAM_INDEXES_SIZE; i++) {
