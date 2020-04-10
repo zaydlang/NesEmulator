@@ -26,7 +26,7 @@ public class PulseChannelTest {
 
     @Test
     void testWriteMememory$4000NoResetTimer() {
-        pulseChannel.writeMemory(Integer.parseInt("4000", 16), Integer.parseInt("11111111", 2));
+        pulseChannel.writeMemory(0x4000, 0b11111111);
         assertEquals(15, pulseChannel.getVolume());
         assertEquals(1,  pulseChannel.getConstantVolume());
         assertEquals(1,  pulseChannel.getEnvelopeLoop());
@@ -35,7 +35,7 @@ public class PulseChannelTest {
 
     @Test
     void testWriteMememory$4000ResetTimer() {
-        pulseChannel.writeMemory(Integer.parseInt("4000", 16), Integer.parseInt("11101111", 2));
+        pulseChannel.writeMemory(0x4000, 0b11101111);
         assertEquals(15, pulseChannel.getVolume());
         assertEquals(0,  pulseChannel.getConstantVolume());
         assertEquals(1,  pulseChannel.getEnvelopeLoop());
@@ -45,13 +45,13 @@ public class PulseChannelTest {
 
     @Test
     void testWriteMemory$4002() {
-        pulseChannel.writeMemory(Integer.parseInt("4002", 16), 127);
+        pulseChannel.writeMemory(0x4002, 127);
         assertEquals(127, pulseChannel.getTimer());
     }
 
     @Test
     void testWriteMemory$4003() {
-        pulseChannel.writeMemory(Integer.parseInt("4003", 16), 31);
+        pulseChannel.writeMemory(0x4003, 31);
         assertEquals(true,       pulseChannel.getEnabled());
         assertEquals(7 << 8 + 0, pulseChannel.getTimer());
     }

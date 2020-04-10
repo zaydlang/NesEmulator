@@ -74,7 +74,7 @@ public class BusReader {
     // REQUIRES: scanner has at least 0x800 * 2 (4096) delimited integers.
     // EFFECTS: reads the scanner to set the CPU's ram
     private static void readCpuRam(CPU cpu, Scanner scanner) {
-        for (int i = 0; i < Integer.parseInt("0800", 16); i++) {
+        for (int i = 0; i < 0x0800; i++) {
             cpu.writeMemory(i, getNextAddress(scanner).getValue());
         }
     }

@@ -20,7 +20,7 @@ public class UtilTest {
     @SuppressWarnings("SimplifiableJUnitAssertion")
     @Test
     void getNthBit() {
-        int value = Integer.parseInt("10011011", 2);
+        int value = 0b10011011;
         assertTrue(Util.getNthBit(value, 0) == 1);
         assertTrue(Util.getNthBit(value, 1) == 1);
         assertTrue(Util.getNthBit(value, 2) == 0);
@@ -33,18 +33,18 @@ public class UtilTest {
 
     @Test
     void getNthBits() {
-        int value = Integer.parseInt("10011011", 2);
-        assertTrue(Util.getNthBits(value, 0, 3) == Integer.parseInt("011", 2));
-        assertTrue(Util.getNthBits(value, 1, 5) == Integer.parseInt("01101", 2));
-        assertTrue(Util.getNthBits(value, 2, 1) == Integer.parseInt("0", 2));
+        int value = 0b10011011;
+        assertTrue(Util.getNthBits(value, 0, 3) == 0b011);
+        assertTrue(Util.getNthBits(value, 1, 5) == 0b01101);
+        assertTrue(Util.getNthBits(value, 2, 1) == 0b0);
     }
 
     @Test
     void testMaskNthBits() {
-        int mask  = Integer.parseInt("10010101", 2);
-        int value = Integer.parseInt("10111",    2);
+        int mask  = 0b10010101;
+        int value = 0b10111;
         int newValue = Util.maskNthBits(mask, value, 1, 2, 3);
-        assertTrue(newValue == Integer.parseInt("01011", 2));
+        assertTrue(newValue == 0b01011);
     }
 
     @Test
@@ -64,8 +64,8 @@ public class UtilTest {
 
     @Test
     void testReverse() {
-        int original = Integer.parseInt("1010111001001", 2);
-        int expected = Integer.parseInt("1001001110101", 2);
+        int original = 0b1010111001001;
+        int expected = 0b1001001110101;
         assertEquals(Util.reverse(original, 13), expected);
     }
 }

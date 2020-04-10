@@ -21,7 +21,7 @@ public class ApuTest {
 
     @Test
     void testCycle4Step() {
-        apu.writeMemory(Integer.parseInt("4017", 16), 0 << 7);
+        apu.writeMemory(0x4017, 0 << 7);
         for (int i = 0; i < 14915 + 3; i++) {
             System.out.println(i);
             assertEquals(i % 14915, apu.getCycles());
@@ -31,7 +31,7 @@ public class ApuTest {
 
     @Test
     void testCycle5Step() {
-        apu.writeMemory(Integer.parseInt("4017", 16), 1 << 7);
+        apu.writeMemory(0x4017, 1 << 7);
         for (int i = 0; i < 18641 + 3; i++) {
             System.out.println(i);
             assertEquals(i % 18641, apu.getCycles());
@@ -41,16 +41,16 @@ public class ApuTest {
 
     @Test
     void testWriteMemory$4015() {
-        apu.writeMemory(Integer.parseInt("4015", 16), 0); // Reset
-        apu.writeMemory(Integer.parseInt("4015", 16), Integer.parseInt("00000011", 2));
+        apu.writeMemory(0x4015, 0); // Reset
+        apu.writeMemory(0x4015, 0b00000011);
         assertTrue(apu.getPulseChannel1().getEnabled());
         assertTrue(apu.getPulseChannel2().getEnabled());
     }
 
     @Test
     void testWriteMemory$4017() {
-        apu.writeMemory(Integer.parseInt("4015", 16), 0); // Reset
-        apu.writeMemory(Integer.parseInt("4015", 16), Integer.parseInt("00000000", 2));
+        apu.writeMemory(0x4015, 0); // Reset
+        apu.writeMemory(0x4015, 0b00000000);
         assertEquals(0, apu.getCycles());
     }
 

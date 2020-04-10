@@ -25,7 +25,7 @@ public class BusWriterTest {
         try {
             Bus bus = new Bus();
             bus.loadCartridge(new File("./data/rom/nestest.nes"));
-            bus.getCpu().addBreakpoint(new Address(Integer.parseInt("ABCD", 16)));
+            bus.getCpu().addBreakpoint(new Address(0xABCD));
 
             for (int i = 0; i < 10000; i++) {
                 bus.cycleComponents();

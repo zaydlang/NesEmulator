@@ -21,35 +21,35 @@ public class ShiftRegisterTest {
 
     @Test
     void testSetNthBits() {
-        shiftRegister.setNthBits(0, 3,   Integer.parseInt("110", 2));
-        assertEquals(shiftRegister.getValue(), Integer.parseInt("110", 2));
+        shiftRegister.setNthBits(0, 3,   0b110);
+        assertEquals(shiftRegister.getValue(), 0b110);
     }
 
     @Test
     void testShiftLeftOnce() {
-        shiftRegister.setNthBits(0, 3,   Integer.parseInt("110", 2));
+        shiftRegister.setNthBits(0, 3,   0b110);
         shiftRegister.shiftLeft(1);
-        assertEquals(shiftRegister.getValue(), Integer.parseInt("011", 2));
+        assertEquals(shiftRegister.getValue(), 0b011);
     }
 
     @Test
     void testShiftLeftMultiple() {
-        shiftRegister.setNthBits(0, 3,   Integer.parseInt("110", 2));
+        shiftRegister.setNthBits(0, 3,   0b110);
         shiftRegister.shiftLeft(2);
-        assertEquals(shiftRegister.getValue(), Integer.parseInt("001", 2));
+        assertEquals(shiftRegister.getValue(), 0b001);
     }
 
     @Test
     void testShiftRightOnce() {
-        shiftRegister.setNthBits(0, 3,   Integer.parseInt("110", 2));
+        shiftRegister.setNthBits(0, 3,   0b110);
         shiftRegister.shiftRight(1);
-        assertEquals(shiftRegister.getValue(), Integer.parseInt("100", 2));
+        assertEquals(shiftRegister.getValue(), 0b100);
     }
 
     @Test
     void testShiftRightMultiple() {
-        shiftRegister.setNthBits(0, 3,   Integer.parseInt("110", 2));
+        shiftRegister.setNthBits(0, 3,   0b110);
         shiftRegister.shiftRight(2);
-        assertEquals(shiftRegister.getValue(), Integer.parseInt("000", 2));
+        assertEquals(shiftRegister.getValue(), 0b000);
     }
 }

@@ -157,14 +157,14 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // then, registerPC is set to the value in memory at address "FFFE" and
     // flagB (the break flag) is set to 1.
     private static OpcodeAction runBRK = (Address argument, CPU cpu) -> {
-        int byteOne = ((cpu.getRegisterPC().getValue() + 3) & Integer.parseInt("0000000011111111", 2));
-        int byteTwo = ((cpu.getRegisterPC().getValue() + 3) & Integer.parseInt("1111111100000000", 2)) >> 8;
+        int byteOne = ((cpu.getRegisterPC().getValue() + 3) & 0b0000000011111111);
+        int byteTwo = ((cpu.getRegisterPC().getValue() + 3) & 0b1111111100000000) >> 8;
         cpu.pushStack(byteOne);
         cpu.pushStack(byteTwo);
         cpu.pushStack(cpu.getStatus());
 
-        byteOne = cpu.readMemory(Integer.parseInt("FFFE", 16)).getValue();
-        byteTwo = cpu.readMemory(Integer.parseInt("FFFF", 16)).getValue();
+        byteOne = cpu.readMemory(0xFFFE).getValue();
+        byteTwo = cpu.readMemory(0xFFFF).getValue();
         cpu.setRegisterPC(byteOne * 256 + byteTwo);
         cpu.setFlagB(1);
     };
@@ -341,8 +341,8 @@ public class Opcode extends HashMap<String, Opcode.OpcodeAction> {
     // EFFECTS: pushes the current value of registerPC (the program counter) to the stack, minus one.
     //          then, sets registerPC to the argument specified, minus 3.
     private static OpcodeAction runJSR = (Address argument, CPU cpu) -> {
-        int byteOne = ((cpu.getRegisterPC().getValue() - 1) & Integer.parseInt("1111111100000000", 2)) >> 8;
-        int byteTwo = ((cpu.getRegisterPC().getValue() - 1) & Integer.parseInt("0000000011111111", 2));
+        int byteOne = ((cpu.getRegisterPC().getValue() - 1) & 0b1111111100000000) >> 8;
+        int byteTwo = ((cpu.getRegisterPC().getValue() - 1) & 0b0000000011111111);
         cpu.pushStack(byteOne);
         cpu.pushStack(byteTwo);
         cpu.setRegisterPC(argument.getPointer());

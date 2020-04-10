@@ -28,20 +28,20 @@ public class NRomTest {
 
     @Test
     void testReadMemoryCpuOutOfBounds() {
-        assertEquals(0, nrom.readMemoryCpu(Integer.parseInt("5FFF", 16)).getValue());
+        assertEquals(0, nrom.readMemoryCpu(0x5FFF).getValue());
     }
 
     @Test
     void testWriteMemoryCpuOutOfBounds() {
         try {
-            nrom.writeMemory(Integer.parseInt("5FFF", 16), 0);
+            nrom.writeMemory(0x5FFF, 0);
             fail("ArrayIndexOutOfBoundsException not thrown!");
         } catch (ArrayIndexOutOfBoundsException e) {
             // Good!
         }
 
         try {
-            nrom.writeMemory(Integer.parseInt("FFFF", 16), 0);
+            nrom.writeMemory(0xFFFF, 0);
             fail("ArrayIndexOutOfBoundsException not thrown!");
         } catch (ArrayIndexOutOfBoundsException e) {
             // Good!

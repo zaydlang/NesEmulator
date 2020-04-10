@@ -22,16 +22,16 @@ public class PaletteRamIndexesTest {
 
     @Test
     void testReadMemoryMirrors() {
-        paletteRamIndexes.writeMemory(0, Integer.parseInt("1F", 16));
-        assertEquals(paletteRamIndexes.readMemory(0).getValue(), Integer.parseInt("1F", 16));
-        assertEquals(paletteRamIndexes.readMemory(4).getValue(), Integer.parseInt("1F", 16));
-        assertEquals(paletteRamIndexes.readMemory(8).getValue(), Integer.parseInt("1F", 16));
+        paletteRamIndexes.writeMemory(0, 0x1F);
+        assertEquals(paletteRamIndexes.readMemory(0).getValue(), 0x1F);
+        assertEquals(paletteRamIndexes.readMemory(4).getValue(), 0x1F);
+        assertEquals(paletteRamIndexes.readMemory(8).getValue(), 0x1F);
     }
 
     @Test
     void testReadMemoryNotMirrors() {
-        paletteRamIndexes.writeMemory(31, Integer.parseInt("A2", 16));
-        assertEquals(paletteRamIndexes.readMemory(31).getValue(), Integer.parseInt("A2", 16));
+        paletteRamIndexes.writeMemory(31, 0xA2);
+        assertEquals(paletteRamIndexes.readMemory(31).getValue(), 0xA2);
     }
 
     @Test
@@ -39,24 +39,24 @@ public class PaletteRamIndexesTest {
         int value1;
         int value2;
 
-        paletteRamIndexes.writeMemory(Integer.parseInt("10", 16), 12);
-        value1 = paletteRamIndexes.readMemory(Integer.parseInt("00", 16)).getValue();
-        value2 = paletteRamIndexes.readMemory(Integer.parseInt("10", 16)).getValue();
+        paletteRamIndexes.writeMemory(0x10, 12);
+        value1 = paletteRamIndexes.readMemory(0x00).getValue();
+        value2 = paletteRamIndexes.readMemory(0x10).getValue();
         assertEquals(value1, value2);
 
-        paletteRamIndexes.writeMemory(Integer.parseInt("14", 16), 12);
-        value1 = paletteRamIndexes.readMemory(Integer.parseInt("04", 16)).getValue();
-        value2 = paletteRamIndexes.readMemory(Integer.parseInt("14", 16)).getValue();
+        paletteRamIndexes.writeMemory(0x14, 12);
+        value1 = paletteRamIndexes.readMemory(0x04).getValue();
+        value2 = paletteRamIndexes.readMemory(0x14).getValue();
         assertEquals(value1, value2);
 
-        paletteRamIndexes.writeMemory(Integer.parseInt("18", 16), 12);
-        value1 = paletteRamIndexes.readMemory(Integer.parseInt("08", 16)).getValue();
-        value2 = paletteRamIndexes.readMemory(Integer.parseInt("18", 16)).getValue();
+        paletteRamIndexes.writeMemory(0x18, 12);
+        value1 = paletteRamIndexes.readMemory(0x08).getValue();
+        value2 = paletteRamIndexes.readMemory(0x18).getValue();
         assertEquals(value1, value2);
 
-        paletteRamIndexes.writeMemory(Integer.parseInt("1C", 16), 12);
-        value1 = paletteRamIndexes.readMemory(Integer.parseInt("0C", 16)).getValue();
-        value2 = paletteRamIndexes.readMemory(Integer.parseInt("1C", 16)).getValue();
+        paletteRamIndexes.writeMemory(0x1C, 12);
+        value1 = paletteRamIndexes.readMemory(0x0C).getValue();
+        value2 = paletteRamIndexes.readMemory(0x1C).getValue();
         assertEquals(value1, value2);
     }
 }

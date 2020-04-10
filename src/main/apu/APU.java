@@ -76,10 +76,10 @@ public class APU {
     }
 
     public void writeMemory(int pointer, int value) {
-        if        (pointer == Integer.parseInt("4015", 16)) {
+        if        (pointer == 0x4015) {
             pulseChannel2.setEnabled(Util.getNthBit(value,   1) == 1);
             pulseChannel1.setEnabled(Util.getNthBit(value,   0) == 1);
-        } else if (pointer == Integer.parseInt("4017", 16)) {
+        } else if (pointer == 0x4017) {
             this.mode             = Util.getNthBit(value, 7);
             // this.interruptInhibit = Util.getNthBit(value, 6) == 1;
             cycle = 0;

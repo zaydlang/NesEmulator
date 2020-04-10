@@ -77,7 +77,7 @@ public class BusWriter {
     // REQUIRES: fileWriter is open and can be written to.
     // EFFECTS: writes the CPU's ram to the fileWriter
     private static void writeCpuRam(CPU cpu, FileWriter fileWriter) throws IOException {
-        for (int i = 0; i < Integer.parseInt("0800", 16); i++) {
+        for (int i = 0; i < 0x0800; i++) {
             writeSerializable(cpu.readMemory(i), fileWriter);
         }
     }

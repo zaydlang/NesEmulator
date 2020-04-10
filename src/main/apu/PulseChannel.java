@@ -66,7 +66,7 @@ public class PulseChannel {
     }
 
     public void writeMemory(int pointer, int value) {
-        if        (pointer + memoryOffset == Integer.parseInt("4000", 16)) {
+        if        (pointer + memoryOffset == 0x4000) {
             volume            = Util.getNthBits(value, 0, 4);
             constantVolume    = Util.getNthBits(value, 4, 1);
             envelopeLoop      = Util.getNthBits(value, 5, 1);
@@ -74,10 +74,10 @@ public class PulseChannel {
             if (constantVolume == 0) {
                 lengthCounterTimer = 0;
             }
-        } else if (pointer + memoryOffset == Integer.parseInt("4002", 16)) {
+        } else if (pointer + memoryOffset == 0x4002) {
             timer = Util.maskNthBits(value, timer, 0, 0, 8);
             generateTone();
-        } else if (pointer + memoryOffset == Integer.parseInt("4003", 16)) {
+        } else if (pointer + memoryOffset == 0x4003) {
             lengthCounterTimer = lengthCounterLoadTable[Util.getNthBits(value, 0, 5)];
             enabled = true;
             timer = Util.maskNthBits(value, timer, 0, 8, 3);

@@ -27,9 +27,9 @@ class OpcodeTest {
 
     @Test
     void testAdcNoFlags() {
-        cpu.setRegisterA(Integer.parseInt("01011010", 2));
-        Opcode.runOpcode("ADC", new Address(Integer.parseInt("00000000", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("01011010", 2));
+        cpu.setRegisterA(0b01011010);
+        Opcode.runOpcode("ADC", new Address(0b00000000), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b01011010);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagC() == 0);
@@ -38,9 +38,9 @@ class OpcodeTest {
 
     @Test
     void testAdcVOldRegisterAAndResultHasMismatchedSign() {
-        cpu.setRegisterA(Integer.parseInt("11111111", 2));
-        Opcode.runOpcode("ADC", new Address(Integer.parseInt("01000000", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("00111111", 2));
+        cpu.setRegisterA(0b11111111);
+        Opcode.runOpcode("ADC", new Address(0b01000000), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b00111111);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagC() == 1);
@@ -49,9 +49,9 @@ class OpcodeTest {
 
     @Test
     void testAdcZFlag() {
-        cpu.setRegisterA(Integer.parseInt("00000000", 2));
-        Opcode.runOpcode("ADC", new Address(Integer.parseInt("00000000", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("00000000", 2));
+        cpu.setRegisterA(0b00000000);
+        Opcode.runOpcode("ADC", new Address(0b00000000), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b00000000);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 1);
         assertTrue(cpu.getFlagC() == 0);
@@ -60,9 +60,9 @@ class OpcodeTest {
 
     @Test
     void testAdcCFlag() {
-        cpu.setRegisterA(Integer.parseInt("11111111", 2));
-        Opcode.runOpcode("ADC", new Address(Integer.parseInt("11111111", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("11111110", 2));
+        cpu.setRegisterA(0b11111111);
+        Opcode.runOpcode("ADC", new Address(0b11111111), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b11111110);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagC() == 1);
@@ -71,9 +71,9 @@ class OpcodeTest {
 
     @Test
     void testAdcNFlag() {
-        cpu.setRegisterA(Integer.parseInt("01011010", 2));
-        Opcode.runOpcode("ADC", new Address(Integer.parseInt("01000000", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("10011010", 2));
+        cpu.setRegisterA(0b01011010);
+        Opcode.runOpcode("ADC", new Address(0b01000000), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b10011010);
         assertTrue(cpu.getFlagV() == 1);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagC() == 0);
@@ -82,9 +82,9 @@ class OpcodeTest {
 
     @Test
     void testAndNoFlags() {
-        cpu.setRegisterA(Integer.parseInt("11100110", 2));
-        Opcode.runOpcode("AND", new Address(Integer.parseInt("01101110", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("01100110", 2)));
+        cpu.setRegisterA(0b11100110);
+        Opcode.runOpcode("AND", new Address(0b01101110), cpu);
+        assertTrue((cpu.getRegisterA().getValue() == 0b01100110));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 0));
     }
@@ -93,7 +93,7 @@ class OpcodeTest {
     void testAndZFlag() {
         cpu.setRegisterA(Integer.parseInt(                            "00100000", 2));
         Opcode.runOpcode("AND", new Address(Integer.parseInt( "11011111", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00000000", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b00000000));
         assertTrue((cpu.getFlagZ()     == 1));
         assertTrue((cpu.getFlagN()     == 0));
     }
@@ -102,16 +102,16 @@ class OpcodeTest {
     void testAndNFlag() {
         cpu.setRegisterA(Integer.parseInt(                            "10100000", 2));
         Opcode.runOpcode("AND", new Address(Integer.parseInt( "11011111", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("10000000", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b10000000));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 1));
     }
 
     @Test
     void testAslNoFlags() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("00010101",  2);
-        int expectedValue = Integer.parseInt("00101010", 2);
+        int pointer       = 0x1035;
+        int value         = 0b00010101;
+        int expectedValue = 0b00101010;
 
         cpu.writeMemory(pointer, value);
         Address argument = cpu.readMemory(pointer);
@@ -125,9 +125,9 @@ class OpcodeTest {
 
     @Test
     void testAslFlagC() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("10010101",  2);
-        int expectedValue = Integer.parseInt("00101010", 2);
+        int pointer       = 0x1035;
+        int value         = 0b10010101;
+        int expectedValue = 0b00101010;
 
         cpu.writeMemory(pointer, value);
         Address argument = cpu.readMemory(pointer);
@@ -141,9 +141,9 @@ class OpcodeTest {
 
     @Test
     void testAslFlagZ() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("10000000",  2);
-        int expectedValue = Integer.parseInt("00000000", 2);
+        int pointer       = 0x1035;
+        int value         = 0b10000000;
+        int expectedValue = 0b00000000;
 
         cpu.writeMemory(pointer, value);
         Address argument = cpu.readMemory(pointer);
@@ -157,8 +157,8 @@ class OpcodeTest {
 
     @Test
     void testAslFlagN() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("11010101",  2);
+        int pointer       = 0x1035;
+        int value         = 0b11010101;
         int expectedValue = Integer.parseInt( "10101010", 2);
 
         cpu.writeMemory(pointer, value);
@@ -227,8 +227,8 @@ class OpcodeTest {
 
     @Test
     void testBitNoFlags() {
-        int registerA = Integer.parseInt("10010101", 2);
-        int memory    = Integer.parseInt("00011110", 2);
+        int registerA = 0b10010101;
+        int memory    = 0b00011110;
         int address   = 24;
 
         cpu.setRegisterA(registerA);
@@ -241,8 +241,8 @@ class OpcodeTest {
 
     @Test
     void testBitVFlag() {
-        int registerA = Integer.parseInt("11010101", 2);
-        int memory    = Integer.parseInt("01011011", 2);
+        int registerA = 0b11010101;
+        int memory    = 0b01011011;
         int address   = 24;
 
         cpu.setRegisterA(registerA);
@@ -255,8 +255,8 @@ class OpcodeTest {
 
     @Test
     void testBitNFlag() {
-        int registerA = Integer.parseInt("11010101", 2);
-        int memory    = Integer.parseInt("10011011", 2);
+        int registerA = 0b11010101;
+        int memory    = 0b10011011;
         int address   = 24;
 
         cpu.setRegisterA(registerA);
@@ -327,8 +327,8 @@ class OpcodeTest {
         cpu.setRegisterPC(23 * 256 + 47);
         Opcode.runOpcode("BRK", new Address(0), cpu);
 
-        int byteOne = cpu.readMemory(Integer.parseInt("FFFE", 16)).getValue();
-        int byteTwo = cpu.readMemory(Integer.parseInt("FFFF", 16)).getValue();
+        int byteOne = cpu.readMemory(0xFFFE).getValue();
+        int byteTwo = cpu.readMemory(0xFFFF).getValue();
         assertTrue(cpu.getRegisterPC().getValue() == byteOne * 256 + byteTwo);
         assertTrue(cpu.pullStack().getValue()     == 190);
         assertTrue(cpu.pullStack().getValue()     == 23);
@@ -635,7 +635,7 @@ class OpcodeTest {
     void testEorNoFlags() {
         cpu.setRegisterA(Integer.parseInt(                            "00100000", 2));
         Opcode.runOpcode("EOR", new Address(Integer.parseInt( "01011111", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("01111111", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b01111111));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 0));
     }
@@ -644,7 +644,7 @@ class OpcodeTest {
     void testEorZFlagSustain() {
         cpu.setRegisterA(Integer.parseInt(                            "00100100", 2));
         Opcode.runOpcode("EOR", new Address(Integer.parseInt( "00100100", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00000000", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b00000000));
         assertTrue((cpu.getFlagZ()     == 1));
         assertTrue((cpu.getFlagN()     == 0));
     }
@@ -653,7 +653,7 @@ class OpcodeTest {
     void testEorNFlagSustain() {
         cpu.setRegisterA(Integer.parseInt(                            "11100110", 2));
         Opcode.runOpcode("EOR", new Address(Integer.parseInt( "01101110", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("10001000", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b10001000));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 1));
     }
@@ -843,9 +843,9 @@ class OpcodeTest {
 
     @Test
     void testLsrNoFlags() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("01010100",  2);
-        int expectedValue = Integer.parseInt("00101010", 2);
+        int pointer       = 0x1035;
+        int value         = 0b01010100;
+        int expectedValue = 0b00101010;
 
         cpu.writeMemory(pointer, value);
         Address argument = cpu.readMemory(pointer);
@@ -859,9 +859,9 @@ class OpcodeTest {
 
     @Test
     void testLsrFlagC() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("11010101",  2);
-        int expectedValue = Integer.parseInt("01101010", 2);
+        int pointer       = 0x1035;
+        int value         = 0b11010101;
+        int expectedValue = 0b01101010;
 
         cpu.writeMemory(pointer, value);
         Address argument = cpu.readMemory(pointer);
@@ -875,9 +875,9 @@ class OpcodeTest {
 
     @Test
     void testLsrFlagZ() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("00000001",  2);
-        int expectedValue = Integer.parseInt("00000000", 2);
+        int pointer       = 0x1035;
+        int value         = 0b00000001;
+        int expectedValue = 0b00000000;
 
         cpu.writeMemory(pointer, value);
         Address argument = cpu.readMemory(pointer);
@@ -909,7 +909,7 @@ class OpcodeTest {
     void testOraNoFlags() {
         cpu.setRegisterA(Integer.parseInt(                 "00100000", 2));
         Opcode.runOpcode("ORA", new Address(Integer.parseInt(  "01011111", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("01111111", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b01111111));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 0));
     }
@@ -918,7 +918,7 @@ class OpcodeTest {
     void testOraZFlagSustain() {
         cpu.setRegisterA(Integer.parseInt(                            "00000000", 2));
         Opcode.runOpcode("ORA", new Address(Integer.parseInt( "00000000", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00000000", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b00000000));
         assertTrue((cpu.getFlagZ()     == 1));
     }
 
@@ -926,34 +926,34 @@ class OpcodeTest {
     void testOraNFlagSustain() {
         cpu.setRegisterA(Integer.parseInt(                            "11100110", 2));
         Opcode.runOpcode("ORA", new Address(Integer.parseInt( "01101110", 2)), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("11101110", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b11101110));
         assertTrue((cpu.getFlagZ()     == 0));
         assertTrue((cpu.getFlagN()     == 1));
     }
 
     @Test
     void testPhaSingle() {
-        cpu.setRegisterA(Integer.parseInt("00010111", 2));
+        cpu.setRegisterA(0b00010111);
         Opcode.runOpcode("PHA", new Address(0), cpu);
-        assertTrue((cpu.peekStack().getValue()    == Integer.parseInt("00010111", 2)));
+        assertTrue((cpu.peekStack().getValue()    == 0b00010111));
         assertTrue((cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 1));
     }
 
     @Test
     void testPhaMultiple() {
-        cpu.setRegisterA(Integer.parseInt("00010111", 2));
+        cpu.setRegisterA(0b00010111);
         Opcode.runOpcode("PHA", new Address(0), cpu);
-        assertTrue((cpu.peekStack().getValue()    == Integer.parseInt("00010111", 2)));
+        assertTrue((cpu.peekStack().getValue()    == 0b00010111));
         assertTrue((cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 1));
 
-        cpu.setRegisterA(Integer.parseInt("01010000", 2));
+        cpu.setRegisterA(0b01010000);
         Opcode.runOpcode("PHA", new Address(0), cpu);
-        assertTrue((cpu.peekStack().getValue()    == Integer.parseInt("01010000", 2)));
+        assertTrue((cpu.peekStack().getValue()    == 0b01010000));
         assertTrue((cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 2));
 
-        cpu.setRegisterA(Integer.parseInt("01000011", 2));
+        cpu.setRegisterA(0b01000011);
         Opcode.runOpcode("PHA", new Address(0), cpu);
-        assertTrue((cpu.peekStack().getValue()    == Integer.parseInt("01000011", 2)));
+        assertTrue((cpu.peekStack().getValue()    == 0b01000011));
         assertTrue((cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 3));
     }
 
@@ -978,28 +978,28 @@ class OpcodeTest {
 
     @Test
     void testPlaSingle() {
-        cpu.pushStack(Integer.parseInt("10111001", 2));
+        cpu.pushStack(0b10111001);
 
         Opcode.runOpcode("PLA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("10111001", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b10111001));
     }
 
     @Test
     void testPlaFlagNoFlags() {
-        cpu.pushStack(Integer.parseInt("00111001", 2));
+        cpu.pushStack(0b00111001);
 
         Opcode.runOpcode("PLA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00111001", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b00111001));
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagN() == 0);
     }
 
     @Test
     void testPlaFlagFlagZ() {
-        cpu.pushStack(Integer.parseInt("0000000", 2));
+        cpu.pushStack(0b0000000);
 
         Opcode.runOpcode("PLA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00000000", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b00000000));
         assertTrue(cpu.getFlagZ() == 1);
         assertTrue(cpu.getFlagN() == 0);
     }
@@ -1007,10 +1007,10 @@ class OpcodeTest {
 
     @Test
     void testPlaFlagFlagN() {
-        cpu.pushStack(Integer.parseInt("10111001", 2));
+        cpu.pushStack(0b10111001);
 
         Opcode.runOpcode("PLA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("10111001", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b10111001));
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagN() == 1);
     }
@@ -1018,14 +1018,14 @@ class OpcodeTest {
 
     @Test
     void testPlaMultiple() {
-        cpu.pushStack(Integer.parseInt("10111001", 2));
-        cpu.pushStack(Integer.parseInt("11010010", 2));
+        cpu.pushStack(0b10111001);
+        cpu.pushStack(0b11010010);
 
         Opcode.runOpcode("PLA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("11010010", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b11010010));
 
         Opcode.runOpcode("PLA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("10111001", 2)));
+        assertTrue((cpu.getRegisterA().getValue() == 0b10111001));
     }
 
     @Test
@@ -1046,9 +1046,9 @@ class OpcodeTest {
 
     @Test
     void testRolNoFlags() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("00010101",  2);
-        int expectedValue = Integer.parseInt("00101011", 2);
+        int pointer       = 0x1035;
+        int value         = 0b00010101;
+        int expectedValue = 0b00101011;
         cpu.setFlagC(1);
 
         cpu.writeMemory(pointer, value);
@@ -1063,9 +1063,9 @@ class OpcodeTest {
 
     @Test
     void testRolCFlag() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("10010101",  2);
-        int expectedValue = Integer.parseInt("00101011", 2);
+        int pointer       = 0x1035;
+        int value         = 0b10010101;
+        int expectedValue = 0b00101011;
         cpu.setFlagC(1);
 
         cpu.writeMemory(pointer, value);
@@ -1080,9 +1080,9 @@ class OpcodeTest {
 
     @Test
     void testRolZFlag() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("10000000",  2);
-        int expectedValue = Integer.parseInt("00000000", 2);
+        int pointer       = 0x1035;
+        int value         = 0b10000000;
+        int expectedValue = 0b00000000;
         cpu.setFlagC(0);
 
         cpu.writeMemory(pointer, value);
@@ -1097,9 +1097,9 @@ class OpcodeTest {
 
     @Test
     void testRolNFlag() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("01010101",  2);
-        int expectedValue = Integer.parseInt("10101011", 2);
+        int pointer       = 0x1035;
+        int value         = 0b01010101;
+        int expectedValue = 0b10101011;
         cpu.setFlagC(1);
 
         cpu.writeMemory(pointer, value);
@@ -1114,9 +1114,9 @@ class OpcodeTest {
 
     @Test
     void testRorNoFlags() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("01010100",  2);
-        int expectedValue = Integer.parseInt("00101010", 2);
+        int pointer       = 0x1035;
+        int value         = 0b01010100;
+        int expectedValue = 0b00101010;
         cpu.setFlagC(0);
 
         cpu.writeMemory(pointer, value);
@@ -1131,9 +1131,9 @@ class OpcodeTest {
 
     @Test
     void testRorCFlag() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("01010111",  2);
-        int expectedValue = Integer.parseInt("00101011", 2);
+        int pointer       = 0x1035;
+        int value         = 0b01010111;
+        int expectedValue = 0b00101011;
         cpu.setFlagC(0);
 
         cpu.writeMemory(pointer, value);
@@ -1148,9 +1148,9 @@ class OpcodeTest {
 
     @Test
     void testRorZFlag() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("00000001",  2);
-        int expectedValue = Integer.parseInt("00000000", 2);
+        int pointer       = 0x1035;
+        int value         = 0b00000001;
+        int expectedValue = 0b00000000;
         cpu.setFlagC(0);
 
         cpu.writeMemory(pointer, value);
@@ -1165,9 +1165,9 @@ class OpcodeTest {
 
     @Test
     void testRorNFlag() {
-        int pointer       = Integer.parseInt("1035", 16);
-        int value         = Integer.parseInt("01010101",  2);
-        int expectedValue = Integer.parseInt("10101011", 2);
+        int pointer       = 0x1035;
+        int value         = 0b01010101;
+        int expectedValue = 0b10101011;
         cpu.setFlagC(1);
 
         cpu.writeMemory(pointer, value);
@@ -1205,11 +1205,11 @@ class OpcodeTest {
 
     @Test
     void testSbcNoFlags() {
-        cpu.setRegisterA(Integer.parseInt("01011010", 2));
+        cpu.setRegisterA(0b01011010);
         cpu.setFlagC(1);
 
-        Opcode.runOpcode("SBC", new Address(Integer.parseInt("00000000", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("01011010", 2));
+        Opcode.runOpcode("SBC", new Address(0b00000000), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b01011010);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagC() == 1);
@@ -1218,11 +1218,11 @@ class OpcodeTest {
 
     @Test
     void testSbcVFlag() {
-        cpu.setRegisterA(Integer.parseInt("11111110", 2));
+        cpu.setRegisterA(0b11111110);
         cpu.setFlagC(1);
 
-        Opcode.runOpcode("SBC", new Address(Integer.parseInt("01111111", 2)), cpu);
-        //assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("1", 2));
+        Opcode.runOpcode("SBC", new Address(0b01111111), cpu);
+        //assertTrue(cpu.getRegisterA().getValue() == 0b1);
         assertTrue(cpu.getFlagV() == 1);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagC() == 1);
@@ -1231,11 +1231,11 @@ class OpcodeTest {
 
     @Test
     void testSbcZFlag() {
-        cpu.setRegisterA(Integer.parseInt("00000000", 2));
+        cpu.setRegisterA(0b00000000);
         cpu.setFlagC(1);
 
-        Opcode.runOpcode("SBC", new Address(Integer.parseInt("00000000", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("00000000", 2));
+        Opcode.runOpcode("SBC", new Address(0b00000000), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b00000000);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 1);
         assertTrue(cpu.getFlagC() == 1);
@@ -1244,11 +1244,11 @@ class OpcodeTest {
 
     @Test
     void testSbcCFlag() {
-        cpu.setRegisterA(Integer.parseInt("11111111", 2));
+        cpu.setRegisterA(0b11111111);
         cpu.setFlagC(1);
 
-        Opcode.runOpcode("SBC", new Address(Integer.parseInt("11111111", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("00000000", 2));
+        Opcode.runOpcode("SBC", new Address(0b11111111), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b00000000);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 1);
         assertTrue(cpu.getFlagC() == 1);
@@ -1257,11 +1257,11 @@ class OpcodeTest {
 
     @Test
     void testSbcNFlag() {
-        cpu.setRegisterA(Integer.parseInt("11011010", 2));
+        cpu.setRegisterA(0b11011010);
         cpu.setFlagC(0);
 
-        Opcode.runOpcode("SBC", new Address(Integer.parseInt("00000001", 2)), cpu);
-        assertTrue(cpu.getRegisterA().getValue() == Integer.parseInt("11011000", 2));
+        Opcode.runOpcode("SBC", new Address(0b00000001), cpu);
+        assertTrue(cpu.getRegisterA().getValue() == 0b11011000);
         assertTrue(cpu.getFlagV() == 0);
         assertTrue(cpu.getFlagZ() == 0);
         assertTrue(cpu.getFlagC() == 1);
@@ -1303,18 +1303,18 @@ class OpcodeTest {
 
     @Test
     void testStp() {
-        cpu.setRegisterA( Integer.parseInt("03", 16));
-        cpu.setRegisterX( Integer.parseInt("2A", 16));
-        cpu.setRegisterY( Integer.parseInt("3D", 16));
-        cpu.setRegisterS( Integer.parseInt("E4", 16));
-        cpu.setRegisterPC(Integer.parseInt("1F", 16));
+        cpu.setRegisterA( 0x03);
+        cpu.setRegisterX( 0x2A);
+        cpu.setRegisterY( 0x3D);
+        cpu.setRegisterS( 0xE4);
+        cpu.setRegisterPC(0x1F);
 
         Opcode.runOpcode("STP", new Address(0), cpu);
-        assertTrue(cpu.getRegisterA().getValue()  == Integer.parseInt("03", 16));
-        assertTrue(cpu.getRegisterX().getValue()  == Integer.parseInt("2A", 16));
-        assertTrue(cpu.getRegisterY().getValue()  == Integer.parseInt("3D", 16));
-        assertTrue(cpu.getRegisterS().getValue()  == Integer.parseInt("E4", 16));
-        assertTrue(cpu.getRegisterPC().getValue() == Integer.parseInt("1F", 16));
+        assertTrue(cpu.getRegisterA().getValue()  == 0x03);
+        assertTrue(cpu.getRegisterX().getValue()  == 0x2A);
+        assertTrue(cpu.getRegisterY().getValue()  == 0x3D);
+        assertTrue(cpu.getRegisterS().getValue()  == 0xE4);
+        assertTrue(cpu.getRegisterPC().getValue() == 0x1F);
     }
 
     @Test
@@ -1333,180 +1333,180 @@ class OpcodeTest {
 
     @Test
     void testTaxNoFlags() {
-        cpu.setRegisterA(Integer.parseInt("32", 16));
-        cpu.setRegisterX(Integer.parseInt("C0", 16));
+        cpu.setRegisterA(0x32);
+        cpu.setRegisterX(0xC0);
 
         Opcode.runOpcode("TAX", new Address(0), cpu);
-        assertTrue((cpu.getRegisterX().getValue() == Integer.parseInt("32", 16)));
+        assertTrue((cpu.getRegisterX().getValue() == 0x32));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTaxZFlag() {
-        cpu.setRegisterA(Integer.parseInt("00", 16));
-        cpu.setRegisterX(Integer.parseInt("C0", 16));
+        cpu.setRegisterA(0x00);
+        cpu.setRegisterX(0xC0);
 
         Opcode.runOpcode("TAX", new Address(0), cpu);
-        assertTrue((cpu.getRegisterX().getValue() == Integer.parseInt("00", 16)));
+        assertTrue((cpu.getRegisterX().getValue() == 0x00));
         assertTrue((cpu.getFlagZ() == 1));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTaxNFlag() {
-        cpu.setRegisterA(Integer.parseInt("FF", 16));
-        cpu.setRegisterX(Integer.parseInt("C0", 16));
+        cpu.setRegisterA(0xFF);
+        cpu.setRegisterX(0xC0);
 
         Opcode.runOpcode("TAX", new Address(0), cpu);
-        assertTrue((cpu.getRegisterX().getValue() == Integer.parseInt("FF", 16)));
+        assertTrue((cpu.getRegisterX().getValue() == 0xFF));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 1));
     }
 
     @Test
     void testTayNoFlags() {
-        cpu.setRegisterA(Integer.parseInt("32", 16));
-        cpu.setRegisterY(Integer.parseInt("C0", 16));
+        cpu.setRegisterA(0x32);
+        cpu.setRegisterY(0xC0);
 
         Opcode.runOpcode("TAY", new Address(0), cpu);
-        assertTrue((cpu.getRegisterY().getValue() == Integer.parseInt("32", 16)));
+        assertTrue((cpu.getRegisterY().getValue() == 0x32));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTayZFlag() {
-        cpu.setRegisterA(Integer.parseInt("00", 16));
-        cpu.setRegisterY(Integer.parseInt("C0", 16));
+        cpu.setRegisterA(0x00);
+        cpu.setRegisterY(0xC0);
 
         Opcode.runOpcode("TAY", new Address(0), cpu);
-        assertTrue((cpu.getRegisterY().getValue() == Integer.parseInt("00", 16)));
+        assertTrue((cpu.getRegisterY().getValue() == 0x00));
         assertTrue((cpu.getFlagZ() == 1));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTayNFlag() {
-        cpu.setRegisterA(Integer.parseInt("FF", 16));
-        cpu.setRegisterY(Integer.parseInt("C0", 16));
+        cpu.setRegisterA(0xFF);
+        cpu.setRegisterY(0xC0);
 
         Opcode.runOpcode("TAY", new Address(0), cpu);
-        assertTrue((cpu.getRegisterY().getValue() == Integer.parseInt("FF", 16)));
+        assertTrue((cpu.getRegisterY().getValue() == 0xFF));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 1));
     }
 
     @Test
     void testTsxNoFlags() {
-        cpu.setRegisterS(Integer.parseInt("32", 16));
-        cpu.setRegisterX(Integer.parseInt("C0", 16));
+        cpu.setRegisterS(0x32);
+        cpu.setRegisterX(0xC0);
 
         Opcode.runOpcode("TSX", new Address(0), cpu);
-        assertTrue((cpu.getRegisterX().getValue() == Integer.parseInt("32", 16)));
+        assertTrue((cpu.getRegisterX().getValue() == 0x32));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTsxZFlag() {
-        cpu.setRegisterS(Integer.parseInt("00", 16));
-        cpu.setRegisterX(Integer.parseInt("C0", 16));
+        cpu.setRegisterS(0x00);
+        cpu.setRegisterX(0xC0);
 
         Opcode.runOpcode("TSX", new Address(0), cpu);
-        assertTrue((cpu.getRegisterX().getValue() == Integer.parseInt("00", 16)));
+        assertTrue((cpu.getRegisterX().getValue() == 0x00));
         assertTrue((cpu.getFlagZ() == 1));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTsxNFlag() {
-        cpu.setRegisterS(Integer.parseInt("FF", 16));
-        cpu.setRegisterX(Integer.parseInt("C0", 16));
+        cpu.setRegisterS(0xFF);
+        cpu.setRegisterX(0xC0);
 
         Opcode.runOpcode("TSX", new Address(0), cpu);
-        assertTrue((cpu.getRegisterX().getValue() == Integer.parseInt("FF", 16)));
+        assertTrue((cpu.getRegisterX().getValue() == 0xFF));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 1));
     }
 
     @Test
     void testTxaNoFlags() {
-        cpu.setRegisterX(Integer.parseInt("32", 16));
-        cpu.setRegisterA(Integer.parseInt("C0", 16));
+        cpu.setRegisterX(0x32);
+        cpu.setRegisterA(0xC0);
 
         Opcode.runOpcode("TXA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("32", 16)));
+        assertTrue((cpu.getRegisterA().getValue() == 0x32));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTxaZFlag() {
-        cpu.setRegisterX(Integer.parseInt("00", 16));
-        cpu.setRegisterA(Integer.parseInt("C0", 16));
+        cpu.setRegisterX(0x00);
+        cpu.setRegisterA(0xC0);
 
         Opcode.runOpcode("TXA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00", 16)));
+        assertTrue((cpu.getRegisterA().getValue() == 0x00));
         assertTrue((cpu.getFlagZ() == 1));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTxaNFlag() {
-        cpu.setRegisterX(Integer.parseInt("FF", 16));
-        cpu.setRegisterA(Integer.parseInt("C0", 16));
+        cpu.setRegisterX(0xFF);
+        cpu.setRegisterA(0xC0);
 
         Opcode.runOpcode("TXA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("FF", 16)));
+        assertTrue((cpu.getRegisterA().getValue() == 0xFF));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 1));
     }
 
     @Test
     void testTxs() {
-        cpu.setRegisterX(Integer.parseInt("01000110", 2));
+        cpu.setRegisterX(0b01000110);
         Opcode.runOpcode("TXS", new Address(0), cpu);
-        assertTrue((cpu.getRegisterS().getValue() == Integer.parseInt("01000110", 2)));
+        assertTrue((cpu.getRegisterS().getValue() == 0b01000110));
 
-        cpu.setRegisterX(Integer.parseInt("00000000", 2));
+        cpu.setRegisterX(0b00000000);
         Opcode.runOpcode("TXS", new Address(0), cpu);
-        assertTrue((cpu.getRegisterS().getValue() == Integer.parseInt("00000000", 2)));
+        assertTrue((cpu.getRegisterS().getValue() == 0b00000000));
 
-        cpu.setRegisterX(Integer.parseInt("10011001", 2));
+        cpu.setRegisterX(0b10011001);
         Opcode.runOpcode("TXS", new Address(0), cpu);
-        assertTrue((cpu.getRegisterS().getValue() == Integer.parseInt("10011001", 2)));
+        assertTrue((cpu.getRegisterS().getValue() == 0b10011001));
     }
 
     @Test
     void testTyaNoFlags() {
-        cpu.setRegisterY(Integer.parseInt("32", 16));
-        cpu.setRegisterA(Integer.parseInt("C0", 16));
+        cpu.setRegisterY(0x32);
+        cpu.setRegisterA(0xC0);
 
         Opcode.runOpcode("TYA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("32", 16)));
+        assertTrue((cpu.getRegisterA().getValue() == 0x32));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTyaZFlag() {
-        cpu.setRegisterY(Integer.parseInt("00", 16));
-        cpu.setRegisterA(Integer.parseInt("C0", 16));
+        cpu.setRegisterY(0x00);
+        cpu.setRegisterA(0xC0);
 
         Opcode.runOpcode("TYA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("00", 16)));
+        assertTrue((cpu.getRegisterA().getValue() == 0x00));
         assertTrue((cpu.getFlagZ() == 1));
         assertTrue((cpu.getFlagN() == 0));
     }
 
     @Test
     void testTyaNFlag() {
-        cpu.setRegisterY(Integer.parseInt("FF", 16));
-        cpu.setRegisterA(Integer.parseInt("C0", 16));
+        cpu.setRegisterY(0xFF);
+        cpu.setRegisterA(0xC0);
 
         Opcode.runOpcode("TYA", new Address(0), cpu);
-        assertTrue((cpu.getRegisterA().getValue() == Integer.parseInt("FF", 16)));
+        assertTrue((cpu.getRegisterA().getValue() == 0xFF));
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 1));
     }

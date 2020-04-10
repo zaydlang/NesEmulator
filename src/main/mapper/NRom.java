@@ -9,10 +9,10 @@ import java.util.Scanner;
 //     See for more details: https://wiki.nesdev.com/w/index.php/NROM
 
 public class NRom extends Mapper {
-    public  static final int PRG_ROM_128_SIZE      = Integer.parseInt("4000", 16);
+    public  static final int PRG_ROM_128_SIZE      = 0x4000;
 
-    public  static final int INITIAL_PRG_RAM_STATE = Integer.parseInt("00",   16);
-    public  static final int PRG_RAM_SIZE          = Integer.parseInt("2000", 16);
+    public  static final int INITIAL_PRG_RAM_STATE = 0x00;
+    public  static final int PRG_RAM_SIZE          = 0x2000;
 
     private static final int ID                    = 000;
 
@@ -52,15 +52,15 @@ public class NRom extends Mapper {
         // $6000 - $7FFF | $2000 | PRG RAM, mirrored as necessary to fill entire 8 KiB window
         // $8000 - $BFFF | $4000 | First 16 KB of ROM
         // $C000 - $FFFF | $4000 | Last 16 KB of ROM (for NROM-256). Else, this is a mirror of the first 16 KB.
-        if (address < Integer.parseInt("6000", 16)) {            // Out of bounds
+        if (address < 0x6000) {            // Out of bounds
             return new Address(0, address);
-        } else if (address <= Integer.parseInt("7FFF", 16)) {    // PRG RAM
-            return prgRam[(address - Integer.parseInt("6000", 16))];
+        } else if (address <= 0x7FFF) {    // PRG RAM
+            return prgRam[(address - 0x6000)];
         } else {                                                           // PRG ROM
             if (isNRom128) {
-                return prgRom[(address - Integer.parseInt("8000", 16)) % PRG_ROM_128_SIZE];
+                return prgRom[(address - 0x8000) % PRG_ROM_128_SIZE];
             } else {
-                return prgRom[address - Integer.parseInt("8000", 16)];
+                return prgRom[address - 0x8000];
             }
         }
     }
@@ -88,10 +88,10 @@ public class NRom extends Mapper {
         // $8000 - $BFFF | $4000 | First 16 KB of ROM
         // $C000 - $FFFF | $4000 | Last 16 KB of ROM (for NROM-256). Else, this is a mirror of the first 16 KB.
 
-        if        (address < Integer.parseInt("6000", 16)) {    // Out of Bounds
+        if        (address < 0x6000) {    // Out of Bounds
             throw new ArrayIndexOutOfBoundsException("Address out of bounds! NROM only supports addresses >= 0x6000");
-        } else if (address <= Integer.parseInt("7FFF", 16)) {   // PRG RAM
-            prgRam[address - Integer.parseInt("6000", 16)].setValue(rawValue);
+        } else if (address <= 0x7FFF) {   // PRG RAM
+            prgRam[address - 0x6000].setValue(rawValue);
         } else {                                                         // PRG ROM. mirrored for NROM-128.
             throw new ArrayIndexOutOfBoundsException("Cannot write to a Read-Only Address!");
         }

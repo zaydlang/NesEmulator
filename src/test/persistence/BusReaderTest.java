@@ -33,7 +33,7 @@ public class BusReaderTest {
         try {
             expectedBus = new Bus();
             expectedBus.loadCartridge(new File("./data/rom/nestest.nes"));
-            expectedBus.getCpu().addBreakpoint(new Address(Integer.parseInt("ABCD", 16)));
+            expectedBus.getCpu().addBreakpoint(new Address(0xABCD));
 
             for (int i = 0; i < 10000; i++) {
                 expectedBus.cycleComponents();
@@ -98,7 +98,7 @@ public class BusReaderTest {
 
     @Test
     void testCpuRam() {
-        for (int i = 0; i < Integer.parseInt("0800", 16); i++) {
+        for (int i = 0; i < 0x0800; i++) {
             assertAddressEquality(expectedCpu.readMemory(i), actualCpu.readMemory(i));
         }
     }
@@ -192,7 +192,7 @@ public class BusReaderTest {
     void testMapper() {
         assertEquals(expectedMapper.getId(), actualMapper.getId());
 
-        for (int i = Integer.parseInt("6000", 16); i < Integer.parseInt("FFFF", 16) + 1; i++) {
+        for (int i = 0x6000; i < 0xFFFF + 1; i++) {
             assertAddressEquality(expectedMapper.readMemoryCpu(i), actualMapper.readMemoryCpu(i));
         }
 

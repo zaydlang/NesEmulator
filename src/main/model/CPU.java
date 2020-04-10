@@ -44,34 +44,34 @@ public class CPU {
     // Constants
     private static final int RAM_SIZE                 = (int) Math.pow(2, 11);
 
-    public static final int INITIAL_REGISTER_A        = Integer.parseInt("0000", 16);
-    public static final int INITIAL_REGISTER_X        = Integer.parseInt("0000", 16);
-    public static final int INITIAL_REGISTER_Y        = Integer.parseInt("0000", 16);
-    public static final int INITIAL_REGISTER_PC       = Integer.parseInt("C000", 16);
-    public static final int INITIAL_REGISTER_S        = Integer.parseInt("00FD", 16);
+    public static final int INITIAL_REGISTER_A        = 0x0000;
+    public static final int INITIAL_REGISTER_X        = 0x0000;
+    public static final int INITIAL_REGISTER_Y        = 0x0000;
+    public static final int INITIAL_REGISTER_PC       = 0xC000;
+    public static final int INITIAL_REGISTER_S        = 0x00FD;
 
-    public static final int MINIMUM_REGISTER_A        = Integer.parseInt("0000", 16);
-    public static final int MINIMUM_REGISTER_X        = Integer.parseInt("0000", 16);
-    public static final int MINIMUM_REGISTER_Y        = Integer.parseInt("0000", 16);
-    public static final int MINIMUM_REGISTER_PC       = Integer.parseInt("0000", 16);
-    public static final int MINIMUM_REGISTER_S        = Integer.parseInt("0000", 16);
+    public static final int MINIMUM_REGISTER_A        = 0x0000;
+    public static final int MINIMUM_REGISTER_X        = 0x0000;
+    public static final int MINIMUM_REGISTER_Y        = 0x0000;
+    public static final int MINIMUM_REGISTER_PC       = 0x0000;
+    public static final int MINIMUM_REGISTER_S        = 0x0000;
     public static final int MINIMUM_CYCLES            = 0;
     
-    public static final int MAXIMUM_REGISTER_A        = Integer.parseInt("00FF", 16);
-    public static final int MAXIMUM_REGISTER_X        = Integer.parseInt("00FF", 16);
-    public static final int MAXIMUM_REGISTER_Y        = Integer.parseInt("00FF", 16);
-    public static final int MAXIMUM_REGISTER_PC       = Integer.parseInt("FFFF", 16);
-    public static final int MAXIMUM_REGISTER_S        = Integer.parseInt("00FF", 16);
+    public static final int MAXIMUM_REGISTER_A        = 0x00FF;
+    public static final int MAXIMUM_REGISTER_X        = 0x00FF;
+    public static final int MAXIMUM_REGISTER_Y        = 0x00FF;
+    public static final int MAXIMUM_REGISTER_PC       = 0xFFFF;
+    public static final int MAXIMUM_REGISTER_S        = 0x00FF;
     public static final int MAXIMUM_CYCLES            = 340;
 
-    public static final int OFFSET_REGISTER_A         = Integer.parseInt("0000", 16);
-    public static final int OFFSET_REGISTER_X         = Integer.parseInt("0000", 16);
-    public static final int OFFSET_REGISTER_Y         = Integer.parseInt("0000", 16);
-    public static final int OFFSET_REGISTER_PC        = Integer.parseInt("C000", 16);
-    public static final int OFFSET_REGISTER_S         = Integer.parseInt("0100", 16);
+    public static final int OFFSET_REGISTER_A         = 0x0000;
+    public static final int OFFSET_REGISTER_X         = 0x0000;
+    public static final int OFFSET_REGISTER_Y         = 0x0000;
+    public static final int OFFSET_REGISTER_PC        = 0xC000;
+    public static final int OFFSET_REGISTER_S         = 0x0100;
 
-    public static final int INITIAL_CYCLES            = Integer.parseInt("0007", 16);
-    public static final int INITIAL_RAM_STATE         = Integer.parseInt("0000", 16);
+    public static final int INITIAL_CYCLES            = 0x0007;
+    public static final int INITIAL_RAM_STATE         = 0x0000;
 
     // CPU Flags
     protected int flagC;  // Carry
@@ -136,10 +136,10 @@ public class CPU {
             ram[i] = new Address(CPU.INITIAL_RAM_STATE, i,0, 255);
         }
 
-        int byteOne = readMemory(Integer.parseInt("FFFC", 16)).getValue();
-        int byteTwo = readMemory(Integer.parseInt("FFFD", 16)).getValue();
+        int byteOne = readMemory(0xFFFC).getValue();
+        int byteTwo = readMemory(0xFFFD).getValue();
         setRegisterPC(byteOne + byteTwo * 256);
-        //setRegisterPC(Integer.parseInt("C000", 16));     // Uncomment for nestest
+        //setRegisterPC(0xC000);     // Uncomment for nestest
         enabled  = true;
         dma      = false;
         dmaPage  = 0;
@@ -237,14 +237,14 @@ public class CPU {
     //           registerPC to the vector at 0xFFFA/B
     private void handleNMI() {
         if (nmi) {
-            int byteOne = ((getRegisterPC().getValue()) & Integer.parseInt("1111111100000000", 2)) >> 8;
-            int byteTwo = ((getRegisterPC().getValue()) & Integer.parseInt("0000000011111111", 2));
+            int byteOne = ((getRegisterPC().getValue()) & 0b1111111100000000) >> 8;
+            int byteTwo = ((getRegisterPC().getValue()) & 0b0000000011111111);
             pushStack(byteOne);
             pushStack(byteTwo);
             pushStack(getStatus());
 
-            byteOne = readMemory(Integer.parseInt("FFFA", 16)).getValue();
-            byteTwo = readMemory(Integer.parseInt("FFFB", 16)).getValue();
+            byteOne = readMemory(0xFFFA).getValue();
+            byteTwo = readMemory(0xFFFB).getValue();
             setRegisterPC(byteTwo * 256 + byteOne);
 
             nmi = false;
@@ -293,24 +293,24 @@ public class CPU {
     //          $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
     //          $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
     public Address readMemory(int pointer) {
-        if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            while (pointer >= Integer.parseInt("0800", 16)) {
-                pointer -= Integer.parseInt("0800", 16);
+        if        (pointer <= 0x1FFF) {        // 2KB internal RAM  + its mirrors
+            while (pointer >= 0x0800) {
+                pointer -= 0x0800;
             }
             return ram[pointer];
-        } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
-            return bus.ppuRead(Util.getNthBits(pointer, 0, 3) + Integer.parseInt("2000", 16));
-        } else if (pointer <= Integer.parseInt("4013", 16)) {
+        } else if (pointer <= 0x3FFF) {        // NES PPU registers + its mirrors
+            return bus.ppuRead(Util.getNthBits(pointer, 0, 3) + 0x2000);
+        } else if (pointer <= 0x4013) {
             return new Address(0); // TODO: apu read
-        } else if (pointer <= Integer.parseInt("4014", 16)) {
+        } else if (pointer <= 0x4014) {
             return bus.ppuRead(pointer);
-        } else if (pointer <= Integer.parseInt("4015", 16)) {
+        } else if (pointer <= 0x4015) {
             return new Address(0); // TODO: apu read
-        } else if (pointer <= Integer.parseInt("4016", 16)) {
+        } else if (pointer <= 0x4016) {
             return bus.controllerRead(pointer);
-        } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers
+        } else if (pointer <= 0x4017) {       // NES APU and I/O registers
             return bus.controllerRead(pointer);
-        } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality (normally disabled)
+        } else if (pointer <= 0x401F) {       // APU and I/O functionality (normally disabled)
             return new Address(0); // TODO add when the apu is implemented.
         } else {
             return bus.mapperReadCpu(pointer);
@@ -332,22 +332,22 @@ public class CPU {
     //          $4018 - $401F | $0008 | APU and I/O functionality that is normally disabled.
     //          $4020 - $FFFF | $BFE0 | Cartridge space: PRG ROM, PRG RAM, and mapper registers
     public void writeMemory(int pointer, int value) {
-        if        (pointer <= Integer.parseInt("1FFF",16)) {        // 2KB internal RAM  + its mirrors
-            ram[pointer % Integer.parseInt("0800",16)].setValue(value);
-        } else if (pointer <= Integer.parseInt("3FFF",16)) {        // NES PPU registers + its mirrors
-            bus.ppuWrite(Util.getNthBits(pointer, 0, 3) + Integer.parseInt("2000", 16), value);
-        } else if (pointer <= Integer.parseInt("4013", 16)) {
+        if        (pointer <= 0x1FFF) {        // 2KB internal RAM  + its mirrors
+            ram[pointer % 0x0800].setValue(value);
+        } else if (pointer <= 0x3FFF) {        // NES PPU registers + its mirrors
+            bus.ppuWrite(Util.getNthBits(pointer, 0, 3) + 0x2000, value);
+        } else if (pointer <= 0x4013) {
             bus.apuChannelWrite(pointer, value);
         } else if (pointer <= PPU.OAMDMA_ADDRESS) {
             startDMA(value);
-        } else if (pointer <= Integer.parseInt("4015", 16)) {
+        } else if (pointer <= 0x4015) {
             bus.apuWrite(pointer, value);
-        } else if (pointer <= Integer.parseInt("4016", 16)) {
+        } else if (pointer <= 0x4016) {
             bus.controllerWrite(pointer, value);
-        } else if (pointer <= Integer.parseInt("4017", 16)) {       // NES APU and I/O registers.
+        } else if (pointer <= 0x4017) {       // NES APU and I/O registers.
             bus.apuWrite(pointer, value);
             bus.controllerWrite(pointer, value);
-        } else if (pointer <= Integer.parseInt("401F", 16)) {       // APU and I/O functionality that is
+        } else if (pointer <= 0x401F) {       // APU and I/O functionality that is
                                                                              // normally disabled
             // TODO add when the apu is implemented.
         } else {
@@ -363,7 +363,7 @@ public class CPU {
 /*
     private void writeIORegisters(int pointer, int value) {
         System.out.println("Wrote " + Integer.toBinaryString(value) + " to 0x" + Integer.toHexString(pointer));
-        if (pointer == Integer.parseInt("4016", 16)) {
+        if (pointer == 0x4016) {
             controller.setPolling(value == 1);
         }
     }*/

@@ -185,7 +185,7 @@ public class Bus {
     // MODIFIES: controller
     // EFFECTS:  reads the address in controller and returns the value.
     public Address controllerRead(int pointer) {
-        if (controllerConnected && pointer == Integer.parseInt("4016", 16)) {
+        if (controllerConnected && pointer == 0x4016) {
             Address address = controller.poll();
             // System.out.println("POLLED: " + address);
             return address;
@@ -220,7 +220,7 @@ public class Bus {
     // MODIFIES: controller
     // EFFECTS:  writes the controller at the given pointer to the value.
     public void controllerWrite(int pointer, int value) {
-        if (controllerConnected && pointer == Integer.parseInt("4016", 16)) {
+        if (controllerConnected && pointer == 0x4016) {
             // System.out.println("STROBE: " + value);
             controller.setPolling(value == 1);
         }

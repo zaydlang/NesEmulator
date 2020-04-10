@@ -44,7 +44,7 @@ public class PatternTableViewer extends PixelWindow implements KeyListener {
 
         // Draw Palette
         for (int i = 0; i < 4 * 8; i++) {
-            Color color = ColorPalette.getColor(ppu.readMemory(Integer.parseInt("3F00", 16) + i).getValue());
+            Color color = ColorPalette.getColor(ppu.readMemory(0x3F00 + i).getValue());
             for (int x = 0; x < 8; x++) {
                 for (int y = 0; y < 8; y++) {
                     pixels.setPixel(i * 8 + x, 128 + y, color);

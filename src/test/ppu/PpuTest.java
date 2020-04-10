@@ -58,14 +58,14 @@ public class PpuTest {
 
     @Test
     void testCycle() {
-        ppu.writeRegister(Integer.parseInt("2000", 16), Integer.parseInt("10000000", 2));
-        ppu.writeRegister(Integer.parseInt("2001", 16), Integer.parseInt("00001000", 2));
+        ppu.writeRegister(0x2000, 0b10000000);
+        ppu.writeRegister(0x2001, 0b00001000);
         ppu.setPixels(new Pixels(1, 1, 256, 240));
 
-        ppu.writeOam(Integer.parseInt("00000000", 2));
-        ppu.writeOam(Integer.parseInt("00000000", 2));
-        ppu.writeOam(Integer.parseInt("00100000", 2));
-        ppu.writeOam(Integer.parseInt("00000000", 2));
+        ppu.writeOam(0b00000000);
+        ppu.writeOam(0b00000000);
+        ppu.writeOam(0b00100000);
+        ppu.writeOam(0b00000000);
 
         for (int frame = 0; frame < 2; frame++) {
             for (int scanline = -1; scanline < 261; scanline++) {
@@ -86,122 +86,122 @@ public class PpuTest {
 
     @Test
     void test$2000Write() {
-        ppu.setRegisterT(Integer.parseInt("111111111111111", 2));
+        ppu.setRegisterT(0b111111111111111);
 
-        ppu.writeRegister(Integer.parseInt("2000", 16), Integer.parseInt("11100100", 2));
-        assertTrue(ppu.getRegisterT().getValue() == Integer.parseInt("111001111111111", 2));
+        ppu.writeRegister(0x2000, 0b11100100);
+        assertTrue(ppu.getRegisterT().getValue() == 0b111001111111111);
     }
 
     @Test
     void test$2002Read() {
         ppu.setRegisterW(1);
 
-        ppu.readRegister(Integer.parseInt("2002", 16));
+        ppu.readRegister(0x2002);
         assertTrue(ppu.getRegisterW().getValue() == 0);
     }
 
     @Test
     void test$2005WriteFirst() {
-        ppu.setRegisterT(Integer.parseInt("111111111111111", 2));
-        ppu.setRegisterX(Integer.parseInt("111",             2));
+        ppu.setRegisterT(0b111111111111111);
+        ppu.setRegisterX(0b111);
         ppu.setRegisterW(0);
 
-        ppu.writeRegister(Integer.parseInt("2005", 16), Integer.parseInt("00000000",2));
-        assertTrue(ppu.getRegisterT().getValue() == Integer.parseInt("111111111100000", 2));
-        assertTrue(ppu.getRegisterX().getValue() == Integer.parseInt("000",             2));
-        assertTrue(ppu.getRegisterW().getValue() == Integer.parseInt("1",               2));
+        ppu.writeRegister(0x2005, 0b00000000);
+        assertTrue(ppu.getRegisterT().getValue() == 0b111111111100000);
+        assertTrue(ppu.getRegisterX().getValue() == 0b000);
+        assertTrue(ppu.getRegisterW().getValue() == 0b1);
     }
 
     @Test
     void test$2005WriteSecond() {
-        ppu.setRegisterT(Integer.parseInt("111111111111111", 2));
-        ppu.setRegisterX(Integer.parseInt("111",             2));
+        ppu.setRegisterT(0b111111111111111);
+        ppu.setRegisterX(0b111);
         ppu.setRegisterW(1);
 
-        ppu.writeRegister(Integer.parseInt("2005", 16), Integer.parseInt("00000000",2));
-        assertTrue(ppu.getRegisterT().getValue() == Integer.parseInt("000110000011111", 2));
-        assertTrue(ppu.getRegisterW().getValue() == Integer.parseInt("0",               2));
+        ppu.writeRegister(0x2005, 0b00000000);
+        assertTrue(ppu.getRegisterT().getValue() == 0b000110000011111);
+        assertTrue(ppu.getRegisterW().getValue() == 0b0);
     }
 
     @Test
     void test$2006WriteFirst() {
-        ppu.setRegisterT(Integer.parseInt("111111111111111", 2));
-        ppu.setRegisterX(Integer.parseInt("111",             2));
+        ppu.setRegisterT(0b111111111111111);
+        ppu.setRegisterX(0b111);
         ppu.setRegisterW(0);
 
-        ppu.writeRegister(Integer.parseInt("2006", 16), Integer.parseInt("00000000",2));
-        assertTrue(ppu.getRegisterT().getValue() == Integer.parseInt("000000011111111", 2));
-        assertTrue(ppu.getRegisterW().getValue() == Integer.parseInt("1",               2));
+        ppu.writeRegister(0x2006, 0b00000000);
+        assertTrue(ppu.getRegisterT().getValue() == 0b000000011111111);
+        assertTrue(ppu.getRegisterW().getValue() == 0b1);
     }
 
     @Test
     void test$2006WriteSecond() {
-        ppu.setRegisterT(Integer.parseInt("111111111111111", 2));
-        ppu.setRegisterV(Integer.parseInt("111111111111111", 2));
-        ppu.setRegisterX(Integer.parseInt("111",             2));
+        ppu.setRegisterT(0b111111111111111);
+        ppu.setRegisterV(0b111111111111111);
+        ppu.setRegisterX(0b111);
         ppu.setRegisterW(1);
 
-        ppu.writeRegister(Integer.parseInt("2006", 16), Integer.parseInt("00000000",2));
-        assertTrue(ppu.getRegisterT().getValue() == Integer.parseInt("111111100000000", 2));
-        assertTrue(ppu.getRegisterV().getValue() == Integer.parseInt("111111100000000", 2));
-        assertTrue(ppu.getRegisterW().getValue() == Integer.parseInt("0",               2));
+        ppu.writeRegister(0x2006, 0b00000000);
+        assertTrue(ppu.getRegisterT().getValue() == 0b111111100000000);
+        assertTrue(ppu.getRegisterV().getValue() == 0b111111100000000);
+        assertTrue(ppu.getRegisterW().getValue() == 0b0);
     }
 
     @Test
     void test$2007ReadIncrement1() {
-        ppu.writeRegister(Integer.parseInt("2000", 16), Integer.parseInt("00000000", 2));
+        ppu.writeRegister(0x2000, 0b00000000);
         ppu.setRegisterV(0);
-        ppu.readRegister(Integer.parseInt("2007", 16));
+        ppu.readRegister(0x2007);
 
         assertEquals(1, ppu.getRegisterV().getValue());
     }
 
     @Test
     void test$2007ReadIncrement32() {
-        ppu.writeRegister(Integer.parseInt("2000", 16), Integer.parseInt("11111111", 2));
+        ppu.writeRegister(0x2000, 0b11111111);
         ppu.setRegisterV(0);
-        ppu.readRegister(Integer.parseInt("2007", 16));
+        ppu.readRegister(0x2007);
 
         assertEquals(32, ppu.getRegisterV().getValue());
     }
 
     @Test
     void test$2007WriteIncrement1() {
-        ppu.writeRegister(Integer.parseInt("2000", 16), Integer.parseInt("00000000", 2));
+        ppu.writeRegister(0x2000, 0b00000000);
         ppu.setRegisterV(0);
-        ppu.writeRegister(Integer.parseInt("2007", 16), 0);
+        ppu.writeRegister(0x2007, 0);
 
         assertEquals(1, ppu.getRegisterV().getValue());
     }
 
     @Test
     void test$2007WriteIncrement32() {
-        ppu.writeRegister(Integer.parseInt("2000", 16), Integer.parseInt("11111111", 2));
+        ppu.writeRegister(0x2000, 0b11111111);
         ppu.setRegisterV(0);
-        ppu.writeRegister(Integer.parseInt("2007", 16), 0);
+        ppu.writeRegister(0x2007, 0);
 
         assertEquals(32, ppu.getRegisterV().getValue());
     }
 
     @Test
     void test$2007ReadImmediateReturn() {
-        ppu.writeRegister(Integer.parseInt("2006", 16), Integer.parseInt("3F", 16));
-        ppu.writeRegister(Integer.parseInt("2006", 16), Integer.parseInt("00", 16));
-        ppu.writeMemory(Integer.parseInt("3F00", 16), Integer.parseInt("A2", 16));
-        int actual = ppu.readRegister(Integer.parseInt("2007", 16)).getValue();
+        ppu.writeRegister(0x2006, 0x3F);
+        ppu.writeRegister(0x2006, 0x00);
+        ppu.writeMemory(0x3F00, 0xA2);
+        int actual = ppu.readRegister(0x2007).getValue();
 
-        assertEquals(Integer.parseInt("A2", 16), actual);
+        assertEquals(0xA2, actual);
     }
 
     @Test
     void testRenderNametables() {
         Pixels pixels = new Pixels(1, 1, 256 * 2, 256 * 2);
-        ppu.writeMemory(Integer.parseInt("2000", 16), Integer.parseInt("00",       16));
-        ppu.writeMemory(Integer.parseInt("0000", 16), Integer.parseInt("01010101", 2));
-        ppu.writeMemory(Integer.parseInt("3F00", 16), Integer.parseInt("30",       16));
-        ppu.writeMemory(Integer.parseInt("3F01", 16), Integer.parseInt("31",       16));
-        ppu.writeMemory(Integer.parseInt("3F02", 16), Integer.parseInt("32",       16));
-        ppu.writeMemory(Integer.parseInt("3F03", 16), Integer.parseInt("33",       16));
+        ppu.writeMemory(0x2000, 0x00);
+        ppu.writeMemory(0x0000, 0b01010101);
+        ppu.writeMemory(0x3F00, 0x30);
+        ppu.writeMemory(0x3F01, 0x31);
+        ppu.writeMemory(0x3F02, 0x32);
+        ppu.writeMemory(0x3F03, 0x33);
 
         ppu.renderNameTables(pixels, 0);
         assertEquals(new Color(212, 178, 236), pixels.getPixel(0,   0));
@@ -212,13 +212,13 @@ public class PpuTest {
     @Test
     void testRenderPatterntables() {
         Pixels pixels = new Pixels(1, 1, 256 * 2, 256 * 2);
-        ppu.writeMemory(Integer.parseInt("2000", 16), Integer.parseInt("00",       16));
-        ppu.writeMemory(Integer.parseInt("0000", 16), Integer.parseInt("01010101", 2));
-        ppu.writeMemory(Integer.parseInt("3F00", 16), Integer.parseInt("30",       16));
-        ppu.writeMemory(Integer.parseInt("3F01", 16), Integer.parseInt("31",       16));
-        ppu.writeMemory(Integer.parseInt("3F02", 16), Integer.parseInt("32",       16));
-        ppu.writeMemory(Integer.parseInt("3F03", 16), Integer.parseInt("33",       16));
-        ppu.writeMemory(Integer.parseInt("3F05", 16), Integer.parseInt("34",       16));
+        ppu.writeMemory(0x2000, 0x00);
+        ppu.writeMemory(0x0000, 0b01010101);
+        ppu.writeMemory(0x3F00, 0x30);
+        ppu.writeMemory(0x3F01, 0x31);
+        ppu.writeMemory(0x3F02, 0x32);
+        ppu.writeMemory(0x3F03, 0x33);
+        ppu.writeMemory(0x3F05, 0x34);
         // Note: 0x3F05 should not be rendered.
 
         ppu.renderPatternTables(pixels, 0);
@@ -229,16 +229,16 @@ public class PpuTest {
 
     @Test
     void testRenderOAM() {
-        ppu.writeOam(Integer.parseInt("00000000", 2));
-        ppu.writeOam(Integer.parseInt("00000000", 2));
-        ppu.writeOam(Integer.parseInt("00100000", 2));
-        ppu.writeOam(Integer.parseInt("00000000", 2));
-        ppu.writeMemory(Integer.parseInt("2000", 16), Integer.parseInt("00",       16));
-        ppu.writeMemory(Integer.parseInt("0000", 16), Integer.parseInt("01010101", 2));
-        ppu.writeMemory(Integer.parseInt("3F00", 16), Integer.parseInt("30",       16));
-        ppu.writeMemory(Integer.parseInt("3F01", 16), Integer.parseInt("31",       16));
-        ppu.writeMemory(Integer.parseInt("3F02", 16), Integer.parseInt("32",       16));
-        ppu.writeMemory(Integer.parseInt("3F03", 16), Integer.parseInt("33",       16));
+        ppu.writeOam(0b00000000);
+        ppu.writeOam(0b00000000);
+        ppu.writeOam(0b00100000);
+        ppu.writeOam(0b00000000);
+        ppu.writeMemory(0x2000, 0x00);
+        ppu.writeMemory(0x0000, 0b01010101);
+        ppu.writeMemory(0x3F00, 0x30);
+        ppu.writeMemory(0x3F01, 0x31);
+        ppu.writeMemory(0x3F02, 0x32);
+        ppu.writeMemory(0x3F03, 0x33);
 
         Pixels pixels = new Pixels(1, 1, 256, 256);
         ppu.renderOAM(pixels, 1, 1);
@@ -252,24 +252,24 @@ public class PpuTest {
     @Test
     void testIncrementCoarseXOverflow() {
         for (int i = 0; i < 32; i++) {
-            int coarseX = (ppu.getRegisterV().getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
+            int coarseX = (ppu.getRegisterV().getValue() & 0b000000000011111) >> 0;
             assertEquals(i, coarseX);
             ppu.incrementCoarseX();
         }
 
-        int coarseX = (ppu.getRegisterV().getValue() & Integer.parseInt("000000000011111", 2)) >> 0;
+        int coarseX = (ppu.getRegisterV().getValue() & 0b000000000011111) >> 0;
         assertEquals(0, coarseX);
     }
 
     @Test
     void testIncrementCoarseYOverflow() {
         for (int i = 0; i < 32; i++) {
-            int coarseY = (ppu.getRegisterV().getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
+            int coarseY = (ppu.getRegisterV().getValue() & 0b000001111100000) >> 5;
             assertEquals(i, coarseY);
             ppu.incrementCoarseY();
         }
 
-        int coarseY = (ppu.getRegisterV().getValue() & Integer.parseInt("000001111100000", 2)) >> 5;
+        int coarseY = (ppu.getRegisterV().getValue() & 0b000001111100000) >> 5;
         assertEquals(0, coarseY);
     }
 
@@ -277,71 +277,71 @@ public class PpuTest {
     void testRenderSpritesOverflow() {
         int overflowFlag;
 
-        overflowFlag = Util.getNthBit(ppu.readRegister(Integer.parseInt("2002", 16)).getValue(), 5);
+        overflowFlag = Util.getNthBit(ppu.readRegister(0x2002).getValue(), 5);
         assertEquals(0, overflowFlag);
 
         for (int i = 0; i < 9; i++) {
-            ppu.writeOam(Integer.parseInt("00000000", 2));
-            ppu.writeOam(Integer.parseInt("00000000", 2));
-            ppu.writeOam(Integer.parseInt("00100000", 2));
-            ppu.writeOam(Integer.parseInt("00000000", 2));
+            ppu.writeOam(0b00000000);
+            ppu.writeOam(0b00000000);
+            ppu.writeOam(0b00100000);
+            ppu.writeOam(0b00000000);
         }
         ppu.evaluateSprites();
 
-        overflowFlag = Util.getNthBit(ppu.readRegister(Integer.parseInt("2002", 16)).getValue(), 5);
+        overflowFlag = Util.getNthBit(ppu.readRegister(0x2002).getValue(), 5);
         assertEquals(1, overflowFlag);
     }
 
     @Test
     void testPpuReadMemoryMapper() {
-        assertSame(bus.mapperReadPpu(Integer.parseInt("0000", 16)), ppu.readMemory(Integer.parseInt("0000", 16)));
-        assertSame(bus.mapperReadPpu(Integer.parseInt("03A3", 16)), ppu.readMemory(Integer.parseInt("03A3", 16)));
-        assertSame(bus.mapperReadPpu(Integer.parseInt("089F", 16)), ppu.readMemory(Integer.parseInt("089F", 16)));
-        assertSame(bus.mapperReadPpu(Integer.parseInt("103B", 16)), ppu.readMemory(Integer.parseInt("103B", 16)));
-        assertSame(bus.mapperReadPpu(Integer.parseInt("1FFF", 16)), ppu.readMemory(Integer.parseInt("1FFF", 16)));
+        assertSame(bus.mapperReadPpu(0x0000), ppu.readMemory(0x0000));
+        assertSame(bus.mapperReadPpu(0x03A3), ppu.readMemory(0x03A3));
+        assertSame(bus.mapperReadPpu(0x089F), ppu.readMemory(0x089F));
+        assertSame(bus.mapperReadPpu(0x103B), ppu.readMemory(0x103B));
+        assertSame(bus.mapperReadPpu(0x1FFF), ppu.readMemory(0x1FFF));
     }
 
     @Test
     void testPpuReadMemoryNametable() {
-        assertSame(ppu.readNametable(Integer.parseInt("2000", 16)), ppu.readMemory(Integer.parseInt("2000", 16)));
-        assertSame(ppu.readNametable(Integer.parseInt("23A3", 16)), ppu.readMemory(Integer.parseInt("23A3", 16)));
-        assertSame(ppu.readNametable(Integer.parseInt("289F", 16)), ppu.readMemory(Integer.parseInt("289F", 16)));
-        assertSame(ppu.readNametable(Integer.parseInt("2C3B", 16)), ppu.readMemory(Integer.parseInt("2C3B", 16)));
-        assertSame(ppu.readNametable(Integer.parseInt("2FFF", 16)), ppu.readMemory(Integer.parseInt("2FFF", 16)));
+        assertSame(ppu.readNametable(0x2000), ppu.readMemory(0x2000));
+        assertSame(ppu.readNametable(0x23A3), ppu.readMemory(0x23A3));
+        assertSame(ppu.readNametable(0x289F), ppu.readMemory(0x289F));
+        assertSame(ppu.readNametable(0x2C3B), ppu.readMemory(0x2C3B));
+        assertSame(ppu.readNametable(0x2FFF), ppu.readMemory(0x2FFF));
     }
 
     @Test
     void testPpuReadMemoryNametableMirrors() {
-        assertSame(ppu.readNametable(Integer.parseInt("2000", 16)), ppu.readMemory(Integer.parseInt("3000", 16)));
-        assertSame(ppu.readNametable(Integer.parseInt("23A3", 16)), ppu.readMemory(Integer.parseInt("33A3", 16)));
-        assertSame(ppu.readNametable(Integer.parseInt("289F", 16)), ppu.readMemory(Integer.parseInt("389F", 16)));
-        assertSame(ppu.readNametable(Integer.parseInt("2C3B", 16)), ppu.readMemory(Integer.parseInt("3C3B", 16)));
+        assertSame(ppu.readNametable(0x2000), ppu.readMemory(0x3000));
+        assertSame(ppu.readNametable(0x23A3), ppu.readMemory(0x33A3));
+        assertSame(ppu.readNametable(0x289F), ppu.readMemory(0x389F));
+        assertSame(ppu.readNametable(0x2C3B), ppu.readMemory(0x3C3B));
     }
 
     @Test
     void testPpuReadMemoryPaletteRamIndexes() {
         PaletteRamIndexes p = ppu.paletteRamIndexes;
-        assertSame(p.readMemory(Integer.parseInt("00", 16)), ppu.readMemory(Integer.parseInt("3F00", 16)));
-        assertSame(p.readMemory(Integer.parseInt("03", 16)), ppu.readMemory(Integer.parseInt("3F03", 16)));
-        assertSame(p.readMemory(Integer.parseInt("20", 16)), ppu.readMemory(Integer.parseInt("3F20", 16)));
+        assertSame(p.readMemory(0x00), ppu.readMemory(0x3F00));
+        assertSame(p.readMemory(0x03), ppu.readMemory(0x3F03));
+        assertSame(p.readMemory(0x20), ppu.readMemory(0x3F20));
     }
 
     @Test
     void testPpuWriteMemoryNametable() {
         ppu.setNametableMirroring(Mirroring.HORIZONTAL);
-        ppu.writeMemory(Integer.parseInt("2000", 16), Integer.parseInt("A2", 16));
-        assertEquals(Integer.parseInt("A2", 16), ppu.readNametable(Integer.parseInt("2000", 16)).getValue());
-        ppu.writeMemory(Integer.parseInt("2ABC", 16), Integer.parseInt("A2", 16));
-        assertEquals(Integer.parseInt("A2", 16), ppu.readNametable(Integer.parseInt("2ABC", 16)).getValue());
-        ppu.writeMemory(Integer.parseInt("2FFF", 16), Integer.parseInt("A2", 16));
-        assertEquals(Integer.parseInt("A2", 16), ppu.readNametable(Integer.parseInt("2FFF", 16)).getValue());
+        ppu.writeMemory(0x2000, 0xA2);
+        assertEquals(0xA2, ppu.readNametable(0x2000).getValue());
+        ppu.writeMemory(0x2ABC, 0xA2);
+        assertEquals(0xA2, ppu.readNametable(0x2ABC).getValue());
+        ppu.writeMemory(0x2FFF, 0xA2);
+        assertEquals(0xA2, ppu.readNametable(0x2FFF).getValue());
     }
 
     @Test
     void testPpuWriteMemoryNametableMirrors() {
-        ppu.writeMemory(Integer.parseInt("3000", 16), Integer.parseInt("A2", 16));
-        assertEquals(Integer.parseInt("A2", 16), ppu.readNametable(Integer.parseInt("3000", 16)).getValue());
-        ppu.writeMemory(Integer.parseInt("3ABC", 16), Integer.parseInt("A2", 16));
-        assertEquals(Integer.parseInt("A2", 16), ppu.readNametable(Integer.parseInt("3ABC", 16)).getValue());
+        ppu.writeMemory(0x3000, 0xA2);
+        assertEquals(0xA2, ppu.readNametable(0x3000).getValue());
+        ppu.writeMemory(0x3ABC, 0xA2);
+        assertEquals(0xA2, ppu.readNametable(0x3ABC).getValue());
     }
 }

@@ -10,8 +10,8 @@ public class SpriteTest {
 
     @BeforeEach
     void runBefore() {
-        int patternTableData0 = Integer.parseInt("10010011", 2);
-        int patternTableData1 = Integer.parseInt("01011011", 2);
+        int patternTableData0 = 0b10010011;
+        int patternTableData1 = 0b01011011;
         sprite = new Sprite(patternTableData0, patternTableData1, 3, 5, 0, false, false);
     }
 
@@ -32,14 +32,14 @@ public class SpriteTest {
     @Test
     void testGetNextColorAddressAsInt() {
         int[] expectedValues = new int[]{
-                Integer.parseInt("11", 2) + (3 << 2),
-                Integer.parseInt("11", 2) + (3 << 2),
-                Integer.parseInt("00", 2) + (3 << 2),
-                Integer.parseInt("10", 2) + (3 << 2),
-                Integer.parseInt("11", 2) + (3 << 2),
-                Integer.parseInt("00", 2) + (3 << 2),
-                Integer.parseInt("10", 2) + (3 << 2),
-                Integer.parseInt("01", 2) + (3 << 2)
+                0b11 + (3 << 2),
+                0b11 + (3 << 2),
+                0b00 + (3 << 2),
+                0b10 + (3 << 2),
+                0b11 + (3 << 2),
+                0b00 + (3 << 2),
+                0b10 + (3 << 2),
+                0b01 + (3 << 2)
         };
 
         for (int i = 0; i < 8; i++) {
