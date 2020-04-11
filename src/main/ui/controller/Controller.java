@@ -5,6 +5,8 @@ import model.Address;
 import java.awt.event.KeyEvent;
 
 public abstract class Controller {
+    protected static String CONFIG_FILE = "./config/controllers.json";
+
     protected Key[]     keyMap;
     protected boolean[] keyState;
 
