@@ -16,32 +16,11 @@ import static java.awt.event.KeyEvent.*;
 public class StandardController extends Controller {
     private static Key[] initialKeyMap;
 
-    static {
-        initialKeyMap = new Key[8]; // 8 bits in a byte
-        JSONParser parser = new JSONParser();
-        try {
-            JSONObject json = (JSONObject) parser.parse(new FileReader(Controller.CONFIG_FILE));
-            JSONObject keyboardKeyEvents = (JSONObject) json.get("keys");
-            JSONObject controllerKeyMaps = (JSONObject) json.get("controllers");
-            JSONArray  standardKeyMap    = (JSONArray) controllerKeyMaps.get("standard");
-
-            for (int i = 0; i < 8; i++) {
-                JSONArray key = (JSONArray) standardKeyMap.get(i);
-                int keyboardKey = Math.toIntExact((long) keyboardKeyEvents.get(key.get(0)));
-                String controllerKey = (String) key.get(1);
-                initialKeyMap[i] = new Key(keyboardKey, controllerKey);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
     private boolean isPolling;
     private int     pollingIndex;
 
     public StandardController() {
-        super(initialKeyMap);
+        super(ControllerConfig.getKeyMap("standard"));
 
         isPolling    = false;
         pollingIndex = 0;
