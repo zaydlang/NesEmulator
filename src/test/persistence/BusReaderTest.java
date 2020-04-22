@@ -31,7 +31,7 @@ public class BusReaderTest {
     @BeforeAll
     static void runBeforeAll() {
         try {
-            expectedBus = new Bus();
+            expectedBus = Bus.getInstance();
             expectedBus.loadCartridge(new File("./data/rom/nestest.nes"));
             expectedBus.getCpu().addBreakpoint(new Address(0xABCD));
 
@@ -41,8 +41,8 @@ public class BusReaderTest {
 
             BusWriter.writeToFile(expectedBus, "test");
 
-            actualBus = new Bus();
-            actualBus.reset();
+            actualBus = Bus.getInstance();
+            actualBus.softReset();
             actualBus = BusReader.readFromFile("test");
         } catch (IOException e) {
             fail("IOException thrown! Are you sure the file exists?");
@@ -65,8 +65,9 @@ public class BusReaderTest {
     @Test
     void testReadFail() {
         try {
-            Bus bus = new Bus();
-            bus.reset();
+            Bus.hardReset();
+            Bus bus = Bus.getInstance();
+            bus.softReset();
             bus = BusReader.readFromFile("this/file/does/not.exist");
         } catch (Exception e) {
             fail("This should be handled by the BusReader!");

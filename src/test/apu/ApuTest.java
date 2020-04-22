@@ -11,7 +11,7 @@ public class ApuTest {
 
     @BeforeEach
     void runBefore() {
-        apu = new APU(new Bus());
+        apu = new APU();
     }
 
     @Test

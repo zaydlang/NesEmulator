@@ -17,7 +17,7 @@ public class NRomTest {
 
     @BeforeEach
     void runBefore() {
-        Bus bus = new Bus();
+        Bus bus = Bus.getInstance();
         try {
             bus.loadCartridge(new File("./data/test/TestLoadRomTrainerNotPresentSmall.nes"));
             nrom = (NRom) bus.getMapper();

@@ -17,7 +17,8 @@ class OpcodeTest {
     @BeforeEach
     void runBefore() {
         try {
-            bus = new Bus();
+            Bus.hardReset();
+            bus = Bus.getInstance();
             cpu = bus.getCpu();
             bus.loadCartridge(new File("./data/test/TestLoadRomTrainerPresent.nes"));
         } catch (IOException e) {

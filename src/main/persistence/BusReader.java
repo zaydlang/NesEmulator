@@ -29,8 +29,8 @@ public class BusReader {
     // REQUIRES: fileName.EXTENSION exists in SAVE_DIRECTORY
     // EFFECTS: saves the NES' state to a file at filename. Throws IOException if the file could not be read from.
     public static Bus readFromFile(String fileName) {
-        Bus bus = new Bus();
-        bus.reset();
+        Bus bus = Bus.getInstance();
+        bus.softReset();
 
         try {
             Scanner scanner = new Scanner(new File(SAVE_DIRECTORY + fileName + EXTENSION)).useDelimiter(DELIMITER);

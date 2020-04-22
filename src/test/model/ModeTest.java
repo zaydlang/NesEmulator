@@ -19,7 +19,7 @@ public class ModeTest {
     @BeforeEach
     void runBefore() {
         try {
-            Bus bus = new Bus();
+            Bus bus = Bus.getInstance();
             cpu = bus.getCpu();
             bus.loadCartridge(new File("data/test/TestLoadRomTrainerPresent.nes"));
         } catch (IOException e) {

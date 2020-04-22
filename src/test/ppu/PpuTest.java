@@ -23,7 +23,8 @@ public class PpuTest {
 
     @BeforeEach
     void runBefore() {
-        bus = new Bus();
+        Bus.hardReset();
+        bus = Bus.getInstance();
         try {
             bus.loadCartridge(new File("./data/test/TestLoadRomTrainerPresent.nes"));
         } catch (IOException e) {

@@ -36,12 +36,20 @@ public class Bus {
 
     private boolean enabled;
 
+    // I decided to make the bus initialization in a static block because we're almost always going to need a Bus when
+    // running the program
+    private static Bus bus;
+
+    static {
+        hardReset();
+    }
+
     // MODIFIES: this
     // EFFECTS:  initializes the CPU and PPU and connects them to the bus (this).
-    public Bus() {
-        cpu = new CPU(this);
-        ppu = new PPU(this);
-        apu = new APU(this);
+    private Bus() {
+        cpu = new CPU();
+        ppu = new PPU();
+        apu = new APU();
 
         cpu.setLoggingOutput(new CpuFileOutput());
 
@@ -52,18 +60,28 @@ public class Bus {
         truePpuCycles       = 0;
     }
 
+    public static Bus getInstance() {
+        return bus;
+    }
+
+    // MODIFIES: this
+    // EFFECTS:  hard resets the bus; the bus is now back at its default state.
+    public static void hardReset() {
+        bus = new Bus();
+    }
+
     // MODIFIES: this
     // EFFECTS:  loads the cartridge into the mapper and resets the cpu and ppu
     public void loadCartridge(File file) throws IOException {
         readCartridge(file);
         cartridgeLoaded = true;
 
-        reset();
+        softReset();
     }
 
     // MODIFIES: cpu, ppu
-    // EFFECTS:  resets the cpu and ppu.
-    public void reset() {
+    // EFFECTS:  soft resets the cpu and ppu - unlike a hard reset, this doesn't reset everything.
+    public void softReset() {
         cpu.reset();
         ppu.reset();
         apu.enable();

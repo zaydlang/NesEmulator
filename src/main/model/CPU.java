@@ -98,7 +98,6 @@ public class CPU {
 
     // Memory
     protected Address[] ram;
-    private Bus bus;
 
     private CpuOutput loggingOutput;
 
@@ -107,15 +106,14 @@ public class CPU {
     private int     dmaIndex;
 
     // EFFECTS: initializes the RAM and STACK and calls reset() to reset all values in the cpu to their default states.
-    public CPU(Bus bus) {
-        init(bus);
+    public CPU() {
+        init();
     }
 
     // MODIFIES: ram
     // EFFECTS: initializes the RAM and STACK with their appropriate sizes.
-    private void init(Bus bus) {
+    private void init() {
         ram = new Address[CPU.RAM_SIZE];
-        this.bus = bus;
     }
 
     // MODIFIES: registerA, registerX, registerY, registerPC, registerS, cycles, ram
@@ -187,7 +185,7 @@ public class CPU {
         } else {
             if (dmaIndex % 2 == 0) {
                 int value = readMemory((dmaPage << 8) + (dmaIndex - 1) / 2).getValue();
-                bus.ppuWrite(PPU.OAMDATA_ADDRESS, value);
+                Bus.getInstance().ppuWrite(PPU.OAMDATA_ADDRESS, value);
                 if (dmaIndex == 512) {
                     dma = false;
                     return;
@@ -299,21 +297,21 @@ public class CPU {
             }
             return ram[pointer];
         } else if (pointer <= 0x3FFF) {        // NES PPU registers + its mirrors
-            return bus.ppuRead(Util.getNthBits(pointer, 0, 3) + 0x2000);
+            return Bus.getInstance().ppuRead(Util.getNthBits(pointer, 0, 3) + 0x2000);
         } else if (pointer <= 0x4013) {
             return new Address(0); // TODO: apu read
         } else if (pointer <= 0x4014) {
-            return bus.ppuRead(pointer);
+            return Bus.getInstance().ppuRead(pointer);
         } else if (pointer <= 0x4015) {
             return new Address(0); // TODO: apu read
         } else if (pointer <= 0x4016) {
-            return bus.controllerRead(pointer);
+            return Bus.getInstance().controllerRead(pointer);
         } else if (pointer <= 0x4017) {       // NES APU and I/O registers
-            return bus.controllerRead(pointer);
+            return Bus.getInstance().controllerRead(pointer);
         } else if (pointer <= 0x401F) {       // APU and I/O functionality (normally disabled)
             return new Address(0); // TODO add when the apu is implemented.
         } else {
-            return bus.mapperReadCpu(pointer);
+            return Bus.getInstance().mapperReadCpu(pointer);
         }
     }
 
@@ -335,23 +333,23 @@ public class CPU {
         if        (pointer <= 0x1FFF) {        // 2KB internal RAM  + its mirrors
             ram[pointer % 0x0800].setValue(value);
         } else if (pointer <= 0x3FFF) {        // NES PPU registers + its mirrors
-            bus.ppuWrite(Util.getNthBits(pointer, 0, 3) + 0x2000, value);
+            Bus.getInstance().ppuWrite(Util.getNthBits(pointer, 0, 3) + 0x2000, value);
         } else if (pointer <= 0x4013) {
-            bus.apuChannelWrite(pointer, value);
+            Bus.getInstance().apuChannelWrite(pointer, value);
         } else if (pointer <= PPU.OAMDMA_ADDRESS) {
             startDMA(value);
         } else if (pointer <= 0x4015) {
-            bus.apuWrite(pointer, value);
+            Bus.getInstance().apuWrite(pointer, value);
         } else if (pointer <= 0x4016) {
-            bus.controllerWrite(pointer, value);
+            Bus.getInstance().controllerWrite(pointer, value);
         } else if (pointer <= 0x4017) {       // NES APU and I/O registers.
-            bus.apuWrite(pointer, value);
-            bus.controllerWrite(pointer, value);
+            Bus.getInstance().apuWrite(pointer, value);
+            Bus.getInstance().controllerWrite(pointer, value);
         } else if (pointer <= 0x401F) {       // APU and I/O functionality that is
                                                                              // normally disabled
             // TODO add when the apu is implemented.
         } else {
-            bus.mapperWrite(pointer, value);
+            Bus.getInstance().mapperWrite(pointer, value);
         }
     }
 

@@ -226,7 +226,7 @@ public class Display extends PixelWindow implements KeyListener {
     }
 
     public static void main(String[] args) throws IOException {
-        Bus bus = new Bus();
+        Bus bus = Bus.getInstance();
         //bus.loadCartridge(new File("./data/rom/donkeykong.nes"));
         new Display(bus);
     }

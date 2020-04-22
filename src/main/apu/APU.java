@@ -12,14 +12,11 @@ public class APU {
     private PulseChannel    pulseChannel1;
     private PulseChannel    pulseChannel2;
 
-    private Bus bus;
-
     private int mode;
     // private boolean interruptInhibit;
     private int cycle;
 
-    public APU(Bus bus) {
-        this.bus = bus;
+    public APU() {
         pulseChannel1   = new PulseChannel(0);
         pulseChannel2   = new PulseChannel(4);
 

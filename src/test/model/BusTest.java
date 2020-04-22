@@ -15,7 +15,8 @@ public class BusTest {
 
     @BeforeEach
     void runBefore() {
-        bus = new Bus();
+        Bus.hardReset();
+        bus = Bus.getInstance();
     }
 
     @Test
