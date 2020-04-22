@@ -74,10 +74,7 @@ public class Instruction {
                         Integer.parseInt((String) jsonObject.get("numArguments")),
                         Integer.parseInt((String) jsonObject.get("numCycles"))
                 ));
-
-                int x = 2;
             }
-            int x = 2;
         } catch (Exception e) {
             e.printStackTrace();
         }

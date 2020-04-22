@@ -1,29 +1,26 @@
 package ui.controller;
 
 import model.Address;
+import model.Instruction;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.awt.event.KeyEvent;
+import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static java.awt.event.KeyEvent.*;
 
 public class StandardController extends Controller {
-    private static Key[] initialKeyMap = new Key[] {
-            new Key(VK_Z,     "A"),
-            new Key(VK_X,     "B"),
-            new Key(VK_SPACE, "Start"),
-            new Key(VK_ENTER, "Select"),
-            new Key(VK_UP,    "Up"),
-            new Key(VK_DOWN,  "Down"),
-            new Key(VK_LEFT,  "Left"),
-            new Key(VK_RIGHT, "Right")
-    };
+    private static Key[] initialKeyMap;
 
     private boolean isPolling;
     private int     pollingIndex;
 
     public StandardController() {
-        super(initialKeyMap);
+        super(ControllerConfig.getKeyMap("standard"));
 
         isPolling    = false;
         pollingIndex = 0;
