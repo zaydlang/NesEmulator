@@ -1,0 +1,25 @@
+{
+  "controllers": {
+    "standard": [
+      ["VK_Z",     "A"],
+      ["VK_X",     "B"],
+      ["VK_SPACE", "Start"],
+      ["VK_ENTER", "Select"],
+      ["VK_UP",    "Up"],
+      ["VK_DOWN",  "Down"],
+      ["VK_LEFT",  "Left"],
+      ["VK_RIGHT", "Right"]
+    ]
+  },
+
+  "keys": {
+    "VK_Z":     90,
+    "VK_X":     88,
+    "VK_SPACE": 32,
+    "VK_ENTER": 10,
+    "VK_UP":    38,
+    "VK_DOWN":  40,
+    "VK_LEFT":  37,
+    "VK_RIGHT": 39
+  }
+}
