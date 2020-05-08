@@ -94,11 +94,10 @@ public class PPU {
     private boolean isOddFrame;
 
     private Pixels pixels;
-    private Bus bus;
 
     // MODIFIES: this
     // EFFECTS: initializes the ppu, connects it to the bus, and resets it.
-    public PPU(Bus bus) {
+    public PPU() {
         nametable = new Address[NUM_NAMETABLES * NAMETABLE_SIZE];
         paletteRamIndexes = new PaletteRamIndexes();
         primaryOam = new Address[PRIMARY_OAM_SIZE];
@@ -109,8 +108,6 @@ public class PPU {
         shiftRegisterSmall1 = new ShiftRegister(SHIFT_REGISTER_SMALL_SIZE);
         shiftRegisterLarge0 = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
         shiftRegisterLarge1 = new ShiftRegister(SHIFT_REGISTER_LARGE_SIZE);
-
-        this.bus = bus;
 
         reset();
     }
@@ -549,7 +546,7 @@ public class PPU {
         if (scanline == 241 && cycle == 1) {
             ppuStatus.setValue(ppuStatus.getValue() | 0b10000000);
             if (Util.getNthBit(ppuCtrl.getValue(), 7) == 1) {
-                bus.setNmi(true);
+                Bus.getInstance().setNmi(true);
             }
         }
     }
@@ -792,7 +789,7 @@ public class PPU {
         // $3F20 - $3FFF | $BFE0 | Mirrors of $3F00-$3F1F
 
         if (pointer <= 0x1FFF) {
-            return bus.mapperReadPpu(pointer);
+            return Bus.getInstance().mapperReadPpu(pointer);
         } else if (pointer <= 0x2FFF) {
             return readNametable(pointer - 0x2000);
         } else if (pointer <= 0x3EFF) {

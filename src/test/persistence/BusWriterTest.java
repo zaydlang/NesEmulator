@@ -23,7 +23,7 @@ public class BusWriterTest {
     @Test
     void testWrite() {
         try {
-            Bus bus = new Bus();
+            Bus bus = Bus.getInstance();
             bus.loadCartridge(new File("./data/rom/nestest.nes"));
             bus.getCpu().addBreakpoint(new Address(0xABCD));
 
@@ -40,7 +40,7 @@ public class BusWriterTest {
     @Test
     void testWriteFail() {
         try {
-            Bus bus = new Bus();
+            Bus bus = Bus.getInstance();
             bus.loadCartridge(new File("./data/rom/nestest.nes"));
             BusWriter.writeToFile(bus, "this/file/does/not.exist");
         } catch (Exception e) {
