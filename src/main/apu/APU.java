@@ -17,8 +17,8 @@ public class APU {
     private int cycle;
 
     public APU() {
-        pulseChannel1   = new PulseChannel(0);
-        pulseChannel2   = new PulseChannel(4);
+        pulseChannel1 = new PulseChannel(0);
+        pulseChannel2 = new PulseChannel(4);
 
         cycle = 0;
     }

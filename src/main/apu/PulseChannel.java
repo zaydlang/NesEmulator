@@ -76,11 +76,13 @@ public class PulseChannel {
             }
         } else if (pointer + memoryOffset == 0x4002) {
             timer = Util.maskNthBits(value, timer, 0, 0, 8);
+            line.flush();
             generateTone();
         } else if (pointer + memoryOffset == 0x4003) {
             lengthCounterTimer = lengthCounterLoadTable[Util.getNthBits(value, 0, 5)];
             enabled = true;
             timer = Util.maskNthBits(value, timer, 0, 8, 3);
+            line.flush();
             generateTone();
         }
     }
@@ -91,8 +93,6 @@ public class PulseChannel {
         }
 
         if (enabled) {
-            line.write(tone, (int) (toneOffset % SAMPLE_RATE), (int) APU.OFFSET_INCREMENT);
-            toneOffset = (toneOffset + APU.OFFSET_INCREMENT) % SAMPLE_RATE;
             line.write(tone, (int) (toneOffset % SAMPLE_RATE), (int) APU.OFFSET_INCREMENT);
             toneOffset = (toneOffset + APU.OFFSET_INCREMENT) % SAMPLE_RATE;
         } else {
