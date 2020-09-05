@@ -96,6 +96,13 @@ public class PPU {
 
     private Pixels pixels;
 
+    // true if there's a predicted sprite zero hit,
+    // false if not. this can be used to make some MAJOR optimizations if it's false.
+    // essentially, we can skip rendering pixel by pixel and just put the nametable on
+    // the screen directly.
+    private boolean predictedSpriteZeroHit;
+    private int[] backgroundCache; // used to draw the sprites after the background is rendered. contains background data.
+
     // MODIFIES: this
     // EFFECTS: initializes the ppu, connects it to the bus, and resets it.
     public PPU() {
@@ -135,6 +142,10 @@ public class PPU {
         cycle      = 0;
         scanline   = 0;
         isOddFrame = false;
+
+        // used for optimization
+        predictedSpriteZeroHit = false;
+        backgroundCache = new int[256 * 240];
 
         resetNametables();
         resetPrimaryOam();
@@ -186,23 +197,29 @@ public class PPU {
         ppuData = 0;
     }
 
-    Instant previousSecond = Instant.now();
-    int frames = 0;
-
     // REQUIRES: 0 <= scanline <= 260
     // MODIFIES: this
     // EFFECTS: runs the appropriate scanline and increments the cycle. Increments scanline if cycle overflows, and
     //          toggles isOddFrame when scanline overflows.
     public void cycle() {
-
-        if (scanline <= -1 && Util.getNthBit(ppuMask, 3) == 1) { // Pre-Render Scanlines
-            runPreRenderScanline();
-        } else if (scanline <= 239 && Util.getNthBit(ppuMask, 3) == 1) { // Visible Scanlines
-            runVisibleScanline();
-        } else if (scanline <= 240 && Util.getNthBit(ppuMask, 3) == 1) { // Post-Render Scanlines
-            runPostRenderScanline();
-        } else if (241 <= scanline && scanline <= 260) { // Vertical Blanking Scanlines
-            runVerticalBlankingScanline();
+        if (predictedSpriteZeroHit) {
+            if (scanline <= -1 && Util.getNthBit(ppuMask, 3) == 1) { // Pre-Render Scanlines
+                runPreRenderScanline();
+            } else if (scanline <= 239 && Util.getNthBit(ppuMask, 3) == 1) { // Visible Scanlines
+                runVisibleScanline();
+            } else if (scanline <= 240 && Util.getNthBit(ppuMask, 3) == 1) { // Post-Render Scanlines
+                runPostRenderScanline();
+            } else if (241 <= scanline && scanline <= 260) { // Vertical Blanking Scanlines
+                runVerticalBlankingScanline();
+            }
+        } else {
+            // if theres no predicted sprite zero hit, we can just go straight to rendering.
+            if (scanline == 0) {
+                if (cycle == 0)
+                    renderFullScreenAtOnce(pixels);
+            } else if (241 <= scanline && scanline <= 260) { // Vertical Blanking Scanlines
+                runVerticalBlankingScanline();
+            }
         }
 
         cycle++;
@@ -289,7 +306,7 @@ public class PPU {
             int spriteX = secondaryOam[i * 4 + 3];
 
             int fineY = drawY - spriteY;
-            boolean isMirroredVertically   = Util.getNthBit(secondaryOam[i * 4 + 2], 7) == 1;
+            boolean isMirroredVertically = Util.getNthBit(secondaryOam[i * 4 + 2], 7) == 1;
             if (isMirroredVertically) {
                 fineY = 7 - fineY;
             }
@@ -929,6 +946,85 @@ public class PPU {
                                 pixels.setPixel(k * 8 + m + (i * 256), l * 8 + n + (j * 256), color);
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    public void renderFullScreenAtOnce(Pixels pixels) {
+        int patternTableSelect = Util.getNthBit(ppuCtrl, 4);
+        int offset = patternTableSelect * 0x0100;
+
+        // this chunk of code renders the nametables
+        // its the same as the renderNametables function, just without the outer
+        // four loops and with a few lines of code that determines the base palette for each tile.
+        for (int k = 0; k < 32; k++) {
+            for (int l = 0; l < 30; l++) {
+                int address = readNametable((2 << 10) + (l << 5) + (k << 0));
+                int[] low = getTileLow(offset + address);
+                int[] high = getTileHigh(offset + address);
+
+                int attributeTableOffset = Util.getNthBits(registerV, 10, 2) * NAMETABLE_SIZE + 0x03C0;
+                int attributeTableData = readNametable(attributeTableOffset + (k >> 2) + 8 * (l >> 2));
+
+                for (int m = 0; m < 8; m++) {
+                    for (int n = 0; n < 8; n++) {
+                        int formattedLow = Util.getNthBit(low[n], 7 - m);
+                        int formattedHigh = Util.getNthBit(high[n], 7 - m);
+
+                        int attributeTableLow  = Util.getNthBit(attributeTableData, (((n & 1) * 2 + (m & 1)) << 1) + 0);
+                        int attributeTableHigh = Util.getNthBit(attributeTableData, (((n & 1) * 2 + (m & 1)) << 1) + 1);
+
+                        int basePalette = attributeTableLow + (attributeTableHigh << 1);
+
+                        int palette = formattedLow + formattedHigh * 2 + basePalette * 4;
+                        backgroundCache[(k * 8 + m) + (l * 8 + n) * 256] = palette;
+                        Color color = getColor(palette);
+                        pixels.setPixel(k * 8 + m, l * 8 + n, color);
+                    }
+                }
+            }
+        }
+
+        // while this one renders the sprites
+        int patternTableSelectSprites = Util.getNthBit(ppuCtrl, 3);
+        int offsetSprites = patternTableSelectSprites * 0x0100;
+
+        for (int i = 0; i < 64; i++) {
+            // get the relevant data from primaryOam
+            int spriteX                    =  primaryOam[i * 4 + 3];
+            int spriteY                    =  primaryOam[i * 4 + 0];
+            int tileNumber                 =  primaryOam[i * 4 + 1];
+            int palette                    = (primaryOam[i * 4 + 2] & 0x3) + 4;
+            boolean isMirroredVertically   = (primaryOam[i * 4 + 2] & 0x80) != 0;
+            boolean isMirroredHorizontally = (primaryOam[i * 4 + 2] & 0x40) != 0;
+            int priority                   = (primaryOam[i * 4 + 2] & 0x20);
+
+            // get the pattern table data
+            int[] low  = getTileLow (offsetSprites + tileNumber);
+            int[] high = getTileHigh(offsetSprites + tileNumber);
+
+            // loop through the bounds of the current sprite and begin rendering
+            for (int x = 0; x < 8; x++) {
+                for (int y = 0; y < 8; y++) {
+                    int formattedLow =  Util.getNthBit( low[isMirroredVertically ? 7 - y : y],
+                            isMirroredHorizontally ? x : 7 - x);
+                    int formattedHigh = Util.getNthBit(high[isMirroredVertically ? 7 - y : y],
+                            isMirroredHorizontally ? x : 7 - x);
+
+                    // use priority to determine if we should just skip this sprite or not (i.e., render the background
+                    // instead of the sprite)
+                    int spriteFullByte = (palette << 2) + (formattedHigh << 1) + formattedLow;
+
+                    int index = (spriteX + x) + (spriteY + y) * 256;
+                    if (index > 256 * 240) continue;
+
+                    int bgPixelLow = Util.getNthBits(backgroundCache[index], 0, 2);
+                    int spritePixelLow = Util.getNthBits(spriteFullByte, 0, 2);
+                    if (spritePixelLow != 0 && (bgPixelLow == 0 || priority == 0)) {
+                        Color color = getColor(spriteFullByte);
+                        pixels.setPixel(spriteX + x, spriteY + y, color);
                     }
                 }
             }

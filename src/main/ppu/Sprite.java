@@ -101,4 +101,8 @@ public class Sprite implements BusSerializable {
         counter  = Integer.parseInt(scanner.next());
         priority = Integer.parseInt(scanner.next());
     }
+
+    public int getCounter() {
+        return counter;
+    }
 }
