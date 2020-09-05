@@ -967,8 +967,8 @@ public class PPU {
 
                 int attributeTableOffset = Util.getNthBits(registerV, 10, 2) * NAMETABLE_SIZE + 0x03C0;
                 int attributeTableData = readNametable(attributeTableOffset + (k >> 2) + 8 * (l >> 2));
-                int attributeTableLow  = Util.getNthBit(attributeTableData, ((((k & 2) >> 1) * 2 + ((l & 2) >> 1)) << 1) + 0);
-                int attributeTableHigh = Util.getNthBit(attributeTableData, ((((k & 2) >> 1) * 2 + ((l & 2) >> 1)) << 1) + 1);
+                int attributeTableLow  = Util.getNthBit(attributeTableData, ((((k & 2) >> 1) + ((l & 2))) << 1) + 0);
+                int attributeTableHigh = Util.getNthBit(attributeTableData, ((((k & 2) >> 1) + ((l & 2))) << 1) + 1);
 
                 for (int m = 0; m < 8; m++) {
                     for (int n = 0; n < 8; n++) {
