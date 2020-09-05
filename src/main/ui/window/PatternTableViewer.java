@@ -22,7 +22,7 @@ public class PatternTableViewer extends PixelWindow implements KeyListener {
     private int currentPalette;
 
     public PatternTableViewer(Bus bus) {
-        super(bus, 2, 2, 16 * 8 * 2, 16 * 8 + 8 + CHOSEN_PALETTE_HEIGHT, "Pattern Table Viewer");
+        super(bus, 2, 2, 16 * 8 * 2, 16 * 8 + 8 + CHOSEN_PALETTE_HEIGHT, "Pattern Table Viewer", true);
 
         currentPalette = 0;
         addKeyListener(this);

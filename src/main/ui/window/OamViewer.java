@@ -16,7 +16,7 @@ public class OamViewer extends PixelWindow {
     private static final int scaleY = 3;
 
     public OamViewer(Bus bus) {
-        super(bus, 2, 2, 8 * 8 * scaleX, 8 * 8 * scaleY, "OAM Viewer");
+        super(bus, 2, 2, 8 * 8 * scaleX, 8 * 8 * scaleY, "OAM Viewer", true);
 
         pack();
         setVisible(true);

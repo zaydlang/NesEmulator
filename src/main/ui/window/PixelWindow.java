@@ -15,8 +15,13 @@ public abstract class PixelWindow extends JFrame {
     protected TimerTask paintTask;
     private Timer timer;
 
-    public PixelWindow(Bus bus, int pixelWidth, int pixelHeight, int pixelsPerRow, int pixelsPerCol, String name) {
+    // when this is on, the pixels class will auto-repaint itself.
+    // if not, it must be repainted manually.
+    private final boolean autoRefresh;
+
+    public PixelWindow(Bus bus, int pixelWidth, int pixelHeight, int pixelsPerRow, int pixelsPerCol, String name, final boolean autoRefresh) {
         this.bus = bus;
+        this.autoRefresh = autoRefresh;
         pixels = new Pixels(pixelWidth, pixelHeight, pixelsPerRow, pixelsPerCol);
         add(pixels);
 
@@ -27,17 +32,17 @@ public abstract class PixelWindow extends JFrame {
 
     protected void postContructor(int fps) {
         timer = new Timer();
+
         paintTask = new TimerTask() {
             @Override
             public void run() {
                 repaint();
-                getPixels().repaint();
+                if (autoRefresh) // autorefresh is final, so this should be optimized by the compiler
+                    getPixels().repaint();
             }
         };
-        schedule(paintTask, fps);
-    }
 
-    public void repaint() {
+        schedule(paintTask, fps);
     }
 
     protected void schedule(TimerTask task, int frequency) {

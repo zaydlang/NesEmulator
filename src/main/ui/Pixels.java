@@ -60,12 +60,13 @@ public class Pixels extends JPanel {
         g.fillRect(0, 0, pixelWidth, pixelHeight);
     }
 
+    public void repaint() {
+        int x = 2;
+    }
+
     public void setPixel(int x, int y, Color color) {
-        try {
-            pixels[x][y] = color;
-        } catch (Exception e) {
-            int u = 2;
-        }
+        if (x >= 240 || y >= 256) return;
+        pixels[x][y] = color;
     }
 
     public Color getPixel(int i, int j) {

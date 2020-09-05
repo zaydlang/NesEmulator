@@ -96,11 +96,11 @@ public class PPU {
 
     private Pixels pixels;
 
-    // true if there's a predicted sprite zero hit,
+    // true if we can optimize by rendering the full screen at once,
     // false if not. this can be used to make some MAJOR optimizations if it's false.
     // essentially, we can skip rendering pixel by pixel and just put the nametable on
     // the screen directly.
-    private boolean predictedSpriteZeroHit;
+    private boolean canRenderFullScreen;
     private int[] backgroundCache; // used to draw the sprites after the background is rendered. contains background data.
 
     // MODIFIES: this
@@ -144,7 +144,7 @@ public class PPU {
         isOddFrame = false;
 
         // used for optimization
-        predictedSpriteZeroHit = false;
+        canRenderFullScreen = true;
         backgroundCache = new int[256 * 240];
 
         resetNametables();
@@ -202,21 +202,38 @@ public class PPU {
     // EFFECTS: runs the appropriate scanline and increments the cycle. Increments scanline if cycle overflows, and
     //          toggles isOddFrame when scanline overflows.
     public void cycle() {
-        if (predictedSpriteZeroHit) {
+        if (canRenderFullScreen) {
+            // if we can optimize by rendering the full screen, we can just go straight to rendering.
+            if (scanline == 0) {
+                if (cycle == 0) {
+                    // get sprite zero's y position
+                    int sprite0Y = primaryOam[0];
+
+                    // render the whole screen till there.
+                    renderScreenNametables(0, sprite0Y >> 3, pixels);
+                    // as well as the sprites, those most likely wont be affected by sprite0 hits.
+                    renderSprites(pixels);
+                }
+            } else if (scanline == 240) {
+                if (cycle == 0) {
+                    // get sprite zero's location
+                    int sprite0Y = primaryOam[0];
+
+                    renderScreenNametables(sprite0Y >> 3, 32, pixels);
+                    pixels.repaint();
+                }
+            } else if (241 <= scanline && scanline <= 260) { // Vertical Blanking Scanlines
+                runVerticalBlankingScanline();
+            }
+
+
+        } else {
             if (scanline <= -1 && Util.getNthBit(ppuMask, 3) == 1) { // Pre-Render Scanlines
                 runPreRenderScanline();
             } else if (scanline <= 239 && Util.getNthBit(ppuMask, 3) == 1) { // Visible Scanlines
                 runVisibleScanline();
             } else if (scanline <= 240 && Util.getNthBit(ppuMask, 3) == 1) { // Post-Render Scanlines
                 runPostRenderScanline();
-            } else if (241 <= scanline && scanline <= 260) { // Vertical Blanking Scanlines
-                runVerticalBlankingScanline();
-            }
-        } else {
-            // if theres no predicted sprite zero hit, we can just go straight to rendering.
-            if (scanline == 0) {
-                if (cycle == 0)
-                    renderFullScreenAtOnce(pixels);
             } else if (241 <= scanline && scanline <= 260) { // Vertical Blanking Scanlines
                 runVerticalBlankingScanline();
             }
@@ -952,15 +969,20 @@ public class PPU {
         }
     }
 
-    public void renderFullScreenAtOnce(Pixels pixels) {
-        int patternTableSelect = Util.getNthBit(ppuCtrl, 4);
-        int offset = patternTableSelect * 0x0100;
-
+    private void renderScreenNametables(int y1, int y2, Pixels pixels) {
         // this chunk of code renders the nametables
         // its the same as the renderNametables function, just without the outer
         // four loops and with a few lines of code that determines the base palette for each tile.
+        int patternTableSelect = Util.getNthBit(ppuCtrl, 4);
+        int offset = patternTableSelect * 0x0100;
+
+        // y2 might be at max 32, because of how sprite data is stored in the NES PPU.
+        // so this corrects it if that is the case.
+        if (y2 > 30)
+            y2 = 30;
+
         for (int k = 0; k < 32; k++) {
-            for (int l = 0; l < 30; l++) {
+            for (int l = y1; l < y2; l++) {
                 int address = readNametable((2 << 10) + (l << 5) + (k << 0));
                 int[] low = getTileLow(offset + address);
                 int[] high = getTileHigh(offset + address);
@@ -985,8 +1007,9 @@ public class PPU {
                 }
             }
         }
+    }
 
-        // while this one renders the sprites
+    private void renderSprites(Pixels pixels) {
         int patternTableSelectSprites = Util.getNthBit(ppuCtrl, 3);
         int offsetSprites = patternTableSelectSprites * 0x0100;
 

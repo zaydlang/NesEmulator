@@ -58,7 +58,7 @@ public class BreakpointViewer extends PixelWindow {
     private MaxedQueue<String> log;
 
     public BreakpointViewer(Bus bus) {
-        super(bus, 1, 1, 400 + 50, 400 + 100, "CPU Viewer");
+        super(bus, 1, 1, 400 + 50, 400 + 100, "CPU Viewer", true);
 
         breakpoints = new JTextArea(MAX_LOG_SIZE, 80);
         breakpoints.setFont(font);
