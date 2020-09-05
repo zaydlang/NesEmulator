@@ -35,12 +35,12 @@ public class PpuTest {
 
     @Test
     void testConstructor() {
-        assertEquals(0, ppu.ppuData.getValue());
-        assertEquals(0, ppu.ppuStatus.getValue());
-        assertEquals(0, ppu.getRegisterT().getValue());
-        assertEquals(0, ppu.getRegisterV().getValue());
-        assertEquals(0, ppu.getRegisterX().getValue());
-        assertEquals(0, ppu.getRegisterW().getValue());
+        assertEquals(0, ppu.ppuData);
+        assertEquals(0, ppu.ppuStatus);
+        assertEquals(0, ppu.getRegisterT());
+        assertEquals(0, ppu.getRegisterV());
+        assertEquals(0, ppu.getRegisterX());
+        assertEquals(0, ppu.getRegisterW());
     }
 
     @Test
@@ -51,10 +51,10 @@ public class PpuTest {
         ppu.setRegisterW(1);
         ppu.reset();
 
-        assertEquals(0, ppu.getRegisterT().getValue());
-        assertEquals(0, ppu.getRegisterV().getValue());
-        assertEquals(0, ppu.getRegisterX().getValue());
-        assertEquals(0, ppu.getRegisterW().getValue());
+        assertEquals(0, ppu.getRegisterT());
+        assertEquals(0, ppu.getRegisterV());
+        assertEquals(0, ppu.getRegisterX());
+        assertEquals(0, ppu.getRegisterW());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class PpuTest {
         ppu.setRegisterT(0b111111111111111);
 
         ppu.writeRegister(0x2000, 0b11100100);
-        assertTrue(ppu.getRegisterT().getValue() == 0b111001111111111);
+        assertTrue(ppu.getRegisterT() == 0b111001111111111);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class PpuTest {
         ppu.setRegisterW(1);
 
         ppu.readRegister(0x2002);
-        assertTrue(ppu.getRegisterW().getValue() == 0);
+        assertTrue(ppu.getRegisterW() == 0);
     }
 
     @Test
@@ -108,9 +108,9 @@ public class PpuTest {
         ppu.setRegisterW(0);
 
         ppu.writeRegister(0x2005, 0b00000000);
-        assertTrue(ppu.getRegisterT().getValue() == 0b111111111100000);
-        assertTrue(ppu.getRegisterX().getValue() == 0b000);
-        assertTrue(ppu.getRegisterW().getValue() == 0b1);
+        assertTrue(ppu.getRegisterT() == 0b111111111100000);
+        assertTrue(ppu.getRegisterX() == 0b000);
+        assertTrue(ppu.getRegisterW() == 0b1);
     }
 
     @Test
@@ -120,8 +120,8 @@ public class PpuTest {
         ppu.setRegisterW(1);
 
         ppu.writeRegister(0x2005, 0b00000000);
-        assertTrue(ppu.getRegisterT().getValue() == 0b000110000011111);
-        assertTrue(ppu.getRegisterW().getValue() == 0b0);
+        assertTrue(ppu.getRegisterT() == 0b000110000011111);
+        assertTrue(ppu.getRegisterW() == 0b0);
     }
 
     @Test
@@ -131,8 +131,8 @@ public class PpuTest {
         ppu.setRegisterW(0);
 
         ppu.writeRegister(0x2006, 0b00000000);
-        assertTrue(ppu.getRegisterT().getValue() == 0b000000011111111);
-        assertTrue(ppu.getRegisterW().getValue() == 0b1);
+        assertTrue(ppu.getRegisterT() == 0b000000011111111);
+        assertTrue(ppu.getRegisterW() == 0b1);
     }
 
     @Test
@@ -143,9 +143,9 @@ public class PpuTest {
         ppu.setRegisterW(1);
 
         ppu.writeRegister(0x2006, 0b00000000);
-        assertTrue(ppu.getRegisterT().getValue() == 0b111111100000000);
-        assertTrue(ppu.getRegisterV().getValue() == 0b111111100000000);
-        assertTrue(ppu.getRegisterW().getValue() == 0b0);
+        assertTrue(ppu.getRegisterT() == 0b111111100000000);
+        assertTrue(ppu.getRegisterV() == 0b111111100000000);
+        assertTrue(ppu.getRegisterW() == 0b0);
     }
 
     @Test
@@ -154,7 +154,7 @@ public class PpuTest {
         ppu.setRegisterV(0);
         ppu.readRegister(0x2007);
 
-        assertEquals(1, ppu.getRegisterV().getValue());
+        assertEquals(1, ppu.getRegisterV());
     }
 
     @Test
@@ -163,7 +163,7 @@ public class PpuTest {
         ppu.setRegisterV(0);
         ppu.readRegister(0x2007);
 
-        assertEquals(32, ppu.getRegisterV().getValue());
+        assertEquals(32, ppu.getRegisterV());
     }
 
     @Test
@@ -172,7 +172,7 @@ public class PpuTest {
         ppu.setRegisterV(0);
         ppu.writeRegister(0x2007, 0);
 
-        assertEquals(1, ppu.getRegisterV().getValue());
+        assertEquals(1, ppu.getRegisterV());
     }
 
     @Test
@@ -181,7 +181,7 @@ public class PpuTest {
         ppu.setRegisterV(0);
         ppu.writeRegister(0x2007, 0);
 
-        assertEquals(32, ppu.getRegisterV().getValue());
+        assertEquals(32, ppu.getRegisterV());
     }
 
     @Test
@@ -189,7 +189,7 @@ public class PpuTest {
         ppu.writeRegister(0x2006, 0x3F);
         ppu.writeRegister(0x2006, 0x00);
         ppu.writeMemory(0x3F00, 0xA2);
-        int actual = ppu.readRegister(0x2007).getValue();
+        int actual = ppu.readRegister(0x2007);
 
         assertEquals(0xA2, actual);
     }
@@ -253,24 +253,24 @@ public class PpuTest {
     @Test
     void testIncrementCoarseXOverflow() {
         for (int i = 0; i < 32; i++) {
-            int coarseX = (ppu.getRegisterV().getValue() & 0b000000000011111) >> 0;
+            int coarseX = (ppu.getRegisterV() & 0b000000000011111) >> 0;
             assertEquals(i, coarseX);
             ppu.incrementCoarseX();
         }
 
-        int coarseX = (ppu.getRegisterV().getValue() & 0b000000000011111) >> 0;
+        int coarseX = (ppu.getRegisterV() & 0b000000000011111) >> 0;
         assertEquals(0, coarseX);
     }
 
     @Test
     void testIncrementCoarseYOverflow() {
         for (int i = 0; i < 32; i++) {
-            int coarseY = (ppu.getRegisterV().getValue() & 0b000001111100000) >> 5;
+            int coarseY = (ppu.getRegisterV() & 0b000001111100000) >> 5;
             assertEquals(i, coarseY);
             ppu.incrementCoarseY();
         }
 
-        int coarseY = (ppu.getRegisterV().getValue() & 0b000001111100000) >> 5;
+        int coarseY = (ppu.getRegisterV() & 0b000001111100000) >> 5;
         assertEquals(0, coarseY);
     }
 
@@ -278,7 +278,7 @@ public class PpuTest {
     void testRenderSpritesOverflow() {
         int overflowFlag;
 
-        overflowFlag = Util.getNthBit(ppu.readRegister(0x2002).getValue(), 5);
+        overflowFlag = Util.getNthBit(ppu.readRegister(0x2002), 5);
         assertEquals(0, overflowFlag);
 
         for (int i = 0; i < 9; i++) {
@@ -289,7 +289,7 @@ public class PpuTest {
         }
         ppu.evaluateSprites();
 
-        overflowFlag = Util.getNthBit(ppu.readRegister(0x2002).getValue(), 5);
+        overflowFlag = Util.getNthBit(ppu.readRegister(0x2002), 5);
         assertEquals(1, overflowFlag);
     }
 
@@ -331,18 +331,18 @@ public class PpuTest {
     void testPpuWriteMemoryNametable() {
         ppu.setNametableMirroring(Mirroring.HORIZONTAL);
         ppu.writeMemory(0x2000, 0xA2);
-        assertEquals(0xA2, ppu.readNametable(0x2000).getValue());
+        assertEquals(0xA2, ppu.readNametable(0x2000));
         ppu.writeMemory(0x2ABC, 0xA2);
-        assertEquals(0xA2, ppu.readNametable(0x2ABC).getValue());
+        assertEquals(0xA2, ppu.readNametable(0x2ABC));
         ppu.writeMemory(0x2FFF, 0xA2);
-        assertEquals(0xA2, ppu.readNametable(0x2FFF).getValue());
+        assertEquals(0xA2, ppu.readNametable(0x2FFF));
     }
 
     @Test
     void testPpuWriteMemoryNametableMirrors() {
         ppu.writeMemory(0x3000, 0xA2);
-        assertEquals(0xA2, ppu.readNametable(0x3000).getValue());
+        assertEquals(0xA2, ppu.readNametable(0x3000));
         ppu.writeMemory(0x3ABC, 0xA2);
-        assertEquals(0xA2, ppu.readNametable(0x3ABC).getValue());
+        assertEquals(0xA2, ppu.readNametable(0x3ABC));
     }
 }

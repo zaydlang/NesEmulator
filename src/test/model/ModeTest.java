@@ -11,6 +11,9 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+// Deprecated. Nestest.java does the same and is more thorough.
+
+/*
 @SuppressWarnings("SimplifiableJUnitAssertion")
 public class ModeTest {
     Bus bus;
@@ -346,3 +349,4 @@ public class ModeTest {
         assertTrue(Mode.runMode("INDIRECT_INDEXED", arguments, cpu).getPointer() == expectedResult.getPointer());
     }
 }
+*/

@@ -44,7 +44,7 @@ public class NameTableViewer extends PixelWindow implements KeyListener {
 
         // Draw Palette
         for (int i = 0; i < 4 * 8; i++) {
-            Color color = ColorPalette.getColor(ppu.readMemory(0x3F00 + i).getValue());
+            Color color = ColorPalette.getColor(ppu.readMemory(0x3F00 + i));
             for (int x = 0; x < 16; x++) {
                 for (int y = 0; y < 16; y++) {
                     pixels.setPixel(i * 16 + x, 32 * 8 * 2 + y, color);

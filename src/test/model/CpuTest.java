@@ -29,10 +29,10 @@ public class CpuTest {
 
     @Test
     void testConstructor() {
-        assertTrue(cpu.getRegisterA().getValue()  == CPU.INITIAL_REGISTER_A);
-        assertTrue(cpu.getRegisterX().getValue()  == CPU.INITIAL_REGISTER_X);
-        assertTrue(cpu.getRegisterY().getValue()  == CPU.INITIAL_REGISTER_Y);
-        assertTrue(cpu.getRegisterS().getValue()  == CPU.INITIAL_REGISTER_S);
+        assertTrue(cpu.getRegisterA()  == CPU.INITIAL_REGISTER_A);
+        assertTrue(cpu.getRegisterX()  == CPU.INITIAL_REGISTER_X);
+        assertTrue(cpu.getRegisterY()  == CPU.INITIAL_REGISTER_Y);
+        assertTrue(cpu.getRegisterS()  == CPU.INITIAL_REGISTER_S);
         assertTrue(cpu.getCycles()                == CPU.INITIAL_CYCLES);
     }
 
@@ -41,22 +41,22 @@ public class CpuTest {
     @Test
     void testReadMemoryInternalRam() {
         int address = 0x0547;
-        cpu.ram[address] = new Address(157);
-        assertTrue(cpu.readMemory(address).getValue() == 157);
+        cpu.ram[address] = new Address(157).getValue();
+        assertTrue(cpu.readMemory(address) == 157);
     }
 
     @Test
     void testReadMemoryInternalRamLowerBound() {
         int address = 0x0000;
-        cpu.ram[address] = new Address(157);
-        assertTrue(cpu.readMemory(address).getValue() == 157);
+        cpu.ram[address] = new Address(157).getValue();
+        assertTrue(cpu.readMemory(address) == 157);
     }
 
     @Test
     void testReadMemoryInternalRamUpperBound() {
         int address = 0x07FF;
-        cpu.ram[address] = new Address(157);
-        assertTrue(cpu.readMemory(address).getValue() == 157);
+        cpu.ram[address] = new Address(157).getValue();
+        assertTrue(cpu.readMemory(address) == 157);
     }
 
 
@@ -67,30 +67,30 @@ public class CpuTest {
     @Test
     void testReadMemoryInternalRamMirrors() {
         int baseAddress = 0x0547;
-        cpu.ram[baseAddress] = new Address(157);
+        cpu.ram[baseAddress] = new Address(157).getValue();
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * 0x0800;
-            assertTrue(cpu.readMemory(address).getValue() == 157);
+            assertTrue(cpu.readMemory(address) == 157);
         }
     }
 
     @Test
     void testReadMemoryInternalRamMirrorsLowerBound() {
         int baseAddress = 0x0000;
-        cpu.ram[baseAddress] = new Address(157);
+        cpu.ram[baseAddress] = new Address(157).getValue();
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * 0x0800;
-            assertTrue(cpu.readMemory(address).getValue() == 157);
+            assertTrue(cpu.readMemory(address) == 157);
         }
     }
 
     @Test
     void testReadMemoryInternalRamMirrorsUpperBound() {
         int baseAddress = 0x07FF;
-        cpu.ram[baseAddress] = new Address(157);
+        cpu.ram[baseAddress] = new Address(157).getValue();
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * 0x0800;
-            assertTrue(cpu.readMemory(address).getValue() == 157);
+            assertTrue(cpu.readMemory(address) == 157);
         }
     }
 
@@ -119,11 +119,11 @@ public class CpuTest {
     @Test
     void testApuRead() {
         // APU has not been implemented, so the CPU should return an empty address.
-        assertEquals(0, cpu.readMemory(0x4000).getValue());
-        assertEquals(0, cpu.readMemory(0x4013).getValue());
-        assertEquals(0, cpu.readMemory(0x4015).getValue());
-        assertEquals(0, cpu.readMemory(0x4018).getValue());
-        assertEquals(0, cpu.readMemory(0x401F).getValue());
+        assertEquals(0, cpu.readMemory(0x4000));
+        assertEquals(0, cpu.readMemory(0x4013));
+        assertEquals(0, cpu.readMemory(0x4015));
+        assertEquals(0, cpu.readMemory(0x4018));
+        assertEquals(0, cpu.readMemory(0x401F));
     }
 
     @Test
@@ -147,35 +147,35 @@ public class CpuTest {
     void testWriteMemoryInternalRam() {
         int address = 0x0547;
         cpu.writeMemory(address, 157);
-        assertTrue(cpu.ram[address].getValue() == 157);
+        assertTrue(cpu.ram[address] == 157);
     }
 
     @Test
     void testWriteMemoryInternalRamUnderflow() {
         int address = 0x0547;
         cpu.writeMemory(address, 157 - 256);
-        assertTrue(cpu.ram[address].getValue() == 157);
+        assertTrue(cpu.ram[address] == 157);
     }
 
     @Test
     void testWriteMemoryInternalRamOverflow() {
         int address = 0x0547;
         cpu.writeMemory(address, 157 + 256);
-        assertTrue(cpu.ram[address].getValue() == 157);
+        assertTrue(cpu.ram[address] == 157);
     }
 
     @Test
     void testWriteMemoryInternalRamLowerBound() {
         int address = 0x0000;
         cpu.writeMemory(address, 157 - 256);
-        assertTrue(cpu.ram[address].getValue() == 157);
+        assertTrue(cpu.ram[address] == 157);
     }
 
     @Test
     void testWriteMemoryInternalRamUpperBound() {
         int address = 0x07FF;
         cpu.writeMemory(address, 157 - 256);
-        assertTrue(cpu.ram[address].getValue() == 157);
+        assertTrue(cpu.ram[address] == 157);
     }
 
 
@@ -189,7 +189,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * 0x0800 - i;
             cpu.writeMemory(address, 157 + i);
-            assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
+            assertTrue(cpu.ram[baseAddress - i] == 157 + i);
         }
     }
 
@@ -199,7 +199,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * 0x0800 - i;
             cpu.writeMemory(address, 157 + i - 0x0800);
-            assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
+            assertTrue(cpu.ram[baseAddress - i] == 157 + i);
         }
     }
 
@@ -209,7 +209,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * 0x0800 - i;
             cpu.writeMemory(address, 157 + i + 0x0800);
-            assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
+            assertTrue(cpu.ram[baseAddress - i] == 157 + i);
         }
     }
 
@@ -219,7 +219,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * 0x0800 + i;
             cpu.writeMemory(address, 157 + i + 0x0800);
-            assertTrue(cpu.ram[baseAddress + i].getValue() == 157 + i);
+            assertTrue(cpu.ram[baseAddress + i] == 157 + i);
         }
     }
 
@@ -229,7 +229,7 @@ public class CpuTest {
         for (int i = 1; i < 4; i++) {
             int address = baseAddress + i * 0x0800 - i;
             cpu.writeMemory(address, 157 + i + 0x0800);
-            assertTrue(cpu.ram[baseAddress - i].getValue() == 157 + i);
+            assertTrue(cpu.ram[baseAddress - i] == 157 + i);
         }
     }
 
@@ -275,10 +275,10 @@ public class CpuTest {
             cpu.setRegisterPC(0x6000);
 
             // Simulate an instruction at the Program Counter
-            cpu.writeMemory(cpu.getRegisterPC().getValue(), i);
+            cpu.writeMemory(cpu.getRegisterPC(), i);
             int numArguments = instruction.getNumArguments();
             for (int j = 0; j < numArguments; j++) {
-                cpu.writeMemory(cpu.getRegisterPC().getValue() + j + 1, 0x0000);
+                cpu.writeMemory(cpu.getRegisterPC() + j + 1, 0x0000);
             }
 
             // Cycle the cpu, and make sure no exceptions are thrown
@@ -309,16 +309,16 @@ public class CpuTest {
     @Test
     void testPushStack() {
         cpu.pushStack(100);
-        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 1);
-        assertTrue(cpu.peekStack().getValue()    == 100);
+        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1);
+        assertTrue(cpu.peekStack()    == 100);
 
         cpu.pushStack(255);
-        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 2);
-        assertTrue(cpu.peekStack().getValue()    == 255);
+        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 2);
+        assertTrue(cpu.peekStack()    == 255);
 
         cpu.pushStack(0);
-        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 3);
-        assertTrue(cpu.peekStack().getValue()    == 0);
+        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 3);
+        assertTrue(cpu.peekStack()    == 0);
     }
 
     @Test
@@ -327,14 +327,14 @@ public class CpuTest {
         cpu.pushStack(255);
         cpu.pushStack(123);
 
-        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 3);
-        assertTrue(cpu.pullStack().getValue()    == 123);
+        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 3);
+        assertTrue(cpu.pullStack()    == 123);
 
-        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 2);
-        assertTrue(cpu.pullStack().getValue()    == 255);
+        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 2);
+        assertTrue(cpu.pullStack()    == 255);
 
-        assertTrue(cpu.getRegisterS().getValue() == CPU.INITIAL_REGISTER_S - 1);
-        assertTrue(cpu.pullStack().getValue()    == 0);
+        assertTrue(cpu.getRegisterS() == CPU.INITIAL_REGISTER_S - 1);
+        assertTrue(cpu.pullStack()    == 0);
     }
 
     @Test
@@ -355,15 +355,15 @@ public class CpuTest {
     @Test
     void testIsBreakpointTrue() {
         Address breakpoint = new Address(0xC5F5, 0, 65536);
-        cpu.addBreakpoint(breakpoint);
-        assertTrue(cpu.isBreakpoint(breakpoint));
+        cpu.addBreakpoint(breakpoint.getValue());
+        assertTrue(cpu.isBreakpoint(breakpoint.getValue()));
     }
 
     @Test
     void testIsBreakpointFalse() {
         Address breakpoint = new Address(0xC5F5, 0, 65536);
-        cpu.addBreakpoint(breakpoint);
-        assertFalse(cpu.isBreakpoint(new Address(0xC001, 0, 65536)));
+        cpu.addBreakpoint(breakpoint.getValue());
+        assertFalse(cpu.isBreakpoint(new Address(0xC001, 0, 65536).getValue()));
     }
 
     @Test
@@ -378,7 +378,7 @@ public class CpuTest {
         cpu.setRegisterPC(0x0200);
         cpu.nmi = true;
         cpu.cycle();
-        assertEquals(0xAB25, cpu.getRegisterPC().getValue());
+        assertEquals(0xAB25, cpu.getRegisterPC());
     }
 
     @Test
@@ -397,7 +397,7 @@ public class CpuTest {
         cpu.writeMemory(0x4014, 0); // Start DMA
         for (int i = 0; i < 514; i++) {
             cpu.cycle();
-            assertEquals(cpu.getRegisterA().getValue(), 0);
+            assertEquals(cpu.getRegisterA(), 0);
         }
     }
 
@@ -417,7 +417,7 @@ public class CpuTest {
         cpu.writeMemory(0x4014, 0); // Start DMA
         for (int i = 0; i < 513; i++) {
             cpu.cycle();
-            assertEquals(cpu.getRegisterA().getValue(), 0);
+            assertEquals(cpu.getRegisterA(), 0);
         }
     }
 }

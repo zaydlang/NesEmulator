@@ -16,22 +16,22 @@ public class PaletteRamIndexesTest {
     @Test
     void testConstructor() {
         for (int i = 0; i < PaletteRamIndexes.PALETTE_RAM_INDEXES_SIZE; i++) {
-            assertEquals(paletteRamIndexes.readMemory(i).getValue(), 0);
+            assertEquals(paletteRamIndexes.readMemory(i), 0);
         }
     }
 
     @Test
     void testReadMemoryMirrors() {
         paletteRamIndexes.writeMemory(0, 0x1F);
-        assertEquals(paletteRamIndexes.readMemory(0).getValue(), 0x1F);
-        assertEquals(paletteRamIndexes.readMemory(4).getValue(), 0x1F);
-        assertEquals(paletteRamIndexes.readMemory(8).getValue(), 0x1F);
+        assertEquals(paletteRamIndexes.readMemory(0), 0x1F);
+        assertEquals(paletteRamIndexes.readMemory(4), 0x1F);
+        assertEquals(paletteRamIndexes.readMemory(8), 0x1F);
     }
 
     @Test
     void testReadMemoryNotMirrors() {
         paletteRamIndexes.writeMemory(31, 0xA2);
-        assertEquals(paletteRamIndexes.readMemory(31).getValue(), 0xA2);
+        assertEquals(paletteRamIndexes.readMemory(31), 0xA2);
     }
 
     @Test
@@ -40,23 +40,23 @@ public class PaletteRamIndexesTest {
         int value2;
 
         paletteRamIndexes.writeMemory(0x10, 12);
-        value1 = paletteRamIndexes.readMemory(0x00).getValue();
-        value2 = paletteRamIndexes.readMemory(0x10).getValue();
+        value1 = paletteRamIndexes.readMemory(0x00);
+        value2 = paletteRamIndexes.readMemory(0x10);
         assertEquals(value1, value2);
 
         paletteRamIndexes.writeMemory(0x14, 12);
-        value1 = paletteRamIndexes.readMemory(0x04).getValue();
-        value2 = paletteRamIndexes.readMemory(0x14).getValue();
+        value1 = paletteRamIndexes.readMemory(0x04);
+        value2 = paletteRamIndexes.readMemory(0x14);
         assertEquals(value1, value2);
 
         paletteRamIndexes.writeMemory(0x18, 12);
-        value1 = paletteRamIndexes.readMemory(0x08).getValue();
-        value2 = paletteRamIndexes.readMemory(0x18).getValue();
+        value1 = paletteRamIndexes.readMemory(0x08);
+        value2 = paletteRamIndexes.readMemory(0x18);
         assertEquals(value1, value2);
 
         paletteRamIndexes.writeMemory(0x1C, 12);
-        value1 = paletteRamIndexes.readMemory(0x0C).getValue();
-        value2 = paletteRamIndexes.readMemory(0x1C).getValue();
+        value1 = paletteRamIndexes.readMemory(0x0C);
+        value2 = paletteRamIndexes.readMemory(0x1C);
         assertEquals(value1, value2);
     }
 }

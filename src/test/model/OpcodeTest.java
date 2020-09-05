@@ -9,6 +9,9 @@ import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// Deprecated. Nestest.java does the same and is more thorough.
+
+/*
 @SuppressWarnings("SimplifiableJUnitAssertion")
 class OpcodeTest {
     Bus bus;
@@ -1511,4 +1514,4 @@ class OpcodeTest {
         assertTrue((cpu.getFlagZ() == 0));
         assertTrue((cpu.getFlagN() == 1));
     }
-}
+}*/

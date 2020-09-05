@@ -33,7 +33,7 @@ public class BusReaderTest {
         try {
             expectedBus = Bus.getInstance();
             expectedBus.loadCartridge(new File("./data/rom/nestest.nes"));
-            expectedBus.getCpu().addBreakpoint(new Address(0xABCD));
+            expectedBus.getCpu().addBreakpoint(0xABCD);
 
             for (int i = 0; i < 10000; i++) {
                 expectedBus.cycleComponents();
@@ -85,11 +85,11 @@ public class BusReaderTest {
 
     @Test
     void testCpuRegisters() {
-        assertAddressEquality(expectedCpu.getRegisterA(),  actualCpu.getRegisterA());
-        assertAddressEquality(expectedCpu.getRegisterX(),  actualCpu.getRegisterX());
-        assertAddressEquality(expectedCpu.getRegisterY(),  actualCpu.getRegisterY());
-        assertAddressEquality(expectedCpu.getRegisterPC(), actualCpu.getRegisterPC());
-        assertAddressEquality(expectedCpu.getRegisterS(),  actualCpu.getRegisterS());
+        assertEquals(expectedCpu.getRegisterA(),  actualCpu.getRegisterA());
+        assertEquals(expectedCpu.getRegisterX(),  actualCpu.getRegisterX());
+        assertEquals(expectedCpu.getRegisterY(),  actualCpu.getRegisterY());
+        assertEquals(expectedCpu.getRegisterPC(), actualCpu.getRegisterPC());
+        assertEquals(expectedCpu.getRegisterS(),  actualCpu.getRegisterS());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class BusReaderTest {
     @Test
     void testCpuRam() {
         for (int i = 0; i < 0x0800; i++) {
-            assertAddressEquality(expectedCpu.readMemory(i), actualCpu.readMemory(i));
+            assertEquals(expectedCpu.readMemory(i), actualCpu.readMemory(i));
         }
     }
 
@@ -108,23 +108,23 @@ public class BusReaderTest {
     void testCpuState() {
         assertEquals(expectedCpu.getCycles(),      actualCpu.getCycles());
         for (int i = 0; i < expectedCpu.getBreakpoints().size(); i++) {
-            assertAddressEquality(expectedCpu.getBreakpoints().get(i), actualCpu.getBreakpoints().get(i));
+            assertEquals(expectedCpu.getBreakpoints().get(i), actualCpu.getBreakpoints().get(i));
         }
     }
 
     @Test
     void testPpuLatches() {
-        assertAddressEquality(expectedPpu.getLatchNametable(),        actualPpu.getLatchNametable());
-        assertAddressEquality(expectedPpu.getLatchAttributeTable(),   actualPpu.getLatchAttributeTable());
-        assertAddressEquality(expectedPpu.getLatchPatternTableLow(),  actualPpu.getLatchPatternTableLow());
-        assertAddressEquality(expectedPpu.getLatchPatternTableHigh(), actualPpu.getLatchPatternTableHigh());
+        assertEquals(expectedPpu.getLatchNametable(),        actualPpu.getLatchNametable());
+        assertEquals(expectedPpu.getLatchAttributeTable(),   actualPpu.getLatchAttributeTable());
+        assertEquals(expectedPpu.getLatchPatternTableLow(),  actualPpu.getLatchPatternTableLow());
+        assertEquals(expectedPpu.getLatchPatternTableHigh(), actualPpu.getLatchPatternTableHigh());
     }
 
     @Test
     void testPpuInternalRegisters() {
-        assertAddressEquality(expectedPpu.getRegisterT(), actualPpu.getRegisterT());
-        assertAddressEquality(expectedPpu.getRegisterX(), actualPpu.getRegisterX());
-        assertAddressEquality(expectedPpu.getRegisterW(), actualPpu.getRegisterW());
+        assertEquals(expectedPpu.getRegisterT(), actualPpu.getRegisterT());
+        assertEquals(expectedPpu.getRegisterX(), actualPpu.getRegisterX());
+        assertEquals(expectedPpu.getRegisterW(), actualPpu.getRegisterW());
     }
 
     @Test
@@ -137,19 +137,19 @@ public class BusReaderTest {
 
     @Test
     void testPpuRegisters() {
-        assertAddressEquality(expectedPpu.getPpuCtrl(),       actualPpu.getPpuCtrl());
-        assertAddressEquality(expectedPpu.getPpuMask(),       actualPpu.getPpuMask());
-        assertAddressEquality(expectedPpu.getPpuStatus(),     actualPpu.getPpuStatus());
-        assertAddressEquality(expectedPpu.getOamAddr(),       actualPpu.getOamAddr());
-        assertAddressEquality(expectedPpu.getPpuScroll(),     actualPpu.getPpuScroll());
-        assertAddressEquality(expectedPpu.getPpuData(),       actualPpu.getPpuData());
-        assertAddressEquality(expectedPpu.getPpuDataBuffer(), actualPpu.getPpuDataBuffer());
+        assertEquals(expectedPpu.getPpuCtrl(),       actualPpu.getPpuCtrl());
+        assertEquals(expectedPpu.getPpuMask(),       actualPpu.getPpuMask());
+        assertEquals(expectedPpu.getPpuStatus(),     actualPpu.getPpuStatus());
+        assertEquals(expectedPpu.getOamAddr(),       actualPpu.getOamAddr());
+        assertEquals(expectedPpu.getPpuScroll(),     actualPpu.getPpuScroll());
+        assertEquals(expectedPpu.getPpuData(),       actualPpu.getPpuData());
+        assertEquals(expectedPpu.getPpuDataBuffer(), actualPpu.getPpuDataBuffer());
     }
 
     @Test
     void testPpuNametables() {
         for (int i = 0; i < PPU.NAMETABLE_SIZE; i++) {
-            assertAddressEquality(expectedPpu.getNametable()[i], actualPpu.getNametable()[i]);
+            assertEquals(expectedPpu.getNametable()[i], actualPpu.getNametable()[i]);
         }
         assertEquals(expectedPpu.getNametableMirroring(), actualPpu.getNametableMirroring());
     }
@@ -157,8 +157,8 @@ public class BusReaderTest {
     @Test
     void testPpuPaletteRamIndexes() {
         for (int i = 0; i < PPU.PALETTE_RAM_SIZE; i++) {
-            int expected = expectedPpu.getPaletteRamIndexes().readMemory(i).getValue();
-            int actual   = actualPpu.getPaletteRamIndexes().readMemory(i).getValue();
+            int expected = expectedPpu.getPaletteRamIndexes().readMemory(i);
+            int actual   = actualPpu.getPaletteRamIndexes().readMemory(i);
             assertEquals(expected, actual);
         }
     }
@@ -166,10 +166,10 @@ public class BusReaderTest {
     @Test
     void testPpuOam() {
         for (int i = 0; i < PPU.PRIMARY_OAM_SIZE; i++) {
-            assertAddressEquality(expectedPpu.getPrimaryOam()[i], actualPpu.getPrimaryOam()[i]);
+            assertEquals(expectedPpu.getPrimaryOam()[i], actualPpu.getPrimaryOam()[i]);
         }
         for (int i = 0; i < PPU.SECONDARY_OAM_SIZE; i++) {
-            assertAddressEquality(expectedPpu.getSecondaryOam()[i], actualPpu.getSecondaryOam()[i]);
+            assertEquals(expectedPpu.getSecondaryOam()[i], actualPpu.getSecondaryOam()[i]);
         }
     }
 
@@ -194,12 +194,12 @@ public class BusReaderTest {
         assertEquals(expectedMapper.getId(), actualMapper.getId());
 
         for (int i = 0x6000; i < 0xFFFF + 1; i++) {
-            assertAddressEquality(expectedMapper.readMemoryCpu(i), actualMapper.readMemoryCpu(i));
+            assertEquals(expectedMapper.readMemoryCpu(i), actualMapper.readMemoryCpu(i));
         }
 
         assertEquals(expectedMapper.getChrRomSize(), actualMapper.getChrRomSize());
         for (int i = 0; i < expectedMapper.getChrRomSize(); i++) {
-            assertAddressEquality(expectedMapper.readMemoryPpu(i), actualMapper.readMemoryPpu(i));
+            assertEquals(expectedMapper.readMemoryPpu(i), actualMapper.readMemoryPpu(i));
         }
     }
 

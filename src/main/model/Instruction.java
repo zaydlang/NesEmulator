@@ -6,6 +6,7 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.lang.reflect.Field;
 
 // Class Instruction:
 //     Models an Instruction that the CPU can execute. Each instruction contains an Addressing Mode and an Opcode,
@@ -16,13 +17,28 @@ public class Instruction {
     private static final String CONFIG_FILE = "./config/instructions.json";
     private static ArrayList<Instruction> instructions;
 
-    private String opcode;
-    private String mode;
+    private int opcode;
+    private int mode;
     private int numArguments;
     private int numCycles;
 
+    // https://www.rgagnon.com/javadetails/java-0038.html
+    @SuppressWarnings("rawtypes")
+    public static Object getValueOf(String className, Object clazz, String lookingForValue)
+            throws Exception {
+        Field field = Class.forName(className).getField(lookingForValue);
+        Class clazzType = field.getType();
+        if (clazzType.toString().equals("double"))
+            return field.getDouble(clazz);
+        else if (clazzType.toString().equals("int"))
+            return field.getInt(clazz);
+        // else other type ...
+        // and finally
+        return field.get(clazz);
+    }
+
     // EFFECTS: sets the opcode, mode, numArguments, and numCycles to their specified values.
-    private Instruction(String opcode, String mode, int numArguments, int numCycles) {
+    private Instruction(int opcode, int mode, int numArguments, int numCycles) {
         this.opcode       = opcode;
         this.mode         = mode;
         this.numArguments = numArguments;
@@ -30,12 +46,12 @@ public class Instruction {
     }
 
     // EFFECTS: returns the opcode
-    public String getOpcode() {
+    public int getOpcode() {
         return opcode;
     }
 
     // EFFECTS: returns the mode
-    public String getMode() {
+    public int getMode() {
         return mode;
     }
 
@@ -69,8 +85,8 @@ public class Instruction {
             for (Object nextObject : jsonArray) {
                 JSONObject jsonObject = (JSONObject) nextObject;
                 instructions.add(new Instruction(
-                        (String)                  jsonObject.get("opcode"),
-                        (String)                  jsonObject.get("mode"),
+                        (Integer)                 getValueOf("model.Opcode", Opcode.class, (String) jsonObject.get("opcode")),
+                        (Integer)                 getValueOf("model.Mode", Mode.class,   (String) jsonObject.get("mode")),
                         Integer.parseInt((String) jsonObject.get("numArguments")),
                         Integer.parseInt((String) jsonObject.get("numCycles"))
                 ));

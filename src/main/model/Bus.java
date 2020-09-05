@@ -98,13 +98,13 @@ public class Bus {
         // 16384 * x bytes | PRG ROM data
         // 8192 * y bytes  | CHR ROM data
         FileInputStream fileInputStream = new FileInputStream(file);
-        Address[] header = readFile(fileInputStream, 0, 0, HEADER_SIZE);
+        int[] header = readFile(fileInputStream, 0, 0, HEADER_SIZE);
 
-        boolean trainerPresent = Util.getNthBit(header[6].getValue(), 2) == 1;
-        Address[] trainer = readFile(fileInputStream, 0, 0, trainerPresent ? TRAINER_SIZE : 0);
+        boolean trainerPresent = Util.getNthBit(header[6], 2) == 1;
+        int[] trainer = readFile(fileInputStream, 0, 0, trainerPresent ? TRAINER_SIZE : 0);
 
-        Address[] prgRom = readFile(fileInputStream, 0, 8 * 4096,header[4].getValue() * PRG_ROM_SIZE);
-        Address[] chrRom = readFile(fileInputStream, 0, 0, header[5].getValue() * CHR_ROM_SIZE);
+        int[] prgRom = readFile(fileInputStream, 0, 8 * 4096,header[4] * PRG_ROM_SIZE);
+        int[] chrRom = readFile(fileInputStream, 0, 0, header[5] * CHR_ROM_SIZE);
         mapper = new NRom(prgRom, chrRom);
         ppu.setNametableMirroring(Mirroring.HORIZONTAL);
     }
@@ -113,10 +113,10 @@ public class Bus {
     // MODIFIES: file now has numBytes less bytes available
     // EFFECTS: wrapper class for FileInputStream.read(). returns int[] result instead of bytes[] by reading
     //          numBytes from the file with the specified offset.
-    public Address[] readFile(FileInputStream file, int offset, int pointerOffset, int numBytes) throws IOException {
-        Address[] result = new Address[numBytes];
+    public int[] readFile(FileInputStream file, int offset, int pointerOffset, int numBytes) throws IOException {
+        int[] result = new int[numBytes];
         for (int i = offset; i < offset + numBytes; i++) {
-            result[i - offset] = new Address(file.read(), pointerOffset + i);
+            result[i - offset] = file.read();
         }
         return result;
     }
@@ -176,39 +176,39 @@ public class Bus {
 
     // MODIFIES: ppu
     // EFFECTS:  reads the ppu at the given register and returns the value.
-    public Address ppuRead(int pointer) {
+    public int ppuRead(int pointer) {
         return ppu.readRegister(pointer);
     }
 
     // REQUIRES: mapper is not null, caller is CPU
     // EFFECTS:  reads the mapper at the given pointer and returns the value.
-    public Address mapperReadCpu(int pointer) {
+    public int mapperReadCpu(int pointer) {
         try {
             return mapper.readMemoryCpu(pointer);
         } catch (NullPointerException e) {
-            return new Address(0);
+            return 0;
         }
     }
 
     // REQUIRES: mapper is not null, caller is PPU
     // EFFECTS:  reads the mapper at the given pointer and returns the value.
-    public Address mapperReadPpu(int pointer) {
+    public int mapperReadPpu(int pointer) {
         try {
             return mapper.readMemoryPpu(pointer);
         } catch (NullPointerException e) {
-            return new Address(0);
+            return 0;
         }
     }
 
     // MODIFIES: controller
     // EFFECTS:  reads the address in controller and returns the value.
-    public Address controllerRead(int pointer) {
+    public int controllerRead(int pointer) {
         if (controllerConnected && pointer == 0x4016) {
-            Address address = controller.poll();
+            int address = controller.poll();
             // System.out.println("POLLED: " + address);
             return address;
         } else {
-            return new Address(0);
+            return 0;
         }
     }
 

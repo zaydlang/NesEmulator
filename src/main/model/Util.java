@@ -47,12 +47,24 @@ public final class Util {
     }
 
     // EFFECTS: reverses the bits[0:numBits] in value and returns the reversal
-    public static int reverse(Integer value, int numBits) {
+    public static int reverse(int value, int numBits) {
         int newValue = 0;
         for (int i = 0; i < numBits; i++) {
             newValue += Util.getNthBit(value, i) * Math.pow(2, numBits - i - 1);
         }
 
         return newValue;
+    }
+
+    public static int wrapInt(int value, int lowerBound, int upperBound) {
+        while (value > upperBound) {
+            value -= upperBound + lowerBound + 1;
+        }
+
+        while (value < lowerBound) {
+            value += upperBound + lowerBound + 1;
+        }
+
+        return value;
     }
 }

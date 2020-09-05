@@ -1,6 +1,5 @@
 package ui.window;
 
-import model.Address;
 import model.Bus;
 import ui.MaxedQueue;
 
@@ -42,7 +41,7 @@ public class BreakpointViewer extends PixelWindow {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                bus.getCpu().addBreakpoint(new Address(Integer.parseInt(breakpoint.getText(), 16)));
+                bus.getCpu().addBreakpoint(Integer.parseInt(breakpoint.getText(), 16));
                 breakpoints.append("0x" + breakpoint.getText());
             } catch (Exception ex) {
                 // Do nothing

@@ -97,10 +97,6 @@ public class Address implements BusSerializable {
         this.value = rawValue;
     }
 
-    public Address getReference() {
-        return this;
-    }
-
     // EFFECTS: returns a string version of the Address of the format: value + delimiter + pointer + delimiter.
     @Override
     public String serialize(String delimiter) {

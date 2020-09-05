@@ -169,7 +169,7 @@ public class Display extends PixelWindow implements KeyListener {
                 }
             }
         };
-        schedule(cycleTask, CYCLING_FPS * 4);
+        schedule(cycleTask, CYCLING_FPS);
 /*
         scheduledExecutorService.scheduleAtFixedRate(
                 () -> {

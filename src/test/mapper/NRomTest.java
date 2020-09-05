@@ -28,7 +28,7 @@ public class NRomTest {
 
     @Test
     void testReadMemoryCpuOutOfBounds() {
-        assertEquals(0, nrom.readMemoryCpu(0x5FFF).getValue());
+        assertEquals(0, nrom.readMemoryCpu(0x5FFF));
     }
 
     @Test

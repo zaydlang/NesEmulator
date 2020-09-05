@@ -1,7 +1,5 @@
 package ui.controller;
 
-import model.Address;
-
 import java.awt.event.KeyEvent;
 
 public abstract class Controller {
@@ -60,7 +58,7 @@ public abstract class Controller {
         return keyMap[keyId].getControllerKey();
     }
 
-    public abstract Address poll();
+    public abstract int poll();
 
     public abstract void setPolling(boolean isPolling);
 

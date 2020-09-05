@@ -1,7 +1,5 @@
 package mapper;
 
-import model.Address;
-
 import java.util.Scanner;
 
 // Class NROM:
@@ -27,12 +25,12 @@ public class NRom extends Mapper {
     // MODIFIES: this
     // EFFECTS:  initialzies header, trainer, chrRom, and prgRom as empty arrays, and sets the NROM type to NROM-256.
     //           fills the prgRam with the initial state.
-    public NRom(Address[] prgRom, Address[] chrRom) {
+    public NRom(int[] prgRom, int[] chrRom) {
         super(prgRom, chrRom, ID);
 
-        prgRam  = new Address[PRG_RAM_SIZE];
+        prgRam  = new int[PRG_RAM_SIZE];
         for (int i = 0; i < PRG_RAM_SIZE; i++) {
-            prgRam[i] = new Address(INITIAL_PRG_RAM_STATE);
+            prgRam[i] = INITIAL_PRG_RAM_STATE;
         }
         isNRom128 = prgRom.length <= PRG_ROM_128_SIZE;
         enable();
@@ -42,9 +40,9 @@ public class NRom extends Mapper {
     // EFFECTS: returns the value of the memory at the given address.
     // see the table below for a detailed description of what is stored at which address.
     @Override
-    public Address readMemoryCpu(int address) {
+    public int readMemoryCpu(int address) {
         if (!getEnabled()) {
-            return new Address(0);
+            return 0;
         }
 
         // https://wiki.nesdev.com/w/index.php/NROM
@@ -53,12 +51,12 @@ public class NRom extends Mapper {
         // $8000 - $BFFF | $4000 | First 16 KB of ROM
         // $C000 - $FFFF | $4000 | Last 16 KB of ROM (for NROM-256). Else, this is a mirror of the first 16 KB.
         if (address < 0x6000) {            // Out of bounds
-            return new Address(0, address);
+            return 0;
         } else if (address <= 0x7FFF) {    // PRG RAM
             return prgRam[(address - 0x6000)];
         } else {                                                           // PRG ROM
             if (isNRom128) {
-                return prgRom[(address - 0x8000) % PRG_ROM_128_SIZE];
+                return prgRom[(address - 0x8000) & (PRG_ROM_128_SIZE - 1)];
             } else {
                 return prgRom[address - 0x8000];
             }
@@ -69,7 +67,7 @@ public class NRom extends Mapper {
     // EFFECTS: returns the value of the memory at the given address.
     // see the table below for a detailed description of what is stored at which address.
     @Override
-    public Address readMemoryPpu(int address) {
+    public int readMemoryPpu(int address) {
         return chrRom[address];
     }
 
@@ -89,11 +87,11 @@ public class NRom extends Mapper {
         // $C000 - $FFFF | $4000 | Last 16 KB of ROM (for NROM-256). Else, this is a mirror of the first 16 KB.
 
         if        (address < 0x6000) {    // Out of Bounds
-            throw new ArrayIndexOutOfBoundsException("Address out of bounds! NROM only supports addresses >= 0x6000");
+            throw new ArrayIndexOutOfBoundsException("int out of bounds! NROM only supports addresses >= 0x6000");
         } else if (address <= 0x7FFF) {   // PRG RAM
-            prgRam[address - 0x6000].setValue(rawValue);
+            prgRam[address - 0x6000] = (rawValue);
         } else {                                                         // PRG ROM. mirrored for NROM-128.
-            throw new ArrayIndexOutOfBoundsException("Cannot write to a Read-Only Address!");
+            throw new ArrayIndexOutOfBoundsException("Cannot write to a Read-Only int!");
         }
     }
 
@@ -102,16 +100,16 @@ public class NRom extends Mapper {
     public String serialize(String delimiter) {
         StringBuilder output = new StringBuilder();
         output.append(prgRom.length + delimiter);
-        for (Address address : prgRom) {
-            output.append(address.serialize(delimiter));
+        for (int address : prgRom) {
+            output.append(address + delimiter);
         }
         output.append(prgRam.length + delimiter);
-        for (Address address : prgRam) {
-            output.append(address.serialize(delimiter));
+        for (int address : prgRam) {
+            output.append(address + delimiter);
         }
         output.append(chrRom.length + delimiter);
-        for (Address address : chrRom) {
-            output.append(address.serialize(delimiter));
+        for (int address : chrRom) {
+            output.append(address + delimiter);
         }
         output.append(isNRom128 ? 1 : 0 + delimiter);
         return output.toString();
@@ -120,20 +118,17 @@ public class NRom extends Mapper {
     // EFFECTS: deserializes the NRom to restore it from a savestate
     @Override
     public void deserialize(Scanner scanner) {
-        prgRom = new Address[Integer.parseInt(scanner.next())];
+        prgRom = new int[Integer.parseInt(scanner.next())];
         for (int i = 0; i < prgRom.length; i++) {
-            prgRom[i] = new Address(0, 0);
-            prgRom[i].deserialize(scanner);
+            prgRom[i] = Integer.parseInt(scanner.next());
         }
-        prgRam = new Address[Integer.parseInt(scanner.next())];
+        prgRam = new int[Integer.parseInt(scanner.next())];
         for (int i = 0; i < prgRam.length; i++) {
-            prgRam[i] = new Address(0, 0);
-            prgRam[i].deserialize(scanner);
+            prgRam[i] = Integer.parseInt(scanner.next());
         }
-        chrRom = new Address[Integer.parseInt(scanner.next())];
+        chrRom = new int[Integer.parseInt(scanner.next())];
         for (int i = 0; i < chrRom.length; i++) {
-            chrRom[i] = new Address(0, 0);
-            chrRom[i].deserialize(scanner);
+            chrRom[i] = Integer.parseInt(scanner.next());
         }
         isNRom128 = scanner.next().equals("1");
         enable();

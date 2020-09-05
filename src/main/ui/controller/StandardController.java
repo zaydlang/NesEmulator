@@ -1,6 +1,5 @@
 package ui.controller;
 
-import model.Address;
 import model.Instruction;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,12 +26,12 @@ public class StandardController extends Controller {
     }
 
     @Override
-    public Address poll() {
+    public int poll() {
         if (pollingIndex >= keyState.length) {
-            return new Address(1);
+            return 1;
         }
 
-        Address result = new Address(keyState[pollingIndex] ? 1 : 0);
+        int result = (keyState[pollingIndex] ? 1 : 0);
         pollingIndex++;
         return result;
     }

@@ -58,11 +58,11 @@ public class BusReader {
     // REQUIRES: scanner has at least 10 delimited integers
     // EFFECTS: reads the scanner to set the CPU's registers
     private static void readCpuRegisters(CPU cpu, Scanner scanner) {
-        cpu.setRegisterA(getNextAddress(scanner).getValue());
-        cpu.setRegisterX(getNextAddress(scanner).getValue());
-        cpu.setRegisterY(getNextAddress(scanner).getValue());
-        cpu.setRegisterPC(getNextAddress(scanner).getValue());
-        cpu.setRegisterS(getNextAddress(scanner).getValue());
+        cpu.setRegisterA(getNextAddress(scanner));
+        cpu.setRegisterX(getNextAddress(scanner));
+        cpu.setRegisterY(getNextAddress(scanner));
+        cpu.setRegisterPC(getNextAddress(scanner));
+        cpu.setRegisterS(getNextAddress(scanner));
     }
 
     // REQUIRES: scanner has at least 1 delimited integer.
@@ -75,7 +75,7 @@ public class BusReader {
     // EFFECTS: reads the scanner to set the CPU's ram
     private static void readCpuRam(CPU cpu, Scanner scanner) {
         for (int i = 0; i < 0x0800; i++) {
-            cpu.writeMemory(i, getNextAddress(scanner).getValue());
+            cpu.writeMemory(i, getNextAddress(scanner));
         }
     }
 
@@ -108,19 +108,19 @@ public class BusReader {
     // REQUIRES: scanner has at least 4 * 2 delimited integers
     // EFFECTS: reads the scanner to set the PPU's latches
     private static void readPpuLatches(PPU ppu, Scanner scanner) throws IOException {
-        readSerializable(ppu.getLatchNametable(), scanner);
-        readSerializable(ppu.getLatchAttributeTable(), scanner);
-        readSerializable(ppu.getLatchPatternTableLow(), scanner);
-        readSerializable(ppu.getLatchPatternTableHigh(), scanner);
+        ppu.setLatchNametable(Integer.parseInt(scanner.next()));
+        ppu.setLatchAttributeTable(Integer.parseInt(scanner.next()));
+        ppu.setLatchPatternTableLow(Integer.parseInt(scanner.next()));
+        ppu.setLatchPatternTableHigh(Integer.parseInt(scanner.next()));
     }
 
     // REQUIRES: scanner has at least 4 * 2 delimited integers
     // EFFECTS: reads the scanner to set the PPU's internal registers
     private static void readPpuInternalRegisters(PPU ppu, Scanner scanner) throws IOException {
-        readSerializable(ppu.getRegisterT(), scanner);
-        readSerializable(ppu.getRegisterV(), scanner);
-        readSerializable(ppu.getRegisterX(), scanner);
-        readSerializable(ppu.getRegisterW(), scanner);
+        ppu.setRegisterT(Integer.parseInt(scanner.next()));
+        ppu.setRegisterV(Integer.parseInt(scanner.next()));
+        ppu.setRegisterX(Integer.parseInt(scanner.next()));
+        ppu.setRegisterW(Integer.parseInt(scanner.next()));
     }
 
     // REQUIRES: scanner has at least 4 * 2 delimited integers.
@@ -135,13 +135,13 @@ public class BusReader {
     // REQUIRES: scanner has at least 7 * 2 delimited integers.
     // EFFECTS: reads the scanner to set the PPU's registers
     private static void readPpuRegisters(PPU ppu, Scanner scanner) throws IOException {
-        readSerializable(ppu.peekPpuCtrl(), scanner);
-        readSerializable(ppu.peekPpuMask(), scanner);
-        readSerializable(ppu.peekPpuStatus(), scanner);
-        readSerializable(ppu.peekOamAddr(), scanner);
-        readSerializable(ppu.peekPpuScroll(), scanner);
-        readSerializable(ppu.peekPpuData(), scanner);
-        readSerializable(ppu.peekPpuDataBuffer(), scanner);
+        ppu.ppuCtrl = Integer.parseInt(scanner.next());
+        ppu.ppuMask = Integer.parseInt(scanner.next());
+        ppu.ppuStatus = Integer.parseInt(scanner.next());
+        ppu.oamAddr = Integer.parseInt(scanner.next());
+        ppu.ppuScroll = Integer.parseInt(scanner.next());
+        ppu.ppuData = Integer.parseInt(scanner.next());
+        ppu.ppuDataBuffer = Integer.parseInt(scanner.next());
     }
 
     // REQUIRES: scanner has at least 1 + 0x400 * 2 + 1 delimited integers.
@@ -149,7 +149,7 @@ public class BusReader {
     private static void readPpuNametables(PPU ppu, Scanner scanner) throws IOException {
         int length = Integer.parseInt(scanner.next());
         for (int i = 0; i < length; i++) {
-            readSerializable(ppu.getNametable()[i], scanner);
+            ppu.setNametable(i, Integer.parseInt(scanner.next()));
         }
 
         ppu.setNametableMirroring(Mirroring.valueOf(scanner.next()));
@@ -160,7 +160,7 @@ public class BusReader {
     private static void readPpuPaletteRamIndexes(PPU ppu, Scanner scanner) throws IOException {
         int length = Integer.parseInt(scanner.next());
         for (int i = 0; i < length; i++) {
-            ppu.getPaletteRamIndexes().getIndexes()[i].deserialize(scanner);
+            ppu.getPaletteRamIndexes().getIndexes()[i] = Integer.parseInt(scanner.next());
         }
     }
 
@@ -169,11 +169,11 @@ public class BusReader {
     private static void readPpuOam(PPU ppu, Scanner scanner) throws IOException {
         int primaryOamLength = Integer.parseInt(scanner.next());
         for (int i = 0; i < primaryOamLength; i++) {
-            readSerializable(ppu.getPrimaryOam()[i], scanner);
+            ppu.setPrimaryOam(i, Integer.parseInt(scanner.next()));
         }
         int secondaryOamLength = Integer.parseInt(scanner.next());
         for (int i = 0; i < secondaryOamLength; i++) {
-            readSerializable(ppu.getSecondaryOam()[i], scanner);
+            ppu.setSecondaryOam(i, Integer.parseInt(scanner.next()));
         }
     }
 
@@ -214,7 +214,7 @@ public class BusReader {
     }
 
     // EFFECTS: reads the scanner to get the next address.
-    private static Address getNextAddress(Scanner scanner) {
-        return new Address(Integer.parseInt(scanner.next()), Integer.parseInt(scanner.next()), 0, Integer.MAX_VALUE);
+    private static int getNextAddress(Scanner scanner) {
+        return Integer.parseInt(scanner.next());
     }
 }
