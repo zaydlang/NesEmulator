@@ -5,20 +5,22 @@ import model.Util;
 import ui.window.Display;
 
 public class APU {
-    public static final float  VOLUME           = 0.05f;
+    public static final float  VOLUME           = 0.10f;
     public static final int    SAMPLE_RATE      = 44100;
-    public static final double OFFSET_INCREMENT = SAMPLE_RATE / (double) Display.CYCLING_FPS;
+    public static final double OFFSET_INCREMENT = SAMPLE_RATE / (double) Display.APU_FPS;
 
     private PulseChannel    pulseChannel1;
     private PulseChannel    pulseChannel2;
+    private TriangleChannel triangleChannel;
 
     private int mode;
     // private boolean interruptInhibit;
     private int cycle;
 
     public APU() {
-        pulseChannel1 = new PulseChannel(0);
-        pulseChannel2 = new PulseChannel(4);
+        pulseChannel1   = new PulseChannel(0);
+        pulseChannel2   = new PulseChannel(4);
+        triangleChannel = new TriangleChannel();
 
         cycle = 0;
     }
@@ -59,23 +61,27 @@ public class APU {
     public void startDataLines() {
         pulseChannel1.startDataLine();
         pulseChannel2.startDataLine();
+        triangleChannel.startDataLine();
     }
 
     private void cycleLengthCounters() {
         pulseChannel1.cycleLengthCounter();
         pulseChannel2.cycleLengthCounter();
+        triangleChannel.cycleLengthCounter();
     }
 
     public void writeChannelMemory(int pointer, int value) {
         //System.out.println(Integer.toHexString(pointer));
         pulseChannel1.writeMemory(pointer, value);
         pulseChannel2.writeMemory(pointer, value);
+        triangleChannel.writeMemory(pointer, value);
     }
 
     public void writeMemory(int pointer, int value) {
         if        (pointer == 0x4015) {
-            pulseChannel2.setEnabled(Util.getNthBit(value,   1) == 1);
             pulseChannel1.setEnabled(Util.getNthBit(value,   0) == 1);
+            pulseChannel2.setEnabled(Util.getNthBit(value,   1) == 1);
+            triangleChannel.setEnabled(Util.getNthBit(value, 2) == 1);
         } else if (pointer == 0x4017) {
             this.mode             = Util.getNthBit(value, 7);
             // this.interruptInhibit = Util.getNthBit(value, 6) == 1;
@@ -86,12 +92,14 @@ public class APU {
     public void enable() {
         pulseChannel1.setEnabled(true);
         pulseChannel2.setEnabled(true);
+        triangleChannel.setEnabled(true);
     }
 
     // EFFECTS: called 60 times per second. advances the APU by one frame forward.
     public void frameCycle() {
         pulseChannel1.frameCycle();
-        pulseChannel2.frameCycle();
+        //pulseChannel2.frameCycle();
+        //triangleChannel.frameCycle();
     }
 
     public int getCycles() {

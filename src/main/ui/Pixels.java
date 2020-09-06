@@ -26,7 +26,10 @@ public class Pixels extends JPanel {
     private int pixelHeight;
     private int pixelsPerRow;
     private int pixelsPerCol;
-    private Color[][] pixels;
+
+    private Color[][] pixels;       // this array is the one that is actually repainted.
+    private Color[][] pixelsBuffer; // can be freely edited without fear of repainting mid-frame. can be copied over
+                                    // to pixels[][] using storeBuffer()
 
     public Pixels(int pixelWidth, int pixelHeight, int pixelsPerRow, int pixelsPerCol) {
         this.pixelWidth   = pixelWidth;
@@ -36,10 +39,12 @@ public class Pixels extends JPanel {
 
         setPreferredSize(new Dimension(getDisplayWidth(), getDisplayHeight()));
 
-        pixels = new Color[pixelsPerRow][pixelsPerCol];
+        pixels       = new Color[pixelsPerRow][pixelsPerCol];
+        pixelsBuffer = new Color[pixelsPerRow][pixelsPerCol];
         for (int i = 0; i < pixelsPerRow; i++) {
             for (int j = 0; j < pixelsPerCol; j++) {
-                pixels[i][j] = new Color(DEFAULT_COLOR.getRGB()); // Creates a copy of DEFAULT_COLOR
+                pixels      [i][j] = new Color(DEFAULT_COLOR.getRGB()); // Creates a copy of DEFAULT_COLOR
+                pixelsBuffer[i][j] = new Color(DEFAULT_COLOR.getRGB());
             }
         }
     }
@@ -66,7 +71,15 @@ public class Pixels extends JPanel {
 
     public void setPixel(int x, int y, Color color) {
         if (x >= 240 || y >= 256) return;
-        pixels[x][y] = color;
+        pixelsBuffer[x][y] = color;
+    }
+
+    public void storeBuffer() {
+        for (int col = 0; col < pixelsPerRow; col++) {
+            for (int row = 0; row < pixelsPerCol; row++) {
+                pixels[col][row] = pixelsBuffer[col][row];
+            }
+        }
     }
 
     public Color getPixel(int i, int j) {

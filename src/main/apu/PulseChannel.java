@@ -76,14 +76,14 @@ public class PulseChannel {
             }
         } else if (pointer + memoryOffset == 0x4002) {
             timer = Util.maskNthBits(value, timer, 0, 0, 8);
-            line.flush();
             generateTone();
+            line.flush();
         } else if (pointer + memoryOffset == 0x4003) {
             lengthCounterTimer = lengthCounterLoadTable[Util.getNthBits(value, 0, 5)];
             enabled = true;
             timer = Util.maskNthBits(value, timer, 0, 8, 3);
-            line.flush();
             generateTone();
+            line.flush();
         }
     }
 

@@ -219,8 +219,8 @@ public class PPU {
                     // get sprite zero's location
                     int sprite0Y = primaryOam[0];
 
+                    pixels.storeBuffer();
                     renderScreenNametables(sprite0Y >> 3, 32, pixels);
-                    pixels.repaint();
                 }
             } else if (241 <= scanline && scanline <= 260) { // Vertical Blanking Scanlines
                 runVerticalBlankingScanline();

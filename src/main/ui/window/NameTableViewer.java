@@ -21,7 +21,7 @@ public class NameTableViewer extends PixelWindow implements KeyListener {
     private int currentPalette;
 
     public NameTableViewer(Bus bus) {
-        super(bus, 1, 1, 32 * 8 * 2, 32 * 8 * 2 + 16 + CHOSEN_PALETTE_HEIGHT, "NameTables Viewer", true);
+        super(bus, 1, 1, 32 * 8 * 2, 32 * 8 * 2 + 16 + CHOSEN_PALETTE_HEIGHT, "NameTables Viewer");
 
         currentPalette = 0;
         addKeyListener(this);

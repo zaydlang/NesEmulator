@@ -4,7 +4,6 @@ import model.Bus;
 import ui.MaxedQueue;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Queue;
@@ -52,7 +51,7 @@ public class CpuViewer extends PixelWindow implements CpuOutput {
     private MaxedQueue<String> log;
 
     public CpuViewer(Bus bus) {
-        super(bus, 1, 1, 400 + 50, 400 + 100, "CPU Viewer", true);
+        super(bus, 1, 1, 400 + 50, 400 + 100, "CPU Viewer");
 
         textArea = new JTextArea(MAX_LOG_SIZE, 80);
         textArea.setFont(font);

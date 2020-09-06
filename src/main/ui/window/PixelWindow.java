@@ -15,13 +15,8 @@ public abstract class PixelWindow extends JFrame {
     protected TimerTask paintTask;
     private Timer timer;
 
-    // when this is on, the pixels class will auto-repaint itself.
-    // if not, it must be repainted manually.
-    private final boolean autoRefresh;
-
-    public PixelWindow(Bus bus, int pixelWidth, int pixelHeight, int pixelsPerRow, int pixelsPerCol, String name, final boolean autoRefresh) {
+    public PixelWindow(Bus bus, int pixelWidth, int pixelHeight, int pixelsPerRow, int pixelsPerCol, String name) {
         this.bus = bus;
-        this.autoRefresh = autoRefresh;
         pixels = new Pixels(pixelWidth, pixelHeight, pixelsPerRow, pixelsPerCol);
         add(pixels);
 
@@ -37,8 +32,7 @@ public abstract class PixelWindow extends JFrame {
             @Override
             public void run() {
                 repaint();
-                if (autoRefresh) // autorefresh is final, so this should be optimized by the compiler
-                    getPixels().repaint();
+                getPixels().repaint();
             }
         };
 

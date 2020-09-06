@@ -143,7 +143,7 @@ public class Display extends PixelWindow implements KeyListener {
     });
 
     public Display(Bus bus) throws IOException {
-        super(bus, 2, 2, 32 * 8, 30 * 8,  "NES Emulator", false);
+        super(bus, 2, 2, 32 * 8, 30 * 8,  "NES Emulator");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

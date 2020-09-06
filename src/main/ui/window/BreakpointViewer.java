@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Queue;
 
 public class BreakpointViewer extends PixelWindow {
     private static final String FONT_FILE    = "./data/resource/font/CONSOLA.ttf";
@@ -58,7 +57,7 @@ public class BreakpointViewer extends PixelWindow {
     private MaxedQueue<String> log;
 
     public BreakpointViewer(Bus bus) {
-        super(bus, 1, 1, 400 + 50, 400 + 100, "CPU Viewer", true);
+        super(bus, 1, 1, 400 + 50, 400 + 100, "CPU Viewer");
 
         breakpoints = new JTextArea(MAX_LOG_SIZE, 80);
         breakpoints.setFont(font);
