@@ -937,6 +937,8 @@ public class PPU {
                 }
             }
         }
+
+        pixels.storeBuffer();
     }
 
     // MODIFIES: pixels
@@ -967,6 +969,8 @@ public class PPU {
                 }
             }
         }
+
+        pixels.storeBuffer();
     }
 
     private void renderScreenNametables(int y1, int y2, Pixels pixels) {
@@ -1080,6 +1084,8 @@ public class PPU {
                 }
             }
         }
+
+        pixels.storeBuffer();
     }
 
     // REQUIRES: 0x0000 <= pointer <= 0x1FFF

@@ -71,15 +71,14 @@ public class PulseChannel {
             constantVolume    = Util.getNthBits(value, 4, 1);
             envelopeLoop      = Util.getNthBits(value, 5, 1);
             duty              = Util.getNthBits(value, 6, 2);
-            if (constantVolume == 0) {
-                lengthCounterTimer = 0;
-            }
         } else if (pointer + memoryOffset == 0x4002) {
             timer = Util.maskNthBits(value, timer, 0, 0, 8);
             generateTone();
             line.flush();
+            enabled = true;
+
         } else if (pointer + memoryOffset == 0x4003) {
-            lengthCounterTimer = lengthCounterLoadTable[Util.getNthBits(value, 0, 5)];
+            lengthCounterTimer = lengthCounterLoadTable[Util.getNthBits(value, 3, 5)];
             enabled = true;
             timer = Util.maskNthBits(value, timer, 0, 8, 3);
             generateTone();
@@ -139,7 +138,7 @@ public class PulseChannel {
     }
 
     public void cycleLengthCounter() {
-        if (lengthCounterTimer != 0 && !(constantVolume == 1)) {
+        if (lengthCounterTimer != 0 && envelopeLoop == 0) {
             lengthCounterTimer--;
         }
 
